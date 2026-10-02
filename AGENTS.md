@@ -1,4 +1,4 @@
-# <CLIENT> — Webflow custom code
+# MarketCap — Webflow custom code
 
 Agent instructions for this repository. Codex, Cursor and similar tools read
 this file directly; Claude Code reads it through `CLAUDE.md`. It is the single
@@ -6,15 +6,15 @@ source of agent rules — edit this file, never a copy of it.
 
 ## Project facts
 
-Fill these in when the repo is created from `brandvm/wf-template`.
+Filled in from `brandvm/wf-template` on 2026-10-02.
 
-- Client / site: `<CLIENT>`
-- GitHub: `brandvm/<REPO>`, default branch `master`
-- Webflow site ID: `<SITE_ID>`
-- Staging site: `https://<SLUG>.webflow.io`
-- Staging bundles: `https://brandvm.github.io/<REPO>/`
-- Production domain: `<DOMAIN or "not attached yet">`
-- Production release: `<RELEASE in the head snippet, or "none yet">`
+- Client / site: `MarketCap`
+- GitHub: `brandvm/marketcap`, default branch `master`
+- Webflow site ID: `6ac0183f4c3b275e72bfa228`
+- Staging site: `https://marketcap.webflow.io`
+- Staging bundles: `https://brandvm.github.io/marketcap/`
+- Production domain: not attached yet
+- Production release: none yet
 
 ## Who owns what
 

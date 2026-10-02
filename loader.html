@@ -1,6 +1,6 @@
 <!-- ============================================================
 Custom-code loading — three pieces, pasted into three different places
-in Webflow. Replace REPO (all occurrences, pieces 1 and 2). The release
+in Webflow. REPO is already set to "marketcap" (pieces 1 and 2). The release
 version lives in ONE place: RELEASE in piece 1.
 
   prod        = pinned jsDelivr tag (immutable)
@@ -53,7 +53,7 @@ published.
 <script>
   (function () {
     var RELEASE = null; // the release tag, e.g. "1.0.0" — the only version string
-    var SITE = "REPO"; // this repo's name
+    var SITE = "marketcap"; // this repo's name
     var STAG = "https://brandvm.github.io/" + SITE + "/";
     var DEV = "http://localhost:3000/";
     var staging = /\.webflow\.io$/.test(location.hostname);
@@ -124,7 +124,7 @@ published.
 <link
   id="bv-css"
   rel="stylesheet"
-  href="https://brandvm.github.io/REPO/styles.css?v=1"
+  href="https://brandvm.github.io/marketcap/styles.css?v=1"
 />
 <script>
   (function () {
