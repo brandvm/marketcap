@@ -5,6 +5,8 @@ import { readFileSync } from 'node:fs';
 // example link that must NOT be installed), REPO and RELEASE filled in.
 const source = readFileSync(new URL('../loader.html', import.meta.url), 'utf8')
   .replace(/<!--[\s\S]*?-->/g, '').replaceAll('REPO', 'wf-example');
+// Client repos fill REPO in, so read the name back rather than assume it.
+const repo = source.match(/var SITE = "([^"]+)"/)[1];
 if (!source.includes('var RELEASE = null;')) throw new Error('loader.html must ship with `var RELEASE = null;`');
 function loader(release) {
   const text = source.replace('var RELEASE = null;', `var RELEASE = ${JSON.stringify(release)};`);
@@ -16,9 +18,9 @@ function loader(release) {
 }
 const js = readFileSync(new URL('../dist/index.js', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../dist/styles.css', import.meta.url), 'utf8');
-const stage = 'https://brandvm.github.io/wf-example/';
+const stage = `https://brandvm.github.io/${repo}/`;
 const local = 'http://localhost:3000/';
-const release = 'https://cdn.jsdelivr.net/gh/brandvm/wf-example@1.0.0/dist/';
+const release = `https://cdn.jsdelivr.net/gh/brandvm/${repo}@1.0.0/dist/`;
 
 async function setup(page, {
   url = 'https://example.webflow.io/',

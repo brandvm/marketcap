@@ -23,6 +23,23 @@ repos to improve `brandvm/wf-template`.
 
 ## This project
 
+### 2026-10-02 · Filling in REPO in loader.html breaks the browser tests
+- Area: ci
+- Scope: template-candidate
+- Symptom: The first push after setup fails `pnpm test` with
+  `Expected: "https://brandvm.github.io/wf-example/"`, `Received:
+  ".../marketcap/"`, so staging never deploys.
+- Cause: `tests/environment-switcher.spec.mjs` replaced the `REPO`
+  placeholder with `wf-example` and hardcoded that name in `stage` and
+  `release`. The README checklist tells every project to fill in `REPO`,
+  so the replacement no longer happens and the hardcoded URLs no longer
+  match the bundle's.
+- Fix: the test reads the repo name back from `var SITE = "…"` in the
+  loader and builds `stage`/`release` from it. That works whether or not
+  REPO has been filled in.
+- Status: fixed in this repo (same commit as this entry); not upstreamed
+- Found by: claude
+
 <!-- Add new entries here, newest first. -->
 
 ## Known from previous projects
