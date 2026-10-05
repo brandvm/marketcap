@@ -1,0 +1,229 @@
+/* selector the Designer can't target · new-classes.css:117 */
+.nav-logo svg { display: block; width: 100%; height: auto; }
+/* selector the Designer can't target · new-classes.css:128 */
+.hero-copy .button { margin-top: var(--_spacing---8); }
+/* selector the Designer can't target · new-classes.css:137 */
+.hero-card:hover .hero-card-img { transform: scale(1.06); }
+/* selector the Designer can't target · new-classes.css:150 */
+.story-statement [data-line] { display: block; }
+/* selector the Designer can't target · new-classes.css:155 */
+.stat-card .step { position: absolute; top: var(--_spacing---16); right: var(--_spacing---16); }
+/* selector the Designer can't target · new-classes.css:156 */
+.stat-card .caption { align-self: flex-end; text-align: right; white-space: pre-line; font-size: var(--_typography-scale---size--16); line-height: 1.2; }
+/* selector the Designer can't target · new-classes.css:179 */
+.timeline-item.is-active .timeline-image { width: 21.125em; margin-right: 1.75em; opacity: 1; }
+/* selector the Designer can't target · new-classes.css:183 */
+.timeline-item.is-active .timeline-line { height: 13em; }
+/* repo-css: designer-cant — gradient layers have no size/tile in the Designer, and Custom properties refuse background-*. The gradient itself (Field 0–17.65%, then transparent) is set in the Designer on Timeline List; this tiles it into 3px ticks every 17px · new-classes.css:170 (MANUAL-TODO #5) */
+.timeline-list { background-size: 17px 1em; background-repeat: repeat-x; }
+/* selector the Designer can't target · new-classes.css:192 */
+.dev-head .button { justify-self: end; margin-top: 6.5em; }
+/* selector the Designer can't target · new-classes.css:211 */
+.approach-copy .d2 { max-width: 12em; }
+/* selector the Designer can't target · new-classes.css:212 */
+.approach-copy p { max-width: 33.125em; }
+/* selector the Designer can't target · new-classes.css:239 */
+.footer-links a { color: inherit; text-decoration: none; }
+/* selector the Designer can't target · new-classes.css:240 */
+.footer-links a:hover { color: var(--_colors---brand--clay); }
+/* selector the Designer can't target · new-classes.css:244 */
+.footer-legal a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+/* only sets a script variable · new-classes.css:258 */
+.caps { --cap-y: calc(100% - 26.905vw); }
+/* selector the Designer can't target · new-classes.css:260 */
+.story .guides-v { left: var(--gx, 34.2%); }
+/* value set by script / not expressible · new-classes.css:261 */
+.story-guide-h { top: var(--gy, calc(100% - 26.905vw)) }
+/* value set by script / not expressible · new-classes.css:262 */
+.story-guide-m { left: var(--gx, 34.2%); top: var(--gy, calc(100% - 26.905vw)) }
+/* value set by script / not expressible · new-classes.css:263 */
+.story-guide-x { left: calc(var(--gx, 34.2%) + 1em); top: calc(var(--gy, calc(100% - 26.905vw)) - 1.5em) }
+/* value set by script / not expressible · new-classes.css:264 */
+.story-guide-y { left: calc(var(--gx, 34.2%) - 3.4em); top: calc(var(--gy, calc(100% - 26.905vw)) + 0.7em) }
+/* selector the Designer can't target · new-classes.css:275 */
+.stat-card .step { color: var(--_colors---brand--clay); }
+/* value set by script / not expressible · new-classes.css:278 */
+.section.caps { min-height: calc(var(--cap-y) + 65.8vw * 452 / 1106) }
+/* value set by script / not expressible · new-classes.css:279 */
+.mark-figure.is-caps { top: var(--cap-y) }
+/* tagged repo-css · new-classes.css:297 */
+.mask-mark { -webkit-mask-image: url(/assets/mark-mask.svg);
+  mask-image: url(/assets/mark-mask.svg);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: var(--mask-w, 100%) var(--mask-h, 100%);
+  mask-size: var(--mask-w, 100%) var(--mask-h, 100%);
+  -webkit-mask-position: var(--mask-x, 0) var(--mask-y, 0);
+  mask-position: var(--mask-x, 0) var(--mask-y, 0); }
+/* tagged repo-css · new-classes.css:309 */
+.story.is-static .story-pin { height: auto; overflow: visible; }
+/* tagged repo-css · new-classes.css:310 */
+.story.is-static [data-story-media] { -webkit-mask: none; mask: none; }
+/* tagged repo-css · new-classes.css:311 */
+.story.is-static .story-statement { position: relative; inset: auto; transform: none; padding: var(--_layout---section--padding-v) var(--_layout---section--padding-h) 0; }
+/* tagged repo-css · new-classes.css:311 */
+.story.is-static .story-stats { position: relative; inset: auto; transform: none; padding: var(--_layout---section--padding-v) var(--_layout---section--padding-h) 0; }
+/* tagged repo-css · new-classes.css:313 */
+.story.is-static .story-about { padding-bottom: var(--_layout---section--padding-v); background-color: var(--_colors---brand--chalk); }
+/* tagged repo-css · new-classes.css:314 */
+.story.is-static .story-stats { padding-bottom: var(--_layout---section--padding-v); }
+/* selector the Designer can't target · new-classes.css:322 · @991 */
+.nav-menu .nav-link { font-size: var(--_typography-role---size--h3); line-height: 1.15; letter-spacing: -0.02em; }
+/* selector the Designer can't target · new-classes.css:327 · @991 */
+.dev-head .button { justify-self: start; margin-top: 0; }
+/* tagged repo-css · new-classes.css:339 · @767 */
+.timeline-list { flex-direction: column; align-items: stretch; width: auto; padding: 0; gap: 3em; background: none; transform: none !important; }
+/* tagged repo-css · new-classes.css:354 */
+.g-nav-w.is-solid { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
+/* tagged repo-css · new-classes.css:354 */
+.g-nav-w.is-open { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
+/* tagged repo-css · new-classes.css:355 */
+.g-nav-w.is-solid .nav-button { --_colors-semantic---button--background: var(--_colors---brand--ironstone); --_colors-semantic---button--foreground: var(--_colors---brand--kolin); --_colors-semantic---button--background-hover: var(--_colors---brand--clay); --_colors-semantic---button--foreground-hover: var(--_colors---brand--kolin); }
+/* tagged repo-css · new-classes.css:355 */
+.g-nav-w.is-open .nav-button { --_colors-semantic---button--background: var(--_colors---brand--ironstone); --_colors-semantic---button--foreground: var(--_colors---brand--kolin); --_colors-semantic---button--background-hover: var(--_colors---brand--clay); --_colors-semantic---button--foreground-hover: var(--_colors---brand--kolin); }
+/* selector the Designer can't target · new-classes.css:363 */
+.cap-item .marker { width: 0.5833em; height: 0.625em; }
+/* tagged repo-css · new-classes.css:370 */
+html.is-loading [data-hero-item] { visibility: hidden; }
+/* tagged repo-css · new-classes.css:373 */
+.g-nav-w { transition: transform 450ms cubic-bezier(0.64, 0.05, 0, 1), background-color 300ms ease, color 300ms ease; will-change: transform; }
+/* tagged repo-css · new-classes.css:374 */
+.g-nav-w.is-hidden { transform: translateY(-100%); }
+/* tagged repo-css · new-classes.css:376 · @rm */
+.g-nav-w { transition: none; }
+/* tagged repo-css · new-classes.css:379 */
+.nav-menu { transition: opacity 300ms ease, transform 450ms cubic-bezier(0.64, 0.05, 0, 1), visibility 0s linear 450ms; }
+/* tagged repo-css · new-classes.css:380 */
+.g-nav-w.is-open .nav-menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+/* tagged repo-css · new-classes.css:381 */
+.g-nav-w.is-open .nav-toggle-line:nth-child(2) { transform: translateY(0.21875em) rotate(45deg); }
+/* tagged repo-css · new-classes.css:382 */
+.g-nav-w.is-open .nav-toggle-line:nth-child(3) { transform: translateY(-0.21875em) rotate(-45deg); }
+/* tagged repo-css · new-classes.css:383 */
+html.is-menu-open { overflow: hidden; }
+/* tagged repo-css · new-classes.css:385 · @rm */
+.nav-menu { transition: none; }
+/* tagged repo-css · new-classes.css:385 · @rm */
+.nav-toggle-line { transition: none; }
+/* tagged repo-css · new-classes.css:388 */
+[tabindex="-1"]:focus { outline: none; }
+/* tagged repo-css · new-classes.css:401 */
+.button { position: relative; transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, box-shadow 150ms ease, border-radius 350ms cubic-bezier(0.64, 0.05, 0, 1); }
+/* tagged repo-css · new-classes.css:402 */
+.button::before { content: ""; position: absolute; pointer-events: none;
+  border: 0 solid var(--_colors-semantic---button--background); opacity: 0.55;
+  transition: transform 500ms cubic-bezier(0.64, 0.05, 0, 1); }
+/* tagged repo-css · new-classes.css:402 */
+.button::after { content: ""; position: absolute; pointer-events: none;
+  border: 0 solid var(--_colors-semantic---button--background); opacity: 0.55;
+  transition: transform 500ms cubic-bezier(0.64, 0.05, 0, 1); }
+/* tagged repo-css · new-classes.css:407 */
+.button::before { top: -1px; bottom: -1px; left: -0.75em; right: -0.75em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
+/* tagged repo-css · new-classes.css:408 */
+.button::after { left: -1px; right: -1px; top: -0.75em; bottom: -0.75em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
+/* tagged repo-css · new-classes.css:409 */
+.button:hover { border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+/* tagged repo-css · new-classes.css:409 */
+.button:focus-visible { border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+/* tagged repo-css · new-classes.css:410 */
+.button:hover::before { transform: scaleX(1); }
+/* tagged repo-css · new-classes.css:410 */
+.button:focus-visible::before { transform: scaleX(1); }
+/* tagged repo-css · new-classes.css:411 */
+.button:hover::after { transform: scaleY(1); }
+/* tagged repo-css · new-classes.css:411 */
+.button:focus-visible::after { transform: scaleY(1); }
+/* tagged repo-css · new-classes.css:412 */
+.button.cursor-button { position: absolute; --_colors-semantic---button--background: var(--_colors---brand--kolin); border-radius: 0 !important; background-color: rgb(38 11 7 / 0.18); }
+/* selector the Designer can't target · new-classes.css:416 */
+.cursor-button::before { transition-delay: 150ms; }
+/* selector the Designer can't target · new-classes.css:416 */
+.cursor-button::after { transition-delay: 150ms; }
+/* selector the Designer can't target · new-classes.css:417 */
+.cursor-button::after { transition-delay: 230ms; }
+/* selector the Designer can't target · new-classes.css:418 */
+[data-cursor-area]:hover .cursor-button::before { transform: scaleX(1); }
+/* selector the Designer can't target · new-classes.css:419 */
+[data-cursor-area]:hover .cursor-button::after { transform: scaleY(1); }
+/* tagged repo-css · new-classes.css:421 · @rm */
+.button::before { transition: none; }
+/* tagged repo-css · new-classes.css:421 · @rm */
+.button::after { transition: none; }
+/* tagged repo-css · new-classes.css:433 */
+.icon-box { position: relative; transition: border-radius 350ms cubic-bezier(0.64, 0.05, 0, 1), background-color 200ms ease, box-shadow 150ms ease; }
+/* tagged repo-css · new-classes.css:434 */
+.icon-box::before { content: ""; position: absolute; pointer-events: none; border: 0 solid var(--_colors---brand--ironstone); opacity: 0.55; transition: transform 500ms cubic-bezier(0.64, 0.05, 0, 1); }
+/* tagged repo-css · new-classes.css:434 */
+.icon-box::after { content: ""; position: absolute; pointer-events: none; border: 0 solid var(--_colors---brand--ironstone); opacity: 0.55; transition: transform 500ms cubic-bezier(0.64, 0.05, 0, 1); }
+/* tagged repo-css · new-classes.css:435 */
+.icon-box::before { top: -1px; bottom: -1px; left: -0.5em; right: -0.5em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
+/* tagged repo-css · new-classes.css:436 */
+.icon-box::after { left: -1px; right: -1px; top: -0.5em; bottom: -0.5em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
+/* tagged repo-css · new-classes.css:437 */
+.hero-card:hover .icon-box { border-radius: 0; background-color: var(--_colors---brand--clay); }
+/* tagged repo-css · new-classes.css:437 */
+.hero-card:focus-visible .icon-box { border-radius: 0; background-color: var(--_colors---brand--clay); }
+/* tagged repo-css · new-classes.css:438 */
+.hero-card:hover .icon-box::before { transform: scaleX(1); }
+/* tagged repo-css · new-classes.css:438 */
+.hero-card:focus-visible .icon-box::before { transform: scaleX(1); }
+/* tagged repo-css · new-classes.css:439 */
+.hero-card:hover .icon-box::after { transform: scaleY(1); }
+/* tagged repo-css · new-classes.css:439 */
+.hero-card:focus-visible .icon-box::after { transform: scaleY(1); }
+/* selector the Designer can't target · new-classes.css:443 */
+.icon-box:hover::before { transform: scaleX(1); }
+/* selector the Designer can't target · new-classes.css:444 */
+.icon-box:hover::after { transform: scaleY(1); }
+/* tagged repo-css · new-classes.css:446 · @rm */
+.hero-card-img { transition: none; }
+/* tagged repo-css · new-classes.css:446 · @rm */
+.icon-box::before { transition: none; }
+/* tagged repo-css · new-classes.css:446 · @rm */
+.icon-box::after { transition: none; }
+/* tagged repo-css · new-classes.css:446 · @rm */
+.hero-card:hover .hero-card-img { transform: none; }
+/* selector the Designer can't target · new-classes.css:452 */
+.footer-legal a:active { opacity: 0.55; }
+/* selector the Designer can't target · new-classes.css:452 */
+.footer-links a:active { opacity: 0.55; }
+/* tagged repo-css · new-classes.css:455 */
+[data-cursor-area]:active .cursor-button { box-shadow: inset 0 0 0 100vmax rgb(0 0 0 / 0.16); }
+/* tagged repo-css · new-classes.css:456 */
+.cta-copy p { max-width: 35.625em; }
+/* tagged repo-css · new-classes-pages.css:82 */
+.gallery-item:hover .gallery-media { transform: scale(1.03); }
+/* selector the Designer can't target · new-classes-pages.css:92 */
+.lightbox:not([open]) { display: none; }
+/* selector the Designer can't target · new-classes-pages.css:109 */
+.icon-box[disabled] { opacity: 0.35; cursor: default; pointer-events: none; }
+/* selector the Designer can't target · new-classes-pages.css:115 */
+.map-card .label-text { align-self: flex-start; }
+/* tagged repo-css · new-classes-pages.css:172 */
+.form-choice:has(.form-choice-input:checked) { color: var(--_colors-semantic---text--primary); text-decoration: underline; text-underline-offset: 0.25em; }
+/* tagged repo-css · new-classes-pages.css:173 */
+.form-choice:has(.form-choice-input:focus-visible) { outline: 2px solid var(--_colors-semantic---form--focus); outline-offset: 3px; }
+/* tagged repo-css · new-classes-pages.css:176 */
+.select.is-open .select-icon { transform: rotate(180deg); }
+/* tagged repo-css · new-classes-pages.css:177 */
+.select.is-up .select-list { top: auto; bottom: calc(100% + var(--_spacing---4)); }
+/* tagged repo-css · new-classes-pages.css:180 */
+.select-list[popover] { position: fixed; inset: auto; margin: 0; min-width: 0; }
+/* tagged repo-css · new-classes-pages.css:181 */
+.select-list[popover]:not(:popover-open) { display: none; }
+/* tagged repo-css · new-classes-pages.css:182 */
+.select-option.is-active { background-color: var(--_colors---brand--chalk); }
+/* tagged repo-css · new-classes-pages.css:183 */
+.select-option[aria-selected="true"] { color: var(--_colors---brand--clay); }
+/* tagged repo-css · new-classes-pages.css:186 */
+.select-input:focus-visible { outline: none; }
+/* tagged repo-css · new-classes-pages.css:187 */
+.select-toggle:has(.select-input:focus-visible) { outline: 2px solid var(--_colors-semantic---form--focus); outline-offset: 3px; }
+/* tagged repo-css · new-classes-pages.css:189 */
+.lightbox::backdrop { background-color: rgb(38 11 7 / 0.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+/* tagged repo-css · new-classes-pages.css:191 */
+.slider-track::-webkit-scrollbar { display: none; }
+/* tagged repo-css · new-classes-pages.css:191 */
+.lightbox-thumbs::-webkit-scrollbar { display: none; }
+/* selector the Designer can't target · style-guide.css:62 · @767 */
+.sg-table-row > :first-child { grid-column: 1 / -1; }

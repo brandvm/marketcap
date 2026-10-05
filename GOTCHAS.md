@@ -23,6 +23,62 @@ repos to improve `brandvm/wf-template`.
 
 ## This project
 
+### 2026-10-02 · Only one collection can take breakpoint auto-modes
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `create_variable_mode` with `breakpoint_id` worked for Typography
+  Role, then failed for Layout with `[Conflict] The operation could not be
+  applied to the style block store` (BATCH_FAILED), even for one mode alone.
+- Cause: unconfirmed — most likely a breakpoint can drive the auto-mode of
+  one collection only, and Typography Role already held medium/small/tiny.
+- Fix: Layout modes created without `breakpoint_id`; the Body tag style sets
+  the Layout mode at Tablet, Mobile Landscape and Mobile instead (the
+  ThreeStars/Reformd pattern). Either do the same for every responsive
+  collection, or pick the one collection that gets auto-modes up front.
+- Status: open
+- Found by: claude
+
+### 2026-10-02 · Style MCP rejects variables on row-gap / column-gap
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `create_style` failed with `Property row-gap does not support
+  setting a variable of type length`; the failure also blocked every combo
+  of that class (`Parent style "S Wrapper" not found`).
+- Cause: the MCP only accepts variables on the legacy gap names.
+- Fix: bind `grid-row-gap` / `grid-column-gap` instead — they render as
+  `row-gap` / `column-gap` on flex and grid alike.
+- Status: open
+- Found by: claude
+
+### 2026-10-02 · "Label" is a reserved class name
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `Style with name Label is reserved and cannot be used`.
+- Cause: Webflow reserves names of its own elements.
+- Fix: class is `Label Text` (same as ThreeStars); the Typography Styles
+  mode stays `Label`. Update 2026-10-05: only the API refuses the name —
+  a `Label` class can be created in the Designer (see the Form entry).
+- Status: fixed
+- Found by: claude
+
+### 2026-10-02 · Tag styles other than body are unreachable by MCP
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `update_style` on `h1` / `All H1 Headings` → `Style "h1" not
+  found`; `create_style` would only make a class.
+- Cause: Webflow creates heading/paragraph/link tag styles lazily, the first
+  time they are styled in the Designer. `body` exists from the start.
+- Fix: set All H1–H6 Headings and All Paragraphs (margin 0) and All Links
+  (color inherit) once in the Designer; after that the MCP can update them.
+  Confirmed 2026-10-05: just selecting the tag in the Selector field does
+  not create the style. A property must be set. Once it is, the style is
+  addressable as `h1` (id `default-h1`) and up, `p` and `a`. It
+  carries Webflow's defaults (h1 38px / 700 / margin-bottom 10px), and
+  `set_style_variable_mode` works on it. `get_styles` lists only `body`
+  until then.
+- Status: workaround confirmed
+- Found by: claude
+
 ### 2026-10-02 · Filling in REPO in loader.html breaks the browser tests
 - Area: ci
 - Scope: template-candidate
@@ -41,6 +97,199 @@ repos to improve `brandvm/wf-template`.
 - Found by: claude
 
 <!-- Add new entries here, newest first. -->
+
+### 2026-10-05 · `mode_id: "base"` fails on variable updates
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `update_*_variable` with `mode_id: "base"` returned `An internal
+  error occurred` (OPERATION_FAILED) for every variable, while the same
+  call with a named mode id (Tablet, Mobile…) succeeded. `get_variables`
+  does list the default mode as `modeId: "base"`.
+- Cause: the update API does not accept the id it reports for the
+  default mode.
+- Fix: omit `mode_id` to write the Base mode value. Checked: the other
+  modes' values stay as they were.
+- Status: open
+- Found by: claude
+
+### 2026-10-05 · Style values containing `var()` collapse to one variable
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `create_style` with `property_value`
+  `calc(var(--_layout---section--padding-h) * -1)` stored a plain binding
+  to Section/Padding H (positive). A `linear-gradient(…var(--a)…, var(--b))`
+  and a `box-shadow: 0 0 0 1em var(--c)` both stored only the first
+  variable. The call reports success.
+- Cause: the API detects a Webflow variable name in the value string and
+  replaces the whole value with a binding to the first variable it
+  finds.
+- Fix: never send a value that mixes `var()` with math, gradients or
+  shadows. Bind single variables with `variable_as_value`; set calc,
+  gradient and shadow values that reference variables in the Designer
+  (variable picker), and read them back.
+  Update 2026-10-05: the read side is lossy as well. Kajal's
+  Designer-entered `calc(⟨Section/Padding H⟩ * -1)` on Slider Track and
+  `calc(100% + ⟨Spacing/4⟩)` on Select List both read back through
+  `query_styles` as a plain `{id}` binding. A calc value therefore can't
+  be confirmed through the MCP; check it on the canvas.
+- Status: open
+- Found by: claude
+
+### 2026-10-05 · "Form" is a reserved class name; outline-width takes no variable
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `create_style` "Form" → `Style with name Form is reserved and
+  cannot be used` (like "Label"). `outline-width` bound to Spacing/2 →
+  `Property outline-width does not support setting a variable of type
+  length`; the whole create failed.
+- Cause: Webflow reserves its element names; the style API only accepts
+  variables on some length properties (see the row-gap entry above).
+- Fix: the reservation is on API create only. Kajal created "Form" (and
+  "Label") in the Designer, after which `update_style` styled Form
+  normally. So: create a reserved name in the Designer, then style it
+  through the MCP. Outline width set as the literal 0.125em (Spacing/2's
+  value) on Gallery Thumb › Is Active.
+- Status: workaround confirmed
+- Found by: claude
+
+### 2026-10-05 · WHTML importer: classes, forms, images and limits
+- Area: mcp
+- Scope: template-candidate
+- Symptom: Building the style guide with `data_whtml_builder` turned up
+  the following (it contradicts the "importer drops class attributes"
+  line in AGENTS.md › Webflow MCP limits):
+  - classes are kept, mapped onto existing styles by slug;
+  - an element whose class list has no existing combo chain (e.g.
+    `section is-ironstone is-hero`) gets a new, empty combo entry, named
+    with the lowercase slug (`is-hero`);
+  - `<label>`, `<input>`, `<select>`, `<textarea>` outside a `<form>` reject
+    the whole batch ("Field Label can only be placed in a Form");
+  - a `<form class="form">` becomes FormWrapper › FormForm with the class
+    on the wrapper;
+  - `<img src>` pointing at the site's own CDN asset URL is inserted
+    without an asset link ("not found in the asset library");
+  - DOM elements (svg, figcaption, dialog) also keep a literal `class`
+    attribute next to their styles;
+  - one root element per action, at most 5 actions per call; ~15 KB per
+    action worked, an 80 KB section dropped the socket (xhr poll error);
+  - every `<span>` becomes a text Span, including empty decorative shapes
+    (timeline dot/line, guide lines, markers). Kajal flagged these. Use
+    `<div>` for shapes in import markup, and keep `<span>` only for
+    inline text or where HTML requires it (inside `<button>`).
+- Cause: importer behaviour; the asset lookup does not match CDN URLs.
+- Fix:
+  - the empty combo chains are how Webflow stores 3+ classes, so they
+    are harmless;
+  - wrap form controls in a `<form>`, then move the class to FormForm and
+    clear the wrapper with `set_style`;
+  - bind images afterwards with `set_image_asset` (asset id = the 24-hex
+    prefix of the CDN filename);
+  - split big sections into a shell plus one action per child;
+  - to swap a Span for a Div Block: insert the `<div>` "before" the span,
+    `move_element` its children in (images keep their asset), then
+    remove the span. Done for 32 shapes on the style guide.
+  - AGENTS.md's importer line should be corrected (not edited here: agent
+    rules change only with the user's OK).
+- Status: open
+- Found by: claude
+
+### 2026-10-05 · A two-class combo can't be edited from a three-class element
+- Area: designer
+- Scope: template-candidate
+- Symptom: The value for Section + Is Hero had to be entered, but every
+  hero element is Section + Is Ironstone + Is Hero. Selecting it in the
+  Designer edits the chain `.section.is-ironstone.is-hero`, which would
+  not reach a plain `section is-hero`.
+- Cause: Webflow edits the exact chain on the selected element.
+- Fix: in the selector field, remove the extra class (Is Ironstone), set
+  the value on Section › Is Hero, then add the class back. The CSS
+  `.section.is-hero` still matches the three-class element on the page.
+  When planning combos, keep shared values on the shortest chain.
+- Status: documented
+- Found by: human
+
+### 2026-10-05 · Gradient layers have no size/tile in the Designer
+- Area: designer
+- Scope: template-candidate
+- Symptom: A repeating tick pattern (`repeating-linear-gradient`) could
+  not be built in the Designer. Gradient layers offer no size or tile
+  settings, and Custom properties refuse `background-size`,
+  `background-repeat` and `background-image` (native properties).
+- Cause: Webflow only exposes size/tile on image layers, and has no
+  repeating gradient.
+- Fix: Kajal builds the gradient in the Designer with hard stops
+  (0% → 17.65% Field, then transparent). The tiling
+  (`background-size: 17px 1em; background-repeat: repeat-x`) goes in
+  repo CSS, tagged `designer-cant`. The MCP could write it into the class
+  (`update_style` accepts it), but nothing in the Designer would show it,
+  so it would be a hidden override. Kajal chose the repo.
+- Status: workaround confirmed
+- Found by: human
+
+### 2026-10-05 · Horizontal scrollers drag vertically
+- Area: css
+- Scope: template-candidate
+- Symptom: Slider Track could be dragged up and down while scrolling.
+- Cause: with `overflow-x: auto` and `overflow-y` left at visible, CSS
+  computes `overflow-y` as auto, so any small vertical overflow scrolls.
+  The prototype rule had the same gap.
+- Fix: set `overflow-y: hidden` in the Designer on every horizontal
+  scroller (Slider Track, Lightbox Thumbs).
+- Status: fixed (Webflow styles, 2026-10-05)
+- Found by: human
+
+### 2026-10-05 · Component props: what the MCP can and can't wire
+- Area: mcp
+- Scope: template-candidate
+- Symptom: Building components through the MCP showed these limits:
+  - `transform_element_to_component`, `create_prop`, prop bindings
+    (`set_settings` with a prop source: text, link, image, alt, DOM id,
+    attribute values), variants with `set_variant_styles`, and
+    `ComponentSlot` creation all work;
+  - a Span's text can't be bound (no `text` setting). Only Text Block,
+    Paragraph, Heading, Link and Button text can;
+  - a slot can't be renamed (`update_prop`: "not an updatable prop
+    type"), and elements can't be moved into an instance's slot ("Anchor
+    element not found");
+  - `insert_component_instance` can't use an instance as the
+    before/after anchor. Append to the parent instead;
+  - there is no prop type for a heading tag;
+  - an image prop has no default. Instances show no image until
+    `set_component_instance_prop_values` sets the asset id (type
+    `string`). A variant is set the same way, through the "Variant" prop
+    with the variant id.
+- Cause: MCP surface limits.
+- Fix: build bindable text as `<div>` (Text Block), not `<span>`. Rename
+  slots and fill them in the Designer (MANUAL-TODO F–G).
+- Status: open
+- Found by: claude
+
+### 2026-10-05 · Style guide previews lack the script hooks
+- Area: designer
+- Scope: project
+- Symptom: The generated style-guide CTA had no `id="mark"` on the SVG
+  path, so its `<use>` lines drew nothing, and it had no
+  `data-brand-lines`. The dev cards had no `data-dev-card` or
+  `data-count`.
+- Cause: `scripts/gen-style-guide.py` copies markup without ids or
+  `data-*` attributes.
+- Fix: build Components from the real page markup (`index.html`, the
+  project template), not from the style-guide previews.
+- Status: documented
+- Found by: claude
+
+### 2026-10-05 · Sitemap indexing API is plan-gated
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `update_page_sitemap_status` → 403 `Site plan doesn't support
+  sitemap indexing controls`.
+- Cause: the site has no site plan yet. It is being built on the
+  freelancer Workspace plan, and both the API and the Designer toggle need a
+  site plan.
+- Fix: exclude pages from the sitemap and site search in Page settings;
+  add `noindex` via page head code. Tracked in MANUAL-TODO.md (A–C).
+- Status: open
+- Found by: claude
 
 ## Known from previous projects
 
