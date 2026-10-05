@@ -1,6 +1,6 @@
 # MarketCap Webflow build — session handoff
 
-Last updated 2026-10-05 (end of day). Read this first when resuming on a
+Last updated 2026-10-05 (end of day, second push). Read this first when resuming on a
 new machine, then `AGENTS.md`, `GOTCHAS.md` and the two files next to this
 one:
 
@@ -43,7 +43,7 @@ original machine (or a private share) if you need the reference.
 | 2 | Native tag styles (H1–H6, p, a) | Done |
 | 3 | Classes from CLASSES.md | Done; 23 calc/gradient values entered manually by Kajal |
 | 4 | Style guide page | Done; previews 1–13 + anatomy; nav-state previews left out (Kajal) |
-| 5 | Components | **In progress** — see below |
+| 5 | Components | **In progress**: 8 of 10 done; Plans Slider half-built, Searchable Select left |
 | 6 | CMS (Developments, Milestones) | Not started (Kajal approved doing it) |
 | 7 | Home page | Not started |
 | 8 | Inner pages (Developments, Development template, Contact) | Not started |
@@ -57,7 +57,7 @@ Built (ids are component ids):
 
 | Component | Id | Props / notes |
 |---|---|---|
-| Nav (Global) | `722d79d0-a781-bebe-927c-95abea6d8b6f` | G \| Nav W › G \| Nav (nav) › Nav Component. Toggle is now a real `<button>`. |
+| Nav (Global) | `722d79d0-a781-bebe-927c-95abea6d8b6f` | G \| Nav W › G \| Nav (nav) › Nav Component. Toggle is a real `<button>`. |
 | Footer (Global) | `e5c41852-4c9b-7995-afff-4609aa305c82` | Newsletter class on the FormForm. Logo asset `6ac4173ae27b5fba958aeb48`. |
 | Closing CTA (Sections) | `7d517192-6e85-cab8-5eea-974a1c919e13` | Heading, Text, Button Link, Anchor ID; variant Reversed `8c46e651-a853-052d-0495-355e2a3d765f`. Built from Home markup (has `id="mark"` + `data-brand-lines`). |
 | Photo Band (Sections) | `fb7d0108-1312-fb00-e7b4-aeed40553e42` | Image, Value, Caption (also aria-label). |
@@ -66,25 +66,32 @@ Built (ids are component ids):
 | Dev Card (Content) | `0da92a6e-ba9f-bf93-2611-05a773fd11fa` | Title, Link, Image, Address, Fact 1–3, GFA, GFA Count, Storeys, Parking, Acres, Heading Tag (Kajal added). Binds to CMS later. |
 | Global Components | `93e9b303-4d7e-d42e-0873-4e5de2cfda77` | Pre-existing: the loader embeds. Must be on every page. |
 
-Remaining in step 5:
+| Gallery (Content) | `f42781b7-fc42-0304-3f03-358b49dc8ed8` | No props yet (static images). Lightbox hooks in place; items are real `<button>`s. |
 
-1. **`<button>` fix (in progress).** The WHTML importer turns `<button>` into
-   a Link (`<a type="button">`, no href, not focusable). Fix = create a DOM
-   element with `dom_tag: button`, same classes and attributes, move the
-   children in, remove the Link. Done for the Nav toggle. Still to do: 22 on
-   the style guide (query elements with attribute `type=button`). Build every
-   future button this way, not through WHTML.
-2. **Gallery** — from `.gallery` in Components section (has
-   `data-lightbox-group`, `data-lightbox`, hidden Gallery Source with
-   `data-lightbox-item`). Convert its buttons first, then transform. Static
-   images now; CMS multi-image later.
-3. **Plans Slider** — the whole template section (`data-slider`,
-   `data-slider-prev/next`, `data-slider-track`), placed as a new preview in
-   Page components.
-4. **Searchable Select** — Finsweet Combo Box + List Sort (Kajal: "finsweet
-   now"). Script tag goes in Site settings head (manual) and later in
-   `loader.html`. Check Finsweet Attributes v2 docs for current attribute
-   names before building.
+Done this session after the first push: the `<button>` fix. The WHTML
+importer turns `<button>` into a Link (`<a type="button">`, no href, not
+focusable). All 23 were rebuilt as DOM elements with `dom_tag: button`
+(same classes and attributes, children moved, Link removed): the Nav toggle
+and the 22 on the style guide. **Build every future button this way, never
+through WHTML `<button>`.**
+
+**Stopped here** (interrupted mid-way):
+
+1. **Plans Slider** — a new preview figure was appended to Page components
+   (figure `1adfac52-365c-031f-7944-491f95f7d751`, label "Project · plans").
+   Its section (`data-slider`) still needs:
+   - the two arrow placeholders (`div.icon-box[data-slider-prev|next]`)
+     rebuilt as DOM `<button type="button">` with their svg moved in;
+   - the four slider images bound to asset `6ac3f1e67aca539ca701bc2b`
+     (`set_image_asset`);
+   - transform the `<section>` into component **Plans Slider** (group
+     Sections); props to add: heading, note.
+2. **Searchable Select** — not started. Finsweet Combo Box + List Sort
+   (Kajal: "finsweet now"). Check the current Finsweet Attributes docs for
+   attribute names; script tag goes in Site settings head (manual) and later
+   in `loader.html`. Build from the style guide's Select (Controls /
+   Patterns), keep `custom-select` as fallback.
+3. Then report step 5 to Kajal for OK.
 
 ## Step 6 — CMS (approved)
 

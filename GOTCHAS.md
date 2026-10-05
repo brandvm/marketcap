@@ -278,6 +278,21 @@ repos to improve `brandvm/wf-template`.
 - Status: documented
 - Found by: claude
 
+### 2026-10-05 · WHTML importer turns `<button>` into a link
+- Area: mcp
+- Scope: template-candidate
+- Symptom: Every imported `<button>` became a Webflow Link element that
+  renders `<a type="button">` with no href: not focusable, no button role.
+  This hit lightbox triggers, slider arrows, the menu toggle, tabs and steps.
+- Cause: importer behaviour; Webflow has no plain button element outside
+  forms.
+- Fix: create a DOM element with `set_dom_config: { dom_tag: "button" }`,
+  the same classes and attributes (`type="button"`), move the children in
+  (`move_element` also moves bare text nodes), then remove the Link.
+  Instances can't be anchors, but definitions accept `scope_component_id`.
+- Status: fixed on the style guide and in Nav (23 buttons)
+- Found by: claude
+
 ### 2026-10-05 · Sitemap indexing API is plan-gated
 - Area: mcp
 - Scope: template-candidate
