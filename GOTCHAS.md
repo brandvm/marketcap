@@ -428,6 +428,81 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-06 · Webflow rewrites roles and drops attributes on publish
+- Area: designer
+- Scope: template-candidate
+- Symptom: the bundled custom-select never initialised on staging; a static
+  `<dialog>` specimen was invisible; Link Blocks gained attributes nobody set.
+- Cause: on publish Webflow
+  - writes `role="list"` on every List element (our `role="listbox"` and
+    `hidden` are gone), so `[role="listbox"]` lookups find nothing;
+  - strips the `open` attribute from a `<dialog>`;
+  - adds `title` and `aria-label` (equal to the visible text) to Link Blocks.
+- Fix: modules find lists by class and set the ARIA role themselves
+  (`custom-select.ts`). The style guide's lightbox specimen carries
+  `data-static`, and repo CSS hides only `.lightbox:not([open]):not([data-static])`.
+  Never rely on a role or boolean attribute surviving a Webflow element;
+  check the published HTML.
+- Status: fixed (custom-select, lightbox rule)
+- Found by: claude
+
+### 2026-10-06 · WHTML drops the whole class list if one class is missing
+- Area: mcp
+- Scope: template-candidate
+- Symptom: 82 spec-row cells imported as `body-s spec-row-value` and
+  `dev-head-copy heading-group` came in with no classes at all.
+- Cause: if any class in the list doesn't exist yet, the importer drops
+  all of them, silently.
+- Fix: create every class before importing, then re-query the imported
+  elements' `styleNames` and fix stragglers with `set_style`.
+- Status: open
+- Found by: claude
+
+### 2026-10-06 · Nested button components: what the MCP can't do
+- Area: mcp
+- Scope: template-candidate
+- Symptom: building C | Button (Color › Size › Content):
+  - a variant prop can't be exposed from a nested instance through the API;
+  - `set_style ["Button Color","Button Size"]` fails unless that combo already
+    exists;
+  - an instance can't be used as a before/after anchor.
+- Cause: MCP surface limits.
+- Fix: Kajal linked the variant props in the Designer ("Link to new prop").
+  Insert relative to a plain element or append to the parent.
+- Status: open
+- Found by: claude
+
+### 2026-10-06 · Native `<button type="submit">` in Webflow forms
+- Area: designer
+- Scope: template-candidate
+- Symptom: after replacing the FormButton inputs with a DOM `<button>`
+  holding Button Color, the button had UA padding, border and background;
+  in the footer it stretched to the form width; on staging it showed
+  `disabled` + `w-form-loading`.
+- Cause: a native button keeps UA styles unless the class resets them; a
+  flex-column form stretches its children; Webflow's Turnstile spam check
+  disables every submit until the form scrolls into view and gets a token
+  (webflow.js, same for input submits).
+- Fix: Button class sets padding 0, border width 0, background transparent,
+  font-family and colour inherit, cursor pointer. Newsletter align-items
+  flex-start. The Turnstile state is expected; test submits in a real
+  browser, not headless.
+- Status: fixed (Webflow styles, 2026-10-06)
+- Found by: claude + human
+
+### 2026-10-06 · `remove_style` only sees usages on the page in context
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `remove_style` "G | Page Wrapper" kept failing with "Ensure there
+  are no usages" although no element on the style guide used it.
+- Cause: the 404 page used it. After that element was switched, the remove
+  still failed with the style guide's pageId and succeeded with the 404's.
+- Fix: query every page (`list_pages`, then `query_elements` with
+  `style`) before removing a class, and call `remove_style` from the page
+  that held the last usage.
+- Status: workaround confirmed
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

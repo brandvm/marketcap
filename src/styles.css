@@ -78,30 +78,26 @@
   --image-zoom-scale: 1.12;
 }
 
-/* Opt-in fluid root scale — OFF by default.
-   Setting font-size on :root rescales every rem/em value coming out of the
-   Designer, so Designer token names ("Max Width - 1280px") stop matching
-   what renders, and the scale ends up retuned project after project. Only
-   enable it with the user's approval, as override-webflow, and log it in
-   GOTCHAS.md. To enable, uncomment and tune the widths to the design:
-
+/* repo-css: approved-base — P8 fluid scaling (Osmo Scaling System), approved
+   by Kajal 2026-10-05. Every Webflow variable is in em, so scaling the BODY
+   font-size scales the whole system (the root stays at the browser default,
+   so rem values and Designer token names keep their meaning). Desktop:
+   1em = 16px at the 1680 design width and above, shrinking to 13.7px at
+   1440 and holding from there down to 992. Tablet and mobile: a fixed 1rem;
+   the Typography Role / Layout breakpoint modes do the resizing there. */
 :root {
-  --size-container-ideal: 1440;
-  --size-container-min: 991px;
-  --size-container-max: 1440px;
+  --size-container-ideal: 1680;
+  --size-container-min: 1440px;
+  --size-container-max: 1680px;
   --size-container: clamp(var(--size-container-min), 100vw, var(--size-container-max));
-  font-size: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
+  --size-font: calc(var(--size-container) / (var(--size-container-ideal) / var(--size-unit)));
 }
 @media screen and (max-width: 991px) {
-  :root { --size-container-ideal: 834; --size-container-min: 768px; --size-container-max: 991px; }
+  :root { --size-font: 1rem; }
 }
-@media screen and (max-width: 767px) {
-  :root { --size-container-ideal: 430; --size-container-min: 480px; --size-container-max: 767px; }
+body {
+  font-size: var(--size-font);
 }
-@media screen and (max-width: 479px) {
-  :root { --size-container-ideal: 430; --size-container-min: 320px; --size-container-max: 428px; }
-}
-*/
 
 /* ============================================================
    02. BASE
@@ -275,6 +271,17 @@ html.is-loading body {
   height: 100%;
 }
 
+/* Hero intro items stay hidden until hero-intro.ts animates them in; the
+   head timeout removes .is-loading if the bundle never runs. */
+html.is-loading [data-hero-item] {
+  visibility: hidden;
+}
+
+/* nav-menu.ts: page scroll locked while the tablet/phone menu is open. */
+html.is-menu-open {
+  overflow: hidden;
+}
+
 /* ============================================================
    05. COMPONENTS & MOTION
    ============================================================ */
@@ -436,6 +443,180 @@ html.is-loading body {
    §03 — that is where the rest of the Rich Text patching sits, and its
    versions also cover the wrapper div Webflow sometimes nests. */
 
+/* ------------------------------------------------------------
+   MarketCap components. Rules below reference Webflow variable names
+   (`var(--_…)`), approved by Kajal 2026-10-06 — see GOTCHAS for the list
+   to check whenever a variable is renamed in Webflow.
+   ------------------------------------------------------------ */
+
+/* repo-css: designer-cant — crop lines: ::before/::after edges that draw in
+   on hover/focus. On C | Button they sit on the outer link (.button, made
+   relative in the Designer) around Button Color; the Dev Card's floating
+   View button carries them on its .cursor-button wrapper; Icon Box on
+   itself. Colours, corners and transitions live on the classes in the
+   Designer (Button Color › Hover squares the corners). */
+.button::before,
+.button::after,
+.cursor-button::before,
+.cursor-button::after,
+.icon-box::before,
+.icon-box::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  border: 0 solid var(--_colors-semantic---button--background);
+  opacity: 0.55;
+  transition: transform 500ms cubic-bezier(0.64, 0.05, 0, 1);
+}
+.icon-box::before,
+.icon-box::after { border-color: var(--_colors---brand--ironstone); }
+.cursor-button::before,
+.cursor-button::after { border-color: var(--_colors---brand--kolin); }
+.button::before,
+.cursor-button::before { top: -1px; bottom: -1px; left: -0.75em; right: -0.75em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
+.button::after,
+.cursor-button::after { left: -1px; right: -1px; top: -0.75em; bottom: -0.75em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
+.icon-box::before { top: -1px; bottom: -1px; left: -0.5em; right: -0.5em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
+.icon-box::after { left: -1px; right: -1px; top: -0.5em; bottom: -0.5em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
+.button:hover::before,
+.button:focus-visible::before,
+.icon-box:hover::before,
+.hero-card:hover .icon-box::before,
+.hero-card:focus-visible .icon-box::before { transform: scaleX(1); }
+.button:hover::after,
+.button:focus-visible::after,
+.icon-box:hover::after,
+.hero-card:hover .icon-box::after,
+.hero-card:focus-visible .icon-box::after { transform: scaleY(1); }
+
+/* repo-css: designer-cant — keyboard focus lands on the outer link; its
+   Button Color squares off like on hover (a child styled by its parent's
+   state). */
+.button:focus-visible .button-color { border-radius: 0; }
+
+/* repo-css: designer-cant — hover of one class restyling a child (Hero
+   Card → its Icon Box and image; Gallery Item → its image). */
+.hero-card:hover .icon-box,
+.hero-card:focus-visible .icon-box { border-radius: 0; background-color: var(--_colors---brand--clay); }
+.hero-card:hover .hero-card-img { transform: scale(1.06); }
+.gallery-item:hover .gallery-media { transform: scale(1.03); }
+
+/* repo-css: designer-cant — the floating View button (cursor-button.ts):
+   lines draw in when the pointer enters the whole card; Button Color ›
+   Glass and Button Size › Cursor give its look. */
+.cursor-button::before { transition-delay: 150ms; }
+.cursor-button::after { transition-delay: 230ms; }
+[data-cursor-area]:hover .cursor-button::before { transform: scaleX(1); }
+[data-cursor-area]:hover .cursor-button::after { transform: scaleY(1); }
+[data-cursor-area]:active .cursor-button .button-color { box-shadow: inset 0 0 0 100vmax rgb(0 0 0 / 0.16); }
+
+/* repo-css: designer-cant — attribute state: disabled slider arrows. */
+.icon-box[disabled] { opacity: 0.35; cursor: default; pointer-events: none; }
+
+/* repo-css: designer-cant — descendant rules: a child styled by where it
+   sits (no class of its own in the markup). */
+.nav-logo svg { display: block; width: 100%; height: auto; }
+.hero-copy .button { margin-top: var(--_spacing---8); }
+.story-statement [data-line] { display: block; }
+.stat-card .step { position: absolute; top: var(--_spacing---16); right: var(--_spacing---16); color: var(--_colors---brand--clay); }
+.stat-card .caption { align-self: flex-end; text-align: right; white-space: pre-line; font-size: var(--_typography-scale---size--16); line-height: 1.2; }
+.dev-head .button { justify-self: end; margin-top: 6.5em; }
+.approach-copy .d2 { max-width: 12em; }
+.approach-copy p { max-width: 33.125em; }
+.cta-copy p { max-width: 35.625em; }
+.cap-item .marker { width: 0.5833em; height: 0.625em; }
+.map-card .label-text { align-self: flex-start; }
+.footer-links a { color: inherit; text-decoration: none; }
+.footer-links a:hover { color: var(--_colors---brand--clay); }
+.footer-legal a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.footer-links a:active,
+.footer-legal a:active { opacity: 0.55; }
+@media screen and (max-width: 991px) {
+  .nav-menu .nav-link { font-size: var(--_typography-role---size--h3); line-height: 1.15; letter-spacing: -0.02em; }
+  .dev-head .button { justify-self: start; margin-top: 0; }
+}
+@media screen and (max-width: 767px) {
+  .sg-table-row > :first-child { grid-column: 1 / -1; }
+}
+
+/* repo-css: designer-cant — :nth-child: every second Story stat card sits
+   lower (staggered grid). */
+.stat-card:nth-child(even) { margin-top: 13.6875em; }
+@media screen and (max-width: 991px) {
+  .stat-card:nth-child(even) { margin-top: 3em; }
+}
+@media screen and (max-width: 767px) {
+  .stat-card:nth-child(even) { margin-top: 0; }
+}
+
+/* repo-css: designer-cant — the Timeline List gradient is set in the
+   Designer (Field 0–17.65%, then transparent); gradient layers have no
+   size/tile there, so this tiles it into 3px ticks every 17px. */
+.timeline-list { background-size: 17px 1em; background-repeat: repeat-x; }
+/* repo-css: js-state — timeline.ts marks the centred item .is-active. */
+.timeline-item.is-active .timeline-image { width: 21.125em; margin-right: 1.75em; opacity: 1; }
+.timeline-item.is-active .timeline-line { height: 13em; }
+@media screen and (max-width: 767px) {
+  .timeline-list { flex-direction: column; align-items: stretch; width: auto; padding: 0; gap: 3em; background: none; transform: none !important; }
+}
+
+/* repo-css: js-state — Story guides and the Capabilities guide line follow
+   values the modules write (--gx, --gy, --cap-y). */
+.caps { --cap-y: calc(100% - 26.905vw); }
+.section.caps { min-height: calc(var(--cap-y) + 65.8vw * 452 / 1106); }
+.mark-figure.is-caps { top: var(--cap-y); }
+.story .guides-v { left: var(--gx, 34.2%); }
+.story-guide-h { top: var(--gy, calc(100% - 26.905vw)); }
+.story-guide-m { left: var(--gx, 34.2%); top: var(--gy, calc(100% - 26.905vw)); }
+.story-guide-x { left: calc(var(--gx, 34.2%) + 1em); top: calc(var(--gy, calc(100% - 26.905vw)) - 1.5em); }
+.story-guide-y { left: calc(var(--gx, 34.2%) - 3.4em); top: calc(var(--gy, calc(100% - 26.905vw)) + 0.7em); }
+
+/* repo-css: js-state — story-sequence.ts adds .is-static (reduced motion,
+   small screens): the pinned sequence becomes stacked blocks. */
+.story.is-static .story-pin { height: auto; overflow: visible; }
+.story.is-static [data-story-media] { -webkit-mask: none; mask: none; }
+.story.is-static .story-statement,
+.story.is-static .story-stats { position: relative; inset: auto; transform: none; padding: var(--_layout---section--padding-v) var(--_layout---section--padding-h) var(--_layout---section--padding-v); }
+.story.is-static .story-about { padding-bottom: var(--_layout---section--padding-v); background-color: var(--_colors---brand--chalk); }
+.story.is-static .story-statement { padding-bottom: 0; }
+
+/* repo-css: js-state — nav-state.ts / nav-menu.ts toggle .is-solid,
+   .is-hidden and .is-open on G | Nav W. Transitions are set on the classes
+   in the Designer. */
+.g-nav-w.is-solid,
+.g-nav-w.is-open { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
+.g-nav-w.is-solid .nav-button,
+.g-nav-w.is-open .nav-button {
+  --_colors-semantic---button--background: var(--_colors---brand--ironstone);
+  --_colors-semantic---button--foreground: var(--_colors---brand--kolin);
+  --_colors-semantic---button--background-hover: var(--_colors---brand--clay);
+  --_colors-semantic---button--foreground-hover: var(--_colors---brand--kolin);
+}
+.g-nav-w.is-hidden { transform: translateY(-100%); }
+.g-nav-w.is-open .nav-menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.g-nav-w.is-open .nav-toggle-line:nth-child(2) { transform: translateY(0.21875em) rotate(45deg); }
+.g-nav-w.is-open .nav-toggle-line:nth-child(3) { transform: translateY(-0.21875em) rotate(-45deg); }
+
+/* repo-css: js-state — custom-select.ts (the style guide's Select
+   specimens; the Searchable Select component uses Finsweet). */
+.select.is-open .select-icon { transform: rotate(180deg); }
+.select.is-up .select-list { top: auto; bottom: calc(100% + var(--_spacing---4)); }
+.select-list[popover] { position: fixed; inset: auto; margin: 0; min-width: 0; }
+.select-list[popover]:not(:popover-open) { display: none; }
+.select-option.is-active { background-color: var(--_colors---brand--chalk); }
+.select-option[aria-selected="true"] { color: var(--_colors---brand--clay); }
+
+/* repo-css: designer-cant — :has(): the chosen enquiry type and keyboard
+   focus inside a Form Choice; the Select rings its whole toggle. */
+.form-choice:has(.form-choice-input:checked) { color: var(--_colors-semantic---text--primary); text-decoration: underline; text-underline-offset: 0.25em; }
+.form-choice:has(.form-choice-input:focus-visible) { outline: 2px solid var(--_colors-semantic---form--focus); outline-offset: 3px; }
+
+/* repo-css: designer-cant — the Lightbox <dialog>: closed state and
+   ::backdrop. Webflow strips `open` on publish, so the style guide's
+   static specimen carries data-static instead. */
+.lightbox:not([open]):not([data-static]) { display: none; }
+.lightbox::backdrop { background-color: rgb(38 11 7 / 0.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+
 /* ============================================================
    06. UTILITIES
    ============================================================ */
@@ -591,6 +772,24 @@ html.is-loading body {
   }
 }
 
+/* repo-css: designer-cant — mask: the MarketCap mark as a mask (Mark
+   Figure, Story media). Inlined so it needs no hosted file. The size and
+   position variables are written by story-sequence.ts. */
+.mask-mark {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1106 452' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0.0 328.5L221.3 226.0L221.3 452.0L0.0 452.0L0.0 328.5Z M1105.6 226.0L662.9 226.0L662.9 0.0L979.7 0.0L1105.6 226.0Z M994.7 339.0L662.9 452.0L1105.3 452.0L1105.3 339.0L994.7 339.0Z M221.3 226.0L221.3 0.0L439.2 0.0L662.9 226.0L662.9 452.0L439.2 452.0L221.3 226.0Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1106 452' preserveAspectRatio='none'%3E%3Cpath fill='%23000' d='M0.0 328.5L221.3 226.0L221.3 452.0L0.0 452.0L0.0 328.5Z M1105.6 226.0L662.9 226.0L662.9 0.0L979.7 0.0L1105.6 226.0Z M994.7 339.0L662.9 452.0L1105.3 452.0L1105.3 339.0L994.7 339.0Z M221.3 226.0L221.3 0.0L439.2 0.0L662.9 226.0L662.9 452.0L439.2 452.0L221.3 226.0Z'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: var(--mask-w, 100%) var(--mask-h, 100%);
+  mask-size: var(--mask-w, 100%) var(--mask-h, 100%);
+  -webkit-mask-position: var(--mask-x, 0) var(--mask-y, 0);
+  mask-position: var(--mask-x, 0) var(--mask-y, 0);
+}
+
+/* repo-css: designer-cant — scrollbar hiding on horizontal scrollers. */
+.slider-track::-webkit-scrollbar,
+.lightbox-thumbs::-webkit-scrollbar { display: none; }
+
 /* ============================================================
    07. ACCESSIBILITY
    ============================================================ */
@@ -601,15 +800,23 @@ html.is-loading body {
   outline: none;
 }
 
-/* Fallback ring only (0-1-0). Form controls take their ring from a Focus
+/* repo-css: approved-base — the prototype's site-wide ring: Form/Focus
+   (Clay; Chalk in dark sections via the Colors Semantic modes), offset 3px.
+   Fallback ring only (0-1-0). Form controls take their ring from a Focus
    Visible state on their Designer class (Form Input, Select Toggle ›
    Focus Within): a `.w-input:focus-visible` rule here tied with those
    states and won on source order (see GOTCHAS). A new input class needs
    its own Focus Visible state, since Webflow's `.w-input:focus` sets
    outline 0. */
 :focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--_colors-semantic---form--focus);
+  outline-offset: 3px;
+}
+
+/* Elements focused by script (anchor targets get tabindex="-1") don't draw
+   a ring around a whole section. */
+[tabindex="-1"]:focus {
+  outline: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -629,6 +836,25 @@ html.is-loading body {
 
   .image-w:hover img,
   .button-link:hover .icon {
+    transform: none;
+  }
+
+  /* MarketCap: no crop-line draw, nav slide, menu fade or image zoom. */
+  .button::before,
+  .button::after,
+  .cursor-button::before,
+  .cursor-button::after,
+  .icon-box::before,
+  .icon-box::after,
+  .hero-card-img,
+  .g-nav-w,
+  .nav-menu,
+  .nav-toggle-line {
+    transition: none !important;
+  }
+
+  .hero-card:hover .hero-card-img,
+  .gallery-item:hover .gallery-media {
     transform: none;
   }
 }
