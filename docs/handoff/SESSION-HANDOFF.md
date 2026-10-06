@@ -16,6 +16,8 @@ original machine (or a private share) if you need the reference.
 
 ## Working rules (from Kajal)
 
+- Work directly on `master` (dev phase): no branches or PRs unless asked.
+
 - Stop for Kajal's OK after each step.
 - Don't create, rename or remove anything beyond the handoff without asking.
 - Don't edit the prototype. Repo work comes after the Webflow steps unless
@@ -96,7 +98,7 @@ through WHTML `<button>`.**
    listed here): **Select Clear** and **Form Block** (margin-bottom 0, on
    every Form Block wrapper). Webflow default overrides added to Select
    Input, Select Toggle, Select Option and Select (GOTCHAS, 2026-10-06).
-4. After pushing: on staging, check keyboard selection (needs webflow.js,
+4. Pushed to master 2026-10-06 (staging deployed, CI green). On staging, check keyboard selection (needs webflow.js,
    not testable in the harness) and the sort on the real Developments list.
 5. Report step 5 to Kajal for OK.
 
