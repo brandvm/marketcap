@@ -112,13 +112,17 @@ webflow.io the same day).
 
 | Collection | Id | Notes |
 |---|---|---|
-| Developments | `6ac512ec1932adaf147a5226` | 46 fields. Groups: Card & Hero, Filters & Sort (Sort Date, Stage), Overview, Location (3 figures × value/unit/text), Site, Program (GFA Image, Program Heading, **Program Rows** multi-ref), Gallery & Plans (multi-image), Status ("Updated" = item Updated On). Items: Four-storey medical centre (all sections; bracketed placeholders kept as in the prototype) and EV automotive sales and service centre (card fields only; no template copy exists yet). Sort Dates 2026-03-01 / 2025-06-01 are placeholders that put the medical centre first. Acres 1.03 / 1.08 (field switched to decimal by Kajal). |
+| Developments | `6ac512ec1932adaf147a5226` | 43 fields; alt text lives on each image field (no separate Alt fields, Kajal). Groups: Card & Hero, Filters & Sort (Sort Date, Stage), Overview, Location (3 figures × value/unit/text), Site, Program (GFA Image, Program Heading, **Program Rows** multi-ref), Gallery & Plans (multi-image), Status ("Updated" = item Updated On). Items: Four-storey medical centre (all sections; bracketed placeholders kept as in the prototype) and EV automotive sales and service centre (card fields only; no template copy exists yet). Sort Dates 2026-03-01 / 2025-06-01 are placeholders that put the medical centre first. Acres 1.03 / 1.08 (field switched to decimal by Kajal). |
 | Program Rows | `6ac5139290381f9026577bd9` | Only used through Developments › Program Rows (Kajal: a separate collection for tables). Name = internal label; Level, Use, Area, Order. Four medical-centre rows. The Total row comes from Storeys, Parking, GFA. |
-| Milestones | `6ac512ed691b2cbe9f7826ec` | Period, Body, Image, Image Alt, Order. Mid-1980s, Mid-1990s, Today. |
+| Milestones | `6ac512ed691b2cbe9f7826ec` | Period, Body, Image (alt on the image), Order. Mid-1980s, Mid-1990s, Today. |
 
 Option ids for Stage: Acquired `cf600bda…`, Planning `b8b8afaf…`,
 Application `0cf5a593…`, Approval `02776aae…`, Construction `8f80cd37…`.
 The API copies item images into the CMS CDN (new file ids per item).
+Image alt: send `{ fileId, url, alt }`. Alt is per file within a field, so
+the four identical stand-in Plans images all read "[Elevations]" until real
+plans are uploaded. Photo-band images have no alt (decorative). The
+prototype HANDOFF's "add an Alt field and bind it" is superseded.
 
 ## Decisions waiting for Kajal (before Home)
 

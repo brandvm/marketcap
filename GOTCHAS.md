@@ -421,7 +421,10 @@ repos to improve `brandvm/wf-template`.
 - Fix: set decimal fields' format in the Designer (MANUAL-TODO L) before
   entering values. Create items with `isDraft: false`, then publish the
   site once; the items go live with it. Image fields accept `{ fileId,
-  url }` of an existing asset and are copied into the CMS CDN.
+  url, alt }` of an existing asset and are copied into the CMS CDN. Alt
+  belongs on the image field (no separate alt fields); it is stored per
+  file within a field, so a file repeated in one multi-image field shares
+  one alt.
 - Status: open
 - Found by: claude
 
