@@ -368,6 +368,25 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-06 · Webflow form and dropdown defaults leak through our classes
+- Area: designer
+- Scope: template-candidate
+- Symptom: Kajal spotted the 10px under native inputs. An audit found
+  more: every Form Block (`.w-form`) adds 15px below; `.w-dropdown-toggle`
+  pads 20px 40px 20px 20px; `.w-dropdown-link` sets colour #222;
+  `.w-dropdown` has auto left and right margins.
+- Cause: `webflow.css` defaults apply wherever our class doesn't set the
+  property. Here the Form Blocks had no class at all: the WHTML workaround
+  moves the class onto the inner `<form>` and clears the wrapper.
+- Fix: in Webflow, not repo CSS (Designer first, so it stays editable):
+  margin-bottom 0 on Select Input; padding 0 on Select Toggle; colour
+  inherit on Select Option; left and right margin 0 on Select; new class
+  **Form Block** (margin-bottom 0) on every Form Block wrapper (style
+  guide ×4, Footer, Searchable Select). Give every new Form Block that
+  class, and check new form or dropdown classes against these defaults.
+- Status: fixed (Webflow styles, 2026-10-06)
+- Found by: human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

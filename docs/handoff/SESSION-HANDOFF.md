@@ -90,8 +90,12 @@ through WHTML `<button>`.**
    read Newest first, Largest GFA, Name A–Z. Neither change is in the
    prototype (read-only). Harness check passed: three sorts, clear resets
    select and input; the list keeps its last order after clearing.
-3. Kajal: MANUAL-TODO J (placeholder) and K (check options); visual check of
-   the Dropdown on the canvas.
+3. MANUAL-TODO J and K done (Kajal). Still: visual check of the Dropdown
+   on the canvas.
+3a. New classes since CLASSES.md (prototype is read-only, so they're only
+   listed here): **Select Clear** and **Form Block** (margin-bottom 0, on
+   every Form Block wrapper). Webflow default overrides added to Select
+   Input, Select Toggle, Select Option and Select (GOTCHAS, 2026-10-06).
 4. After pushing: on staging, check keyboard selection (needs webflow.js,
    not testable in the harness) and the sort on the real Developments list.
 5. Report step 5 to Kajal for OK.
