@@ -713,6 +713,23 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: claude
 
+### 2026-10-06 · gsap.from() start state reverts on load: hero flickers
+- Area: js
+- Scope: template-candidate
+- Symptom: on load the hero chip, heading, text, button and card showed at
+  full opacity for 150–550 ms, then vanished and faded in again.
+- Cause: `gsap.from()` applies its start values through a lazy zero-duration
+  tween; on the next tick its render reverts the styles (traced to
+  `_revertStyle` from `_lazyRender`), so each item sat in its final state
+  until its staggered start. `html.is-loading` had already been removed, so
+  that state painted.
+- Fix: `gsap.set(items, start)` then `gsap.to(items, end)` in hero-intro.ts.
+  set() renders synchronously in the boot task that removes is-loading, so no
+  frame shows the items before the reveal. Prefer set() + to() for anything
+  visible at load.
+- Status: fixed in this commit
+- Found by: human + claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

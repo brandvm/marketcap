@@ -18,10 +18,16 @@ export function initHeroIntro() {
   video?.play().catch(() => {});
 
   const items = hero.querySelectorAll('[data-hero-item]');
-  gsap.from(items, {
-    y: 32,
-    opacity: 0,
-    filter: 'blur(8px)',
+  // Start state with set(), not from(): from() applies it through a lazy
+  // zero-duration tween that reverts on the next tick, so the items painted
+  // at full opacity until their stagger began, then vanished and faded in
+  // again (the load flicker). set() renders now, in the same task that
+  // removes html.is-loading, so nothing paints in between.
+  gsap.set(items, { y: 32, opacity: 0, filter: 'blur(8px)' });
+  gsap.to(items, {
+    y: 0,
+    opacity: 1,
+    filter: 'blur(0px)',
     duration: 1.1,
     ease: 'power3.out',
     stagger: 0.09,
