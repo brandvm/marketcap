@@ -58,9 +58,14 @@
   /* Set this to the fixed header height when the navigation is built. */
   --nav-h: 0rem;
 
-  /* Underline effect */
-  --underline-top: 95%;
+  /* Underline effect: thickness and gap below the baseline in px, so the
+     line looks the same on every text size (Kajal). --font-descent is
+     Inter's descender (494/2048): the background sits on the bottom of the
+     inline box, so the baseline is that far above it. */
   --underline-height: 1px;
+  --underline-offset: 2px;
+  --font-descent: 0.2412em;
+  --underline-top: calc(100% - (var(--font-descent) - var(--underline-offset) - var(--underline-height)));
   --inline-underline-opacity: 0.48;
 
   /* Loops */
@@ -288,29 +293,28 @@ html.is-menu-open {
 
 /* repo-css: designer-cant — @keyframes, pseudo-element effects and opt-in classes paired with JS */
 
+/* Link Underline — the hover line draws in from the left and leaves to the
+   right (same timing as previous projects). It is a background strip, not
+   an ::after bar, so it follows the text across line breaks: on an inline
+   element the background runs through every line fragment in reading
+   order, and the line grows along each line in turn. Put the class on the
+   inline text itself (a Text Link, or a span inside a Link Block); on a
+   block it falls back to one line under the whole box. Position only
+   switches sides; size is what animates. */
 .link-underline {
-  position: relative;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 100% var(--underline-top);
+  background-size: 0% var(--underline-height);
+  transition: background-size var(--dur-bbs) var(--ease-bbs);
 }
 
-.link-underline::after {
-  content: "";
-  position: absolute;
-  top: var(--underline-top);
-  left: 0%;
-  height: var(--underline-height);
-  width: 0%;
-  background: currentColor;
-  transition: width var(--dur-bbs) var(--ease-bbs);
-}
-
-.link-underline:hover::after {
-  width: 100%;
-}
-
-.link-underline:not(:hover)::after {
-  left: auto;
-  right: 0%;
-  width: 0%;
+.link-underline:hover,
+.link-underline:focus-visible,
+:is(a, button):hover > .link-underline,
+:is(a, button):focus-visible > .link-underline {
+  background-position: 0% var(--underline-top);
+  background-size: 100% var(--underline-height);
 }
 
 /* Real text-decoration, not a pseudo-element: this is the variant for

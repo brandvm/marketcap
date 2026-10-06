@@ -91,6 +91,7 @@ export function initStorySequence() {
     ScrollTrigger.addEventListener('refresh', draw);
 
     const counters = Array.from(cards).map((card) => ({ el: card.querySelector<HTMLElement>('[data-count]')!, v: 0 }));
+    const syncCounts = () => counters.forEach((c) => setCount(c.el, c.v));
     // Cards start fully below the frame and invisible, so nothing peeks in
     // while the statement plays, whatever the screen height.
     gsap.set(cards, { y: () => window.innerHeight, autoAlpha: 0 });
@@ -102,7 +103,13 @@ export function initStorySequence() {
       // pinSpacing must be explicit: Section is display:flex, and ScrollTrigger
       // turns pin spacing off by default when the pinned element's parent is a
       // flex container — the next section then slides under the pinned frame.
-      scrollTrigger: { trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: '+=420%', scrub: 0.8, invalidateOnRefresh: true },
+      scrollTrigger: {
+        trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: '+=420%', scrub: 0.8, invalidateOnRefresh: true,
+        // A refresh or a jump (anchor link, /#hash on load) renders the
+        // timeline with callbacks suppressed, so the counters' onUpdate never
+        // writes the number: copy their state to the text from here too.
+        onRefresh: () => syncCounts(), onUpdate: () => syncCounts(), onScrubComplete: () => syncCounts(),
+      },
       // No anticipatePin: with Lenis it pre-applies the pin a frame early and
       // reads as a jolt where the pin starts and ends.
     });

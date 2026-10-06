@@ -663,6 +663,40 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude + human
 
+### 2026-10-06 · em spacing moved from a button to its wrapper changes size
+- Area: designer
+- Scope: template-candidate
+- Symptom: the Story stats button sat 4px lower than the prototype at 390
+  (5px at 1440), so Story ran long and every later section shifted.
+- Cause: the prototype put `margin-top: Content/Gap` (em) on the button,
+  whose own font size is 0.875em. In Webflow the button is a C | Button
+  instance, which can't take page styles, so the margin went on the Story
+  CTA wrapper at 1em, and the same em value computes larger.
+- Fix: scale the wrapper's value by the button's font ratio,
+  `calc(Content/Gap * 0.875)`, in the Designer (MANUAL-TODO U). When spacing
+  moves from a sized element to its wrapper, convert the em value.
+- Status: open
+- Found by: claude
+
+### 2026-10-06 · Arriving at /#section lands short of the section
+- Area: js
+- Scope: template-candidate
+- Symptom: following /#approach from another page landed inside Story
+  (y 4469 instead of 9516); the Developments counters never ran. A click on
+  the same link within Home worked.
+- Cause: the browser and webflow.js jump to the hash before the modules add
+  their pins; the pin spacers then push every later section down. Separately,
+  a ScrollTrigger refresh or jump renders a scrubbed timeline with callbacks
+  suppressed, so counters written from a tween's `onUpdate` stay at 0.
+- Fix: `smooth-scroll.ts` jumps to the hash again after the manifest has run
+  and after load (`ScrollTrigger.refresh()` first, nav offset applied).
+  `story-sequence.ts` also copies the counter state to the text in the
+  trigger's onRefresh / onUpdate / onScrubComplete. Write values a scrubbed
+  timeline animates from the trigger as well, never only from a child
+  tween's callback.
+- Status: fixed in this commit
+- Found by: human + claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
