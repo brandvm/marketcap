@@ -46,7 +46,7 @@ original machine (or a private share) if you need the reference.
 | 3 | Classes from CLASSES.md | Done; 23 calc/gradient values entered manually by Kajal |
 | 4 | Style guide page | Done; previews 1–13 + anatomy; nav-state previews left out (Kajal) |
 | 5 | Components | **Built** (10 of 10); waiting for Kajal's OK and MANUAL-TODO J–K |
-| 6 | CMS (Developments, Milestones) | Not started (Kajal approved doing it) |
+| 6 | CMS (Developments, Milestones, Program Rows) | Done 2026-10-06: collections, groups, items published |
 | 7 | Home page | Not started |
 | 8 | Inner pages (Developments, Development template, Contact) | Not started |
 | 9 | Repo: modules, repo CSS, `pnpm add gsap lenis`, build, push | Not started |
@@ -63,7 +63,7 @@ Built (ids are component ids):
 | Footer (Global) | `e5c41852-4c9b-7995-afff-4609aa305c82` | Newsletter class on the FormForm. Logo asset `6ac4173ae27b5fba958aeb48`. |
 | Closing CTA (Sections) | `7d517192-6e85-cab8-5eea-974a1c919e13` | Heading, Text, Button Link, Anchor ID; variant Reversed `8c46e651-a853-052d-0495-355e2a3d765f`. Built from Home markup (has `id="mark"` + `data-brand-lines`). |
 | Photo Band (Sections) | `fb7d0108-1312-fb00-e7b4-aeed40553e42` | Image, Value, Caption (also aria-label). |
-| Page Head (Sections) | `f54db91e-74a0-bf34-69a3-c98f01bff43e` | Chip, Heading, Text, slot (Kajal renaming to Control). |
+| Page Head (Sections) | `f54db91e-74a0-bf34-69a3-c98f01bff43e` | Chip, Heading, Text, slot Control (renamed by Kajal; holds the style guide's table of contents). |
 | Mark Figure (Content) | `b8791d08-8be4-699b-1966-7c7313999fa4` | Image, Image Alt, Image ID, switches Is Caps / Is Contact → conditional classes (Kajal wired them). |
 | Dev Card (Content) | `0da92a6e-ba9f-bf93-2611-05a773fd11fa` | Title, Link, Image, Address, Fact 1–3, GFA, GFA Count, Storeys, Parking, Acres, Heading Tag (Kajal added). Binds to CMS later. |
 | Global Components | `93e9b303-4d7e-d42e-0873-4e5de2cfda77` | Pre-existing: the loader embeds. Must be on every page. |
@@ -102,16 +102,23 @@ through WHTML `<button>`.**
    not testable in the harness) and the sort on the real Developments list.
 5. Report step 5 to Kajal for OK.
 
-## Step 6 — CMS (approved)
+## Step 6 — CMS (done 2026-10-06)
 
-- **Developments**: name, slug, status, address, city, image, image alt,
-  facts 1–4, GFA (sq ft), storeys, parking, acres, a date to sort by. Items:
-  Four-storey medical centre (18558 Yonge St, East Gwillimbury; 85,083 /
-  4 / 146 / 1.03) and EV automotive sales and service centre (11644 Yonge
-  St, Richmond Hill; 30,375 / 2 / 60 / 1.08).
-- **Milestones**: period, title, body, image, image alt, order. Items:
-  Mid-1980s, Mid-1990s, Today (copy in `prototype/index.html`).
-- Home hero card = Developments list, limit 1, newest first.
+Field groups follow the template's sections, plus Filters & Sort (Kajal's
+convention: SEO settings, Filters & Sort, then one group per section).
+There are no SEO fields yet; the template page's SEO can bind Name, Image
+and Overview Heading. All items are published (site published to
+webflow.io the same day).
+
+| Collection | Id | Notes |
+|---|---|---|
+| Developments | `6ac512ec1932adaf147a5226` | 46 fields. Groups: Card & Hero, Filters & Sort (Sort Date, Stage), Overview, Location (3 figures × value/unit/text), Site, Program (GFA Image, Program Heading, **Program Rows** multi-ref), Gallery & Plans (multi-image), Status ("Updated" = item Updated On). Items: Four-storey medical centre (all sections; bracketed placeholders kept as in the prototype) and EV automotive sales and service centre (card fields only; no template copy exists yet). Sort Dates 2026-03-01 / 2025-06-01 are placeholders that put the medical centre first. Acres 1.03 / 1.08 (field switched to decimal by Kajal). |
+| Program Rows | `6ac5139290381f9026577bd9` | Only used through Developments › Program Rows (Kajal: a separate collection for tables). Name = internal label; Level, Use, Area, Order. Four medical-centre rows. The Total row comes from Storeys, Parking, GFA. |
+| Milestones | `6ac512ed691b2cbe9f7826ec` | Period, Body, Image, Image Alt, Order. Mid-1980s, Mid-1990s, Today. |
+
+Option ids for Stage: Acquired `cf600bda…`, Planning `b8b8afaf…`,
+Application `0cf5a593…`, Approval `02776aae…`, Construction `8f80cd37…`.
+The API copies item images into the CMS CDN (new file ids per item).
 
 ## Decisions waiting for Kajal (before Home)
 

@@ -48,12 +48,14 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | C | Style guide page settings → Custom code (head): `<meta name="robots" content="noindex">` | Keeps search engines out even if the page is linked; no API for page custom code. | ☑ done 10-05 |
 | D | Style guide: delete the last Section (the scratch section with the tag-touch headings/paragraph/link) | It was only there to create the tag styles. Delete it in the Navigator, below the Page components section. | ☑ done 10-05 |
 | E | Delete the test class **Label** (Style Manager) | Your test class from earlier; nothing uses it. | ☑ deleted via MCP 10-05 |
-| F | Page Head component: rename its slot **Slot** → **Control** | The API can't rename slots. | ☐ |
-| G | Style guide: drag the table of contents (nav "On this page", now just below the Page Head) into Page Head's slot | The API can't move elements into a slot. | ☐ |
+| F | Page Head component: rename its slot **Slot** → **Control** | The API can't rename slots. | ☑ done 10-06 (Kajal) |
+| G | Style guide: drag the table of contents (nav "On this page", now just below the Page Head) into Page Head's slot | The API can't move elements into a slot. | ☑ done 10-06 (Kajal) |
 | H | Mark Figure component, conditional classes: root **Is Caps** when switch *Is Caps* is on; root **Is Contact** when *Is Contact* is on; Mark Figure Line H **Is Short** when *Is Contact* is on | Your call (switch + conditional classes). Until then the Capabilities and Contact previews show the base placement, and Is Caps / Is Contact / Is Short are unused. | ☑ done 10-05 (Kajal) |
 | I | Dev Card title heading level: h3 by default; the Developments listing uses h2 | The API has no prop type for a heading tag. Bind the tag in the Designer if it offers it, or set it per page later. | ☑ done 10-05 (Kajal, Heading Tag prop on Dev Card) |
 | J | Searchable Select: Select Input → Settings → **Placeholder** `Sort by` | The API treats `placeholder` as a reserved attribute and has no placeholder setting. | ☑ done 10-06 (Kajal) |
 | K | Searchable Select: check the hidden select (Select Native) has 4 options — `` "Sort by"; `date-desc` "Newest first"; `gfa-desc` "Largest GFA"; `name-asc` "Name A–Z" | Imported through WHTML; the API can't read or write select options. Values must match List Sort's `field-asc/desc` format, and Combo Box lists options sorted by value, which is why "Oldest first" was dropped (Kajal, 2026-10-06). | ☑ done 10-06 (Kajal) |
+| L | CMS › Developments › field **Acres**: Number format → Decimal, 2 places. Then enter 1.03 (medical centre) and 1.08 (EV centre), or tell Claude to fill them | The API created it as a whole-number field and can't change a field's format; both items have Acres empty until then. | ☑ done 10-06 (Kajal; Acres filled by Claude) |
+| M | Collection template pages **Milestones** and **Program Rows**: exclude from search and sitemap (or leave them unlinked) | Their items must be published to show on Home / the Development template, so Webflow serves a template page for each. Nothing links to them. | ☑ done 10-06 (Kajal) |
 
 ## Not manual — waiting for the repo step
 

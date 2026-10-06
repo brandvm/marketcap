@@ -409,6 +409,22 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed (this commit + Webflow styles, 2026-10-06); not upstreamed
 - Found by: human
 
+### 2026-10-06 · CMS API: Number fields are integers; new collections need a site publish
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `create_collection_static_field` type Number always returned
+  `format: integer`, and `update_collection_field` only takes name, help
+  text and required, so Acres (1.03) can't be stored. Publishing the new
+  items returned 409 `The site is not published`.
+- Cause: the field API has no number format; items in a collection whose
+  template page has never been published can't be published alone.
+- Fix: set decimal fields' format in the Designer (MANUAL-TODO L) before
+  entering values. Create items with `isDraft: false`, then publish the
+  site once; the items go live with it. Image fields accept `{ fileId,
+  url }` of an existing asset and are copied into the CMS CDN.
+- Status: open
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
