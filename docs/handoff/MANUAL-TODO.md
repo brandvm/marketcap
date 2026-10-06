@@ -50,8 +50,8 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | E | Delete the test class **Label** (Style Manager) | Your test class from earlier; nothing uses it. | ☑ deleted via MCP 10-05 |
 | F | Page Head component: rename its slot **Slot** → **Control** | The API can't rename slots. | ☐ |
 | G | Style guide: drag the table of contents (nav "On this page", now just below the Page Head) into Page Head's slot | The API can't move elements into a slot. | ☐ |
-| H | Mark Figure component, conditional classes: root **Is Caps** when switch *Is Caps* is on; root **Is Contact** when *Is Contact* is on; Mark Figure Line H **Is Short** when *Is Contact* is on | Your call (switch + conditional classes). Until then the Capabilities and Contact previews show the base placement, and Is Caps / Is Contact / Is Short are unused. | ☐ |
-| I | Dev Card title heading level: h3 by default; the Developments listing uses h2 | The API has no prop type for a heading tag. Bind the tag in the Designer if it offers it, or set it per page later. | ☐ |
+| H | Mark Figure component, conditional classes: root **Is Caps** when switch *Is Caps* is on; root **Is Contact** when *Is Contact* is on; Mark Figure Line H **Is Short** when *Is Contact* is on | Your call (switch + conditional classes). Until then the Capabilities and Contact previews show the base placement, and Is Caps / Is Contact / Is Short are unused. | ☑ done 10-05 (Kajal) |
+| I | Dev Card title heading level: h3 by default; the Developments listing uses h2 | The API has no prop type for a heading tag. Bind the tag in the Designer if it offers it, or set it per page later. | ☑ done 10-05 (Kajal, Heading Tag prop on Dev Card) |
 
 ## Not manual — waiting for the repo step
 
