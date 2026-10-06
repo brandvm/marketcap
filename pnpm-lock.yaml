@@ -4,9 +4,15 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+pnpmfileChecksum: sha256-RxD+8tw//dqRYNSuecnm8skao/nzvFbsogE3mR7euCg=
+
 importers:
 
   .:
+    dependencies:
+      '@finsweet/attributes':
+        specifier: 2.7.1
+        version: 2.7.1
     devDependencies:
       '@playwright/test':
         specifier: 1.63.0
@@ -175,6 +181,9 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@finsweet/attributes@2.7.1':
+    resolution: {integrity: sha512-AlniV6g+jtpBp3cXQN0yEEmUerR1sEKUzHh6jS6rc5qAEyNkcp9F7J9MTjxY9pB+U1+qsuNnNIlHBSp1AJbUEg==}
 
   '@playwright/test@1.63.0':
     resolution: {integrity: sha512-oxMK4vllB9RK5NQ2l1pq1IfOf2AvnEuj/vYGDj0H2nMtmtZpKtCwt/l00GEO6xjGfpBNAvjovvYdCm50dRQkpQ==}
@@ -400,6 +409,8 @@ snapshots:
 
   '@esbuild/win32-x64@0.28.2':
     optional: true
+
+  '@finsweet/attributes@2.7.1': {}
 
   '@playwright/test@1.63.0':
     dependencies:

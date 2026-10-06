@@ -340,6 +340,34 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-06 · Finsweet Combo Box 2.7.1 differs from its docs
+- Area: js
+- Scope: template-candidate
+- Symptom: With the bundled `@finsweet/attributes@2.7.1` (threestars
+  pattern), Combo Box threw `Cannot read properties of null (reading
+  'style')` and rendered no options. Once fixed, the options showed in a
+  different order from the select.
+- Cause: read from the 2.7.1 source (`dist/src-42KUKVDL.js`):
+  - it reads `window.FinsweetAttributes.modules`, which the threestars List
+    shim doesn't create;
+  - `fs-combobox-element` only knows `dropdown`, `label`, `clear` and
+    `empty`. The input, select and option template are found by position
+    (first `input` and `select` in the Dropdown, first `a` in the list), so
+    the docs' `text-input` / `select` / `option-template` values do nothing;
+  - the `clear` element is required: without it init crashes;
+  - options are sorted by `value` (`localeCompare`), not by the select's
+    order.
+- Fix: `src/modules/finsweet.ts` creates `modules` as well as `scripts`
+  and loads both distributions with `import()` (List registers a CSS
+  property at evaluation, which threw when a test evaluated the bundle
+  twice). Give every Combo Box a clear element. Order options by choosing
+  values that sort the way they should read. Combo Box sets the hidden
+  select and fires `input` + `change`, so a select with
+  `fs-list-element="sort-trigger"` drives List Sort (checked in a harness
+  page: all four sorts reorder the list).
+- Status: open
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

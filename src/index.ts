@@ -2,6 +2,7 @@
 // Feature code lives in src/modules/<name>.ts and exports an init
 // function that no-ops when its selector is absent from the page.
 import { initEnvironmentSwitcher } from './modules/environment-switcher';
+import { initFinsweet } from './modules/finsweet';
 
 // Each module runs in isolation: one that throws is logged and skipped,
 // and every module after it still initializes.
@@ -22,6 +23,8 @@ function boot() {
 
   run('environment-switcher', initEnvironmentSwitcher);
   // Add project feature initializers here: run('<name>', init<Name>);
+  // Finsweet stays last: List's init() must see attributes earlier modules set.
+  run('finsweet', initFinsweet);
 }
 
 if (document.readyState === 'loading') {

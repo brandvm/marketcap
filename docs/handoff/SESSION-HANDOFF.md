@@ -68,7 +68,7 @@ Built (ids are component ids):
 
 | Gallery (Content) | `f42781b7-fc42-0304-3f03-358b49dc8ed8` | No props yet (static images). Lightbox hooks in place; items are real `<button>`s. |
 | Plans Slider (Sections) | `ca71be19-ecd7-73ef-cd05-6b7bdcb4ae14` | Heading (`6f086c40…`), Note (`00a364bf…`). Arrows are real `<button>`s; 4 stand-in images = framing-site. Heading keeps `id="plans-title"` for the section's `aria-labelledby`. Built 2026-10-06. |
-| Searchable Select (Content) | `3ea8d732-c469-d2a7-6acb-8b6f48116ec2` | Prop Label (sr-only, `46995581…`). Form Block › Form › SR label + Dropdown (`fs-combobox-element`: dropdown, text-input, select, option-template, empty). The hidden select also carries `fs-list-element="sort-trigger"`, so List Sort reads it. Needs the Finsweet script with `fs-combobox fs-list` in head. No `clear` element (not in the design). Built 2026-10-06. |
+| Searchable Select (Content) | `3ea8d732-c469-d2a7-6acb-8b6f48116ec2` | Prop Label (sr-only, `46995581…`). Form Block › Form › SR label + Dropdown (`fs-combobox-element`: dropdown, text-input, select, option-template, empty). The hidden select also carries `fs-list-element="sort-trigger"`, so List Sort reads it. Finsweet runs from `src/modules/finsweet.ts`. No `clear` element (not in the design). Built 2026-10-06. |
 
 Done this session after the first push: the `<button>` fix. The WHTML
 importer turns `<button>` into a Link (`<a type="button">`, no href, not
@@ -79,16 +79,18 @@ through WHTML `<button>`.**
 
 **Next:**
 
-1. Kajal: MANUAL-TODO J (placeholder) and K (check options); visual check of
-   the Dropdown on the canvas (Webflow's `.w-dropdown*` defaults vs the Select
-   classes).
-2. Finsweet script in Site settings → head (manual or via the MCP, Kajal's
-   call), later mirrored in `loader.html`:
-   `<script async type="module" src="https://cdn.jsdelivr.net/npm/@finsweet/attributes@2/attributes.js" fs-combobox fs-list></script>`
-3. Verify on staging that picking an option sorts the list (Combo Box must
-   fire `change` on the select for List Sort). If not, fall back to
-   `custom-select`.
-4. Report step 5 to Kajal for OK.
+1. Finsweet runs from the bundle, not a head script (Kajal, 2026-10-06;
+   threestars pattern): `src/modules/finsweet.ts`, pinned
+   `@finsweet/attributes@2.7.1`, `.pnpmfile.cjs`. No Site settings code and
+   no `loader.html` change. See GOTCHAS "Finsweet Combo Box 2.7.1".
+2. Searchable Select needs a **clear** element (Combo Box crashes without
+   one) and an option order decision (Combo Box sorts by value). Waiting for
+   Kajal.
+3. Kajal: MANUAL-TODO J (placeholder) and K (check options); visual check of
+   the Dropdown on the canvas.
+4. After pushing: on staging, check keyboard selection (needs webflow.js,
+   not testable in the harness) and the sort on the real Developments list.
+5. Report step 5 to Kajal for OK.
 
 ## Step 6 — CMS (approved)
 
