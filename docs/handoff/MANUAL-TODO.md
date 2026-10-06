@@ -52,8 +52,8 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | G | Style guide: drag the table of contents (nav "On this page", now just below the Page Head) into Page Head's slot | The API can't move elements into a slot. | ☐ |
 | H | Mark Figure component, conditional classes: root **Is Caps** when switch *Is Caps* is on; root **Is Contact** when *Is Contact* is on; Mark Figure Line H **Is Short** when *Is Contact* is on | Your call (switch + conditional classes). Until then the Capabilities and Contact previews show the base placement, and Is Caps / Is Contact / Is Short are unused. | ☑ done 10-05 (Kajal) |
 | I | Dev Card title heading level: h3 by default; the Developments listing uses h2 | The API has no prop type for a heading tag. Bind the tag in the Designer if it offers it, or set it per page later. | ☑ done 10-05 (Kajal, Heading Tag prop on Dev Card) |
-| J | Searchable Select: Select Input → Settings → **Placeholder** `Sort by` | The API treats `placeholder` as a reserved attribute and has no placeholder setting. | ☐ |
-| K | Searchable Select: check the hidden select (Select Native) has 4 options — `` "Sort by"; `date-desc` "Newest first"; `gfa-desc` "Largest GFA"; `name-asc` "Name A–Z" | Imported through WHTML; the API can't read or write select options. Values must match List Sort's `field-asc/desc` format, and Combo Box lists options sorted by value, which is why "Oldest first" was dropped (Kajal, 2026-10-06). | ☐ |
+| J | Searchable Select: Select Input → Settings → **Placeholder** `Sort by` | The API treats `placeholder` as a reserved attribute and has no placeholder setting. | ☑ done 10-06 (Kajal) |
+| K | Searchable Select: check the hidden select (Select Native) has 4 options — `` "Sort by"; `date-desc` "Newest first"; `gfa-desc` "Largest GFA"; `name-asc` "Name A–Z" | Imported through WHTML; the API can't read or write select options. Values must match List Sort's `field-asc/desc` format, and Combo Box lists options sorted by value, which is why "Oldest first" was dropped (Kajal, 2026-10-06). | ☑ done 10-06 (Kajal) |
 
 ## Not manual — waiting for the repo step
 
