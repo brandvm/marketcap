@@ -306,6 +306,40 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-06 · Element builder: rejected actions can still leave an element
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `data_element_builder` returned `"placeholder" is a reserved
+  attribute name` for a FormTextInput, yet a bare input (no placeholder,
+  `required` on) was inserted anyway. It surfaced later as a duplicate.
+- Cause: the element is created before the attributes are validated.
+- Fix: after any builder error, re-query the parent and remove strays.
+  `placeholder` has no setting either; set it in the Designer
+  (MANUAL-TODO J).
+- Status: open
+- Found by: claude
+
+### 2026-10-06 · TextBlock builder makes an uneditable Block; WHTML drops fs-* attributes
+- Area: mcp
+- Scope: template-candidate
+- Symptom:
+  - `type: "TextBlock"` produced a Block with "This is some text inside of
+    a div block." and `set_text` answered "This element doesn't support
+    text"; the requested `set_text` was ignored;
+  - WHTML import of a `<select>` kept the class and options markup but
+    dropped `name` and every `fs-*` attribute, and the API can't read
+    select options back;
+  - a `<div>` imported by WHTML then refused every write (`[Conflict] The
+    operation could not be applied to the component map`, BATCH_FAILED)
+    while other elements on the page updated fine.
+- Cause: MCP surface limits / importer behaviour.
+- Fix: build text as `type: "Paragraph"` with `set_text`. Re-add attributes
+  with `set_attributes` and `name` via `set_settings` after an import. If an
+  element keeps returning the component-map conflict, rebuild it with the
+  element builder and remove the old one.
+- Status: open
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

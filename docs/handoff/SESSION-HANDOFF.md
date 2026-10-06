@@ -1,6 +1,6 @@
 # MarketCap Webflow build — session handoff
 
-Last updated 2026-10-06 (Plans Slider done). Read this first when resuming on a
+Last updated 2026-10-06 (all 10 components built). Read this first when resuming on a
 new machine, then `AGENTS.md`, `GOTCHAS.md` and the two files next to this
 one:
 
@@ -43,7 +43,7 @@ original machine (or a private share) if you need the reference.
 | 2 | Native tag styles (H1–H6, p, a) | Done |
 | 3 | Classes from CLASSES.md | Done; 23 calc/gradient values entered manually by Kajal |
 | 4 | Style guide page | Done; previews 1–13 + anatomy; nav-state previews left out (Kajal) |
-| 5 | Components | **In progress**: 9 of 10 done; Searchable Select left |
+| 5 | Components | **Built** (10 of 10); waiting for Kajal's OK and MANUAL-TODO J–K |
 | 6 | CMS (Developments, Milestones) | Not started (Kajal approved doing it) |
 | 7 | Home page | Not started |
 | 8 | Inner pages (Developments, Development template, Contact) | Not started |
@@ -68,6 +68,7 @@ Built (ids are component ids):
 
 | Gallery (Content) | `f42781b7-fc42-0304-3f03-358b49dc8ed8` | No props yet (static images). Lightbox hooks in place; items are real `<button>`s. |
 | Plans Slider (Sections) | `ca71be19-ecd7-73ef-cd05-6b7bdcb4ae14` | Heading (`6f086c40…`), Note (`00a364bf…`). Arrows are real `<button>`s; 4 stand-in images = framing-site. Heading keeps `id="plans-title"` for the section's `aria-labelledby`. Built 2026-10-06. |
+| Searchable Select (Content) | `3ea8d732-c469-d2a7-6acb-8b6f48116ec2` | Prop Label (sr-only, `46995581…`). Form Block › Form › SR label + Dropdown (`fs-combobox-element`: dropdown, text-input, select, option-template, empty). The hidden select also carries `fs-list-element="sort-trigger"`, so List Sort reads it. Needs the Finsweet script with `fs-combobox fs-list` in head. No `clear` element (not in the design). Built 2026-10-06. |
 
 Done this session after the first push: the `<button>` fix. The WHTML
 importer turns `<button>` into a Link (`<a type="button">`, no href, not
@@ -78,12 +79,16 @@ through WHTML `<button>`.**
 
 **Next:**
 
-1. **Searchable Select** — not started. Finsweet Combo Box + List Sort
-   (Kajal: "finsweet now"). Check the current Finsweet Attributes docs for
-   attribute names; script tag goes in Site settings head (manual) and later
-   in `loader.html`. Build from the style guide's Select (Controls /
-   Patterns), keep `custom-select` as fallback.
-2. Then report step 5 to Kajal for OK.
+1. Kajal: MANUAL-TODO J (placeholder) and K (check options); visual check of
+   the Dropdown on the canvas (Webflow's `.w-dropdown*` defaults vs the Select
+   classes).
+2. Finsweet script in Site settings → head (manual or via the MCP, Kajal's
+   call), later mirrored in `loader.html`:
+   `<script async type="module" src="https://cdn.jsdelivr.net/npm/@finsweet/attributes@2/attributes.js" fs-combobox fs-list></script>`
+3. Verify on staging that picking an option sorts the list (Combo Box must
+   fire `change` on the select for List Sort). If not, fall back to
+   `custom-select`.
+4. Report step 5 to Kajal for OK.
 
 ## Step 6 — CMS (approved)
 
