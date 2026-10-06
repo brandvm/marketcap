@@ -68,7 +68,7 @@ Built (ids are component ids):
 
 | Gallery (Content) | `f42781b7-fc42-0304-3f03-358b49dc8ed8` | No props yet (static images). Lightbox hooks in place; items are real `<button>`s. |
 | Plans Slider (Sections) | `ca71be19-ecd7-73ef-cd05-6b7bdcb4ae14` | Heading (`6f086c40…`), Note (`00a364bf…`). Arrows are real `<button>`s; 4 stand-in images = framing-site. Heading keeps `id="plans-title"` for the section's `aria-labelledby`. Built 2026-10-06. |
-| Searchable Select (Content) | `3ea8d732-c469-d2a7-6acb-8b6f48116ec2` | Prop Label (sr-only, `46995581…`). Form Block › Form › SR label + Dropdown (`fs-combobox-element`: dropdown, text-input, select, option-template, empty). The hidden select also carries `fs-list-element="sort-trigger"`, so List Sort reads it. Finsweet runs from `src/modules/finsweet.ts`. No `clear` element (not in the design). Built 2026-10-06. |
+| Searchable Select (Content) | `3ea8d732-c469-d2a7-6acb-8b6f48116ec2` | Prop Label (sr-only, `46995581…`). Form Block › Form › SR label + Dropdown (`fs-combobox-element`: dropdown, text-input, select, option-template, empty). The hidden select also carries `fs-list-element="sort-trigger"`, so List Sort reads it. Finsweet runs from `src/modules/finsweet.ts`. Clear button (Select Clear) required by Combo Box 2.7.1. Built 2026-10-06. |
 
 Done this session after the first push: the `<button>` fix. The WHTML
 importer turns `<button>` into a Link (`<a type="button">`, no href, not
@@ -83,9 +83,13 @@ through WHTML `<button>`.**
    threestars pattern): `src/modules/finsweet.ts`, pinned
    `@finsweet/attributes@2.7.1`, `.pnpmfile.cjs`. No Site settings code and
    no `loader.html` change. See GOTCHAS "Finsweet Combo Box 2.7.1".
-2. Searchable Select needs a **clear** element (Combo Box crashes without
-   one) and an option order decision (Combo Box sorts by value). Waiting for
-   Kajal.
+2. Done 2026-10-06 (Kajal): new class **Select Clear** on a `<button
+   aria-label="Clear sort" fs-combobox-element="clear">` with an × svg,
+   before the chevron (Finsweet shows it only once a sort is chosen; 0.6
+   opacity, 1 on hover/focus-visible). "Oldest first" dropped, so options
+   read Newest first, Largest GFA, Name A–Z. Neither change is in the
+   prototype (read-only). Harness check passed: three sorts, clear resets
+   select and input; the list keeps its last order after clearing.
 3. Kajal: MANUAL-TODO J (placeholder) and K (check options); visual check of
    the Dropdown on the canvas.
 4. After pushing: on staging, check keyboard selection (needs webflow.js,
