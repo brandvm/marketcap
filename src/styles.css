@@ -534,6 +534,11 @@ html.is-menu-open {
    Designer (Field 0–17.65%, then transparent); gradient layers have no
    size/tile there, so this tiles it into 3px ticks every 17px. */
 .timeline-list { background-size: 17px 1em; background-repeat: repeat-x; }
+/* repo-css: designer-cant — ::before/::after content: the Milestones
+   Period field holds the bare text (e.g. Mid-1980s); the brackets are
+   design, added here so editors never type them. */
+.timeline-period::before { content: "[ "; }
+.timeline-period::after { content: " ]"; }
 /* repo-css: js-state — timeline.ts marks the centred item .is-active. */
 .timeline-item.is-active .timeline-image { width: 21.125em; margin-right: 1.75em; opacity: 1; }
 .timeline-item.is-active .timeline-line { height: 13em; }
@@ -558,7 +563,13 @@ html.is-menu-open {
 .story.is-static [data-story-media] { -webkit-mask: none; mask: none; }
 .story.is-static .story-statement,
 .story.is-static .story-stats { position: relative; inset: auto; transform: none; padding: var(--_layout---section--padding-v) var(--_layout---section--padding-h) var(--_layout---section--padding-v); }
-.story.is-static .story-about { padding-bottom: var(--_layout---section--padding-v); background-color: var(--_colors---brand--chalk); }
+.story.is-static .story-about { position: relative; inset: auto; padding-bottom: var(--_layout---section--padding-v); background-color: var(--_colors---brand--chalk); }
+/* Static (reduced motion): the photo stays behind the statement and stats,
+   shaded as at the end of the animated sequence, so the Kolin text reads. */
+.story.is-static [data-story-shade] { opacity: 0.45; }
+/* Nothing scrolls or measures in the static layout: no hint, no guides. */
+.story.is-static .story-scroll,
+.story.is-static [data-story-guides] { display: none; }
 .story.is-static .story-statement { padding-bottom: 0; }
 
 /* repo-css: js-state — nav-state.ts / nav-menu.ts toggle .is-solid,
