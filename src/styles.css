@@ -601,11 +601,13 @@ html.is-loading body {
   outline: none;
 }
 
-/* Match Webflow's .w-input:focus and .w-select:focus specificity so
-   keyboard focus stays visible on form controls. */
-:focus-visible,
-.w-input:focus-visible,
-.w-select:focus-visible {
+/* Fallback ring only (0-1-0). Form controls take their ring from a Focus
+   Visible state on their Designer class (Form Input, Select Toggle ›
+   Focus Within): a `.w-input:focus-visible` rule here tied with those
+   states and won on source order (see GOTCHAS). A new input class needs
+   its own Focus Visible state, since Webflow's `.w-input:focus` sets
+   outline 0. */
+:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }

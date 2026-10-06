@@ -387,6 +387,28 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed (Webflow styles, 2026-10-06)
 - Found by: human
 
+### 2026-10-06 · Template focus rule overrides Designer focus states on inputs
+- Area: css
+- Scope: template-candidate
+- Symptom: Kajal saw a dark square ring around the Select's text input
+  only, instead of the Clay ring on the whole field. Every Form Input
+  showed the same dark ring instead of its Designer Focus Visible state
+  (Form/Focus, offset 3px). On click, Form Input's border turned blue.
+- Cause: the template's §07 rule `:focus-visible, .w-input:focus-visible,
+  .w-select:focus-visible { outline: 2px solid var(--color-accent) }`
+  (`currentColor`). The `.w-input` part is 0-2-0, the same as a Designer
+  `.form-input:focus-visible`, and repo CSS loads later, so it wins. The
+  blue border is webflow.css `.w-input:focus { border-color: #3898ec }`,
+  which beats a class's base border colour.
+- Fix: the `.w-input` / `.w-select` selectors dropped from the rule (plain
+  `:focus-visible` fallback kept). In Webflow: Select Input › Focus
+  Visible outline none; Select Toggle › Focus Within outline 2px
+  Form/Focus, offset 3px; Form Input › Focus border colour = its base
+  border variable. Every input class needs its own Focus Visible state
+  and a Focus border colour.
+- Status: fixed (this commit + Webflow styles, 2026-10-06); not upstreamed
+- Found by: human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
