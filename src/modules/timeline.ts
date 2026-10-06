@@ -7,7 +7,7 @@
 // › [data-era] items, each holding a [data-era-pill] button.
 // Below 768px (and with reduced motion) the list is a plain vertical stack.
 import { gsap, ScrollTrigger } from './gsap';
-import { lenis } from './smooth-scroll';
+import { lenis, isAnchorScrolling } from './smooth-scroll';
 
 export function initTimeline() {
   const root = document.querySelector<HTMLElement>('[data-timeline]');
@@ -60,7 +60,11 @@ export function initTimeline() {
       start: 'top top',
       end: () => `+=${last * 70}%`,
       scrub: true,
-      snap: { snapTo: 1 / last, duration: { min: 0.2, max: 0.6 }, ease: 'power2.inOut', delay: 0.05 },
+      // No snapping while an anchor link scrolls through (smooth-scroll.ts).
+      // ScrollTrigger extrapolates the value from scroll velocity, so arriving
+      // at the very start while moving up can hand in a negative value:
+      // clamp it, or it snaps to the wrong end of the pin.
+      snap: { snapTo: (value: number) => (isAnchorScrolling() ? value : Math.round(Math.min(1, Math.max(0, value)) * last) / last), duration: { min: 0.2, max: 0.6 }, ease: 'power2.inOut', delay: 0.05 },
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         state.at = self.progress * last;

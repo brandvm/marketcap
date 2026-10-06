@@ -46,6 +46,12 @@ export function startLists(): Promise<List[]> {
   return started;
 }
 
+// A page transition swaps the lists: forget the old instances so the next
+// page's init() builds its own.
+export function resetFinsweet() {
+  started = undefined;
+}
+
 export function initFinsweet() {
   const hasCombobox = !!document.querySelector('[fs-combobox-element="dropdown"]');
   const hasList = !!document.querySelector('[fs-list-element="list"]');

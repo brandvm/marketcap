@@ -11,12 +11,18 @@
 //     (story-sequence.ts switches Story as its photo floods the frame).
 // Markup: [data-nav] › [data-nav-float]; optional [data-hero],
 // [data-nav-theme="dark|light"].
+// After a page transition (transition.ts) the bar's solid state and the
+// themed sections belong to the new page: refreshNavState() re-reads both.
+let refresh: () => void = () => {};
+export const refreshNavState = () => refresh();
+
 export function initNavState() {
   const nav = document.querySelector<HTMLElement>('[data-nav]');
   if (!nav) return;
 
   // Pages without a dark hero (listing, contact, style guide) start solid.
-  if (!document.querySelector('[data-hero]')) nav.classList.add('is-solid');
+  const setSolid = () => nav.classList.toggle('is-solid', !document.querySelector('[data-hero]'));
+  setSolid();
 
   // The bar's own box (the fixed float and panel inside it don't count).
   // On desktop .is-float also turns the inline links into the closed sheet;
@@ -31,10 +37,18 @@ export function initNavState() {
   new IntersectionObserver(([entry]) => setFloat(!entry.isIntersecting)).observe(nav);
 
   const float = nav.querySelector<HTMLElement>('[data-nav-float]');
-  if (!float) return;
-  const themed = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-theme], main .section, .g-footer-w'));
+  if (!float) {
+    refresh = setSolid;
+    return;
+  }
   const depth = (el: Element) => { let d = 0; for (let n = el.parentElement; n; n = n.parentElement) d++; return d; };
-  const depths = new Map(themed.map((el) => [el, depth(el)]));
+  let themed: HTMLElement[] = [];
+  let depths = new Map<HTMLElement, number>();
+  const collect = () => {
+    themed = Array.from(document.querySelectorAll<HTMLElement>('[data-nav-theme], main .section, .g-footer-w'));
+    depths = new Map(themed.map((el) => [el, depth(el)]));
+  };
+  collect();
   const themeOf = (el: HTMLElement) => el.dataset.navTheme ?? (el.classList.contains('is-ironstone') ? 'dark' : 'light');
   let queued = false;
   const update = () => {
@@ -53,4 +67,9 @@ export function initNavState() {
   // Story's theme flips mid-pin without a scroll of its own element.
   new MutationObserver(queue).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['data-nav-theme'] });
   update();
+  refresh = () => {
+    setSolid();
+    collect();
+    update();
+  };
 }

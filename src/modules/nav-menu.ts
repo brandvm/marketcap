@@ -8,6 +8,10 @@
 // bar is on screen, and turn into the sheet once it has gone (.is-float).
 import { lenis } from './smooth-scroll';
 
+// transition.ts closes the sheet when a link inside it starts a transition.
+let close: () => void = () => {};
+export const closeNavMenu = () => close();
+
 export function initNavMenu() {
   const nav = document.querySelector<HTMLElement>('[data-nav]');
   const toggles = Array.from(nav?.querySelectorAll<HTMLButtonElement>('[data-nav-toggle]') ?? []);
@@ -33,6 +37,7 @@ export function initNavMenu() {
     syncInert();
   };
 
+  close = () => setOpen(false);
   toggles.forEach((toggle) =>
     toggle.addEventListener('click', () => {
       opener = toggle;

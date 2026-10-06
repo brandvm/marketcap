@@ -730,6 +730,89 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: human + claude
 
+### 2026-10-06 · Line breaks in headings drop the word space
+- Area: mcp
+- Scope: template-candidate
+- Symptom: heading outlines read "Family.Driven", "tolong-term",
+  "towardthe": text split with `<br>` had no space at the break.
+- Cause: the prototype markup had none (`Family.<br>Driven`), and the
+  tools don't help: the WHTML importer trims a normal space before `<br>`,
+  and `set_text` with "\n" on a Heading stores a literal newline (published
+  as a space, so the visual break is lost). Only text *props* turn "\n"
+  into `<br/>`.
+- Fix: re-import the heading as `Line one.&nbsp;<br>Line two.`: the
+  non-breaking space survives as its own text node and is invisible at the
+  line end (H1 and the Approach heading on Home). For a text prop, put a
+  space before the newline (Closing CTA default "Looking toward \nthe
+  future."). Re-add attributes after a re-import (`data-hero-item`).
+- Status: fixed (Webflow, 2026-10-06)
+- Found by: human + claude
+
+### 2026-10-06 · Barba: first-load hooks, lost hash, missing types
+- Area: js
+- Scope: template-candidate
+- Symptom: with Barba 2.10.3 added, a direct load of Home couldn't scroll
+  (document height 900px); cross-page `/#approach` from Contact landed at
+  the top; `tsc` couldn't find Barba's types.
+- Cause:
+  - Barba runs the global `beforeEnter` / `enter` / `afterEnter` hooks on
+    first load as well. The Osmo boilerplate's `beforeEnter` sets the
+    container `position: fixed` for the swap, and on first load nothing
+    clears it;
+  - Barba pushes the next URL without its hash and `data.next.url` doesn't
+    carry it;
+  - the package's `"types"` points at `dist/core/src/typings`, which isn't
+    published.
+- Fix: the swap hooks return early when there is no current container
+  (`isSwap`); a capture-phase click listener remembers the clicked link's
+  hash and `afterEnter` restores it before `jumpToHash()`; `src/barba.d.ts`
+  declares the API we use.
+- Status: fixed in this commit
+- Found by: claude
+
+### 2026-10-06 · Page modules torn down per Barba page
+- Area: js
+- Scope: template-candidate
+- Symptom: page modules were written for one full load (document queries,
+  window listeners, pins), so a swapped-in page would stack triggers and
+  listeners.
+- Cause: Barba replaces only the container.
+- Fix: `src/index.ts` runs page modules inside a `gsap.context` (reverts
+  their tweens, ScrollTriggers and matchMedia) and records the window and
+  document listeners they add while starting, then removes both on
+  `afterLeave`; the lightbox dialog on `<body>` is removed too. Checked: 3
+  round trips Home → Developments → Home keep 3 pin spacers and the same
+  page height, and every scene still runs. Global modules (Lenis, nav) run
+  once and expose refresh hooks. Webflow is re-initialised after each swap
+  (`data-wf-page`, `Webflow.destroy()` / `ready()`, IX2); Turnstile then
+  logs "already has been loaded" — harmless.
+- Status: fixed in this commit
+- Found by: claude
+
+### 2026-10-06 · Anchors to pinned sections land at the end of the pin
+- Area: js
+- Scope: template-candidate
+- Symptom: from further down the page, the Our Story link scrolled to the
+  section's start, then jumped 1260px into the timeline (the end of its pin).
+  Cross-page anchors also left a strip of the previous section above
+  Approach.
+- Cause:
+  - webflow.js has its own same-page anchor handler (`click.wf-scroll`):
+    a moment after our Lenis glide it scrolled again, to the pinned
+    element's current position, which is the end of its pin. It's bound
+    again by every `Webflow.ready()`;
+  - scrolling to a pinned element instead of its `.pin-spacer` has the same
+    effect;
+  - the anchor offset still subtracted the nav height, though the bar now
+    scrolls away.
+- Fix: `releaseWebflowAnchors()` unbinds `click.wf-scroll` at init, on load
+  and after each Barba re-init; anchors scroll to the pin spacer's top with
+  no offset (Kajal); the timeline snap stands down during an anchor glide
+  and clamps its value. Checked same-page, cross-page and after a
+  transition at 1440, 820 and 390.
+- Status: fixed in this commit
+- Found by: human + claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
@@ -868,5 +951,6 @@ they are not rediscovered. Status refers to the template.
   and never reads `scroll-margin-top`.
 - Fix: threestars `anchor-scroll.ts` unbinds `click.wf-scroll` and measures
   `--nav-h` from the nav.
-- Status: project pattern
+- Status: project pattern — MarketCap unbinds it too (smooth-scroll.ts), see
+  the 2026-10-06 pinned-anchors entry
 - Found by: human
