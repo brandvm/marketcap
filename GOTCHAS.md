@@ -503,6 +503,86 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed
 - Found by: claude
 
+### 2026-10-06 · Body Embed stylesheet: page paints unscaled, then jumps
+- Area: loader
+- Scope: template-candidate
+- Symptom: Kajal saw the hero (and every page) flash. A filmstrip showed
+  the first paint at Webflow's 16px with a fallback font, then a jump to
+  the P8 scale once repo CSS arrived; `styles.css` was fetched three times.
+- Cause: repo CSS comes from a `<link>` in a body Embed, which doesn't block
+  rendering like a head stylesheet; the Embed script and the footer loader
+  each rewrote its href with a new `Date.now()`, and every href change
+  drops the sheet and fetches it again (the cancelled fetch also fires
+  `error`); Inter (`font-display: swap`) loaded late.
+- Fix: loader.html — head code preloads the Inter woff2, adds
+  `html.bv-css-wait body { visibility: hidden }` (3 s fallback) and one
+  shared `BV.v` cache-buster; the Embed script leaves the static link for
+  the canvas and appends a fresh `#bv-css` link with the final URL, whose
+  load/error lifts the wait; the footer loader only sets the href when the
+  URL really differs. Verified by serving staging with the patched snippets.
+- Status: fixed in loader.html; needs re-paste (MANUAL-TODO Q)
+- Found by: human + claude
+
+### 2026-10-06 · Importer drops <img> attributes; Webflow drops valueless video booleans
+- Area: mcp
+- Scope: template-candidate
+- Symptom: the Story zoom didn't run; a `<video autoplay muted loop>` published
+  without `muted` and `loop`, so autoplay was blocked.
+- Cause: WHTML keeps attributes on most elements but none on `<img>`
+  (`data-story-zoom`, `loading`, `decoding` all gone). Webflow strips
+  boolean attributes with an empty value from DOM elements on publish.
+- Fix: re-add image hooks with `set_attributes` after every import.
+  Give boolean attributes a value (`muted="true"`), per Kajal. The C | Video
+  component binds each attribute *name* to a text prop (default `muted`,
+  value `true`); clearing the prop turns it off.
+- Status: workaround confirmed
+- Found by: human + claude
+
+### 2026-10-06 · API gaps met building Home
+- Area: mcp
+- Scope: template-candidate
+- Symptom / workaround:
+  - a Link Block in a Collection List can't be pointed at the current
+    item: `static_link` mode `collectionPage` publishes the literal slug and
+    mode `page` publishes the list page. Designer: Link › Current <Item>;
+  - element visibility binds only to boolean props, so "show when this
+    text prop is set" is Designer-only (C | Video sources);
+  - option field values can't be renamed, and a page can't be moved into a
+    folder (`create_page` / `update_page_settings` take no parent);
+  - `set_style` with a 3-class chain fails unless that exact chain exists:
+    create the combo with `parent_style_names: [A, B]` first;
+  - custom properties accept `mask-image` etc. but refuse `-webkit-` prefixes;
+  - a link-type component prop takes `link_mode` `url|email|phone|popover`
+    only (no page links), with `link_to`.
+- Status: open
+- Found by: claude
+
+### 2026-10-06 · Inter Variable narrows large type (optical size)
+- Area: designer
+- Scope: template-candidate
+- Symptom: Webflow headings were narrower than the prototype at the same
+  size and tracking (hero H1 336 vs 375px).
+- Cause: Inter Variable v4 has an `opsz` axis; with the default
+  `font-optical-sizing: auto` large text uses the tighter Display cut. The
+  prototype's Google Fonts Inter (wght axis only) is the Text cut everywhere.
+- Fix: Body tag style › custom property `font-optical-sizing: none`.
+- Status: fixed (Webflow styles, 2026-10-06)
+- Found by: claude
+
+### 2026-10-06 · Designer canvas draws a templateless grid as 2×2
+- Area: designer
+- Scope: template-candidate
+- Symptom: Icon Box glyphs sat top-left on the canvas but centred on staging.
+- Cause: `display: grid` with no rows/columns set publishes as a one-cell
+  grid, but the Designer previews its default 2×2 template.
+- Fix: centre single children with flex (justify/align center), not grid.
+  Every grid class sets both tracks explicitly (Kajal): a missing
+  `grid-template-rows` / `-columns` is given `auto`, which matches the
+  implicit track, so published CSS behaves the same. Done for 19 classes
+  (rows) and Lightbox (columns); breakpoints inherit from base.
+- Status: fixed (Icon Box + all grid classes, 2026-10-06)
+- Found by: human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

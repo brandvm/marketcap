@@ -50,6 +50,18 @@ published.
 <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
 
+<!-- The body font, fetched in parallel with the HTML so the first paint
+     isn't set in the fallback face (Webflow's @font-face uses swap). Must
+     match the URL in the site stylesheet; update it if Inter is re-uploaded. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin
+  href="https://cdn.prod.website-files.com/6ac0183f4c3b275e72bfa228/6ac0187de770b9ffd10a8592_InterVariable.woff2" />
+
+<!-- Holds the first paint until the repo stylesheet has loaded. It comes
+     from an Embed in <body> (see piece 2), which doesn't block rendering
+     the way a head stylesheet does, so without this the page paints once
+     unscaled and without the js-state rules, then jumps. -->
+<style>html.bv-css-wait body { visibility: hidden; }</style>
+
 <script>
   (function () {
     var RELEASE = null; // the release tag, e.g. "1.0.0" — the only version string
@@ -72,6 +84,10 @@ published.
     window.BV = {
       staging: staging, dev: flag, devBase: DEV, stag: STAG,
       release: RELEASE, prod: prod,
+      // One cache-buster per page view, shared by the CSS Embed and the
+      // footer loader: both build the same stylesheet URL, so the href is
+      // set once and the sheet is never dropped and fetched again.
+      v: "?v=" + Date.now(),
     };
 
     // Paired with the html.is-loading rules in src/styles.css. The bundle
@@ -80,8 +96,8 @@ published.
     // timeout, not one started on `load` — a slow image would otherwise
     // keep the page locked far past 3 s.
     var root = document.documentElement;
-    root.classList.add("is-loading");
-    setTimeout(function () { root.classList.remove("is-loading"); }, 3000);
+    root.classList.add("is-loading", "bv-css-wait");
+    setTimeout(function () { root.classList.remove("is-loading", "bv-css-wait"); }, 3000);
   })();
 </script>
 
@@ -133,8 +149,25 @@ published.
     if (!C) return console.error("[bv] Head code config missing; the stylesheet stays on staging.");
     if (!base) return;
     // Runs in the same tick as the link above, so the staging sheet never
-    // applies on prod — the href is settled before first paint.
-    base.href = C.staging ? C.stag + "styles.css?v=" + Date.now() : C.prod + "styles.css";
+    // applies on prod. The static link stays for the Designer canvas only:
+    // a fresh link takes over the id with the final URL (changing an href
+    // in place cancels the first fetch, and that cancel fires `error`).
+    // The footer loader builds the same URL (C.v), so it leaves it alone.
+    var canvas = base;
+    var css = document.createElement("link");
+    var show = function () {
+      document.documentElement.classList.remove("bv-css-wait");
+      if (canvas.parentNode) canvas.remove();
+    };
+    css.rel = "stylesheet";
+    css.onload = show;
+    css.onerror = show;
+    css.href = C.staging ? C.stag + "styles.css" + C.v
+      : C.prod + "styles.css" + (C.release ? "" : C.v);
+    canvas.id = "bv-css-canvas";
+    css.id = "bv-css";
+    canvas.parentNode.insertBefore(css, canvas.nextSibling);
+    base = css;
     if (C.dev && !document.getElementById("bv-css-dev")) {
       var dev = document.createElement("link");
       dev.id = "bv-css-dev";
@@ -170,14 +203,17 @@ Rollback = set RELEASE in piece 1 back to the previous tag and publish.
         var devCSS = document.getElementById("bv-css-dev");
         if (devCSS) devCSS.remove();
         var baseCSS = document.getElementById("bv-css");
-        if (baseCSS) baseCSS.href = C.source + "styles.css" + new URL(src).search;
+        var css = C.source + "styles.css" + new URL(src).search;
+        // Only on a fallback does the URL differ; re-setting the same href
+        // would drop the sheet and fetch it again.
+        if (baseCSS && baseCSS.href !== css) baseCSS.href = css;
       }
       var s = document.createElement("script");
       s.src = src;
       if (fallback) s.onerror = fallback;
       document.head.appendChild(s);
     }
-    var v = "?v=" + Date.now();
+    var v = C.v || "?v=" + Date.now();
     if (C.dev)
       js(C.devBase + "index.js", function () {
         js(C.stag + "index.js" + v);
