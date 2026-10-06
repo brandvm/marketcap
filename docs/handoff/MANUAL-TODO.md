@@ -62,6 +62,7 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | Q | Re-paste all three snippets from `marketcap/loader.html` (head code, the Embed in Global Components, footer code) and publish | Load-flash fix: font preload, paint held until repo CSS loads, stylesheet URL set once. A push never updates these. | ☑ done 10-06 (Kajal) |
 | R | CMS › Developments › field **Stage**: rename option **Planning** → **In planning** | Kajal's choice (10-06). The API can't edit option names; renaming in the Designer keeps the option id, so items keep their stage. | ☑ done 10-06 (Kajal) |
 | S | Home › Developments list › **Dev Card** instance → prop **Link** → Collection Page › **Current Development** | Same API gap as N: a link prop only takes url/email/phone. Until then both cards link to the medical centre (the component default). The Developments page and the template's "Other development" card need the same once built. | ☐ |
+| T | **Mark Figure** component → root → Custom attributes → `class` = Conditional → *If Is Caps = True*: change the text **is-cap** → **is-caps** | The value is a typed class name, and `is-cap` is the Marker combo's class, so Home and the style guide publish `mark-figure is-cap` and the collage loses its desktop placement. The API can't edit a conditional attribute value. Checked with `is-caps` added in the browser: the section then matches the prototype at 1440, 820 and 390. | ☐ |
 
 ## Not manual — waiting for the repo step
 

@@ -27,17 +27,23 @@ export function initCapabilities() {
     });
     const next = items[index];
     if (media.getAttribute('src') === next.dataset.image) return;
-    if (reducedMotion()) {
+    // Webflow publishes responsive images with srcset/sizes, which win over
+    // src; drop them so the swapped photo actually shows.
+    const swap = () => {
+      media.removeAttribute('srcset');
+      media.removeAttribute('sizes');
       media.src = next.dataset.image ?? '';
       media.alt = next.dataset.alt ?? '';
+    };
+    if (reducedMotion()) {
+      swap();
       return;
     }
     gsap.to(media, {
       opacity: 0,
       duration: 0.2,
       onComplete: () => {
-        media.src = next.dataset.image ?? '';
-        media.alt = next.dataset.alt ?? '';
+        swap();
         gsap.to(media, { opacity: 1, duration: 0.45 });
       },
     });

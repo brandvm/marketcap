@@ -634,6 +634,35 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: human
 
+### 2026-10-06 · Webflow images publish with srcset; swapping src does nothing
+- Area: js
+- Scope: template-candidate
+- Symptom: the Capabilities tabs changed `src` on the collage image, but the
+  photo on staging stayed the same.
+- Cause: Webflow publishes every asset image with `srcset` and `sizes`
+  (`-p-500` … `-p-2000` variants); the browser picks from `srcset` and
+  ignores a new `src`.
+- Fix: `capabilities.ts` removes `srcset` and `sizes` before setting `src`.
+  Any module that swaps a Webflow image must do the same (or set a new srcset).
+- Status: fixed in this commit
+- Found by: claude
+
+### 2026-10-06 · Conditional classes are typed slugs, not linked styles
+- Area: designer
+- Scope: template-candidate
+- Symptom: Mark Figure with *Is Caps* on published `mark-figure is-cap`, so
+  the Home collage lost its placement.
+- Cause: the component's "conditional classes" are a custom `class`
+  attribute with a Conditional text value. The value is a typed string
+  (`is-cap`, one letter short of `is-caps`), not a reference to a style, so
+  a typo publishes silently and a class rename in the Style Manager never
+  reaches it. The API can't read or edit the value.
+- Fix: corrected in the Designer (MANUAL-TODO T). After wiring a conditional
+  class, check the published class list; re-check these attributes whenever
+  a combo is renamed.
+- Status: open
+- Found by: claude + human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
