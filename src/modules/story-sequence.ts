@@ -71,6 +71,8 @@ export function initStorySequence() {
     const labelX = story.querySelector<HTMLElement>('[data-guide-x]');
     const labelY = story.querySelector<HTMLElement>('[data-guide-y]');
     const mask = { p: 0 };
+    const float = document.querySelector<HTMLElement>('[data-nav-float]');
+    const navMid = () => (float ? float.offsetHeight / 2 : 40);
     const draw = () => {
       const a = startBox(media);
       const b = endBox(media);
@@ -86,6 +88,11 @@ export function initStorySequence() {
       if (guides) guides.style.opacity = String(Math.min(1, Math.min(gx, gy) / 120));
       if (labelX) labelX.textContent = `X: ${Math.round(117 + Math.max(0, a.x - box.x) * 0.15)}`;
       if (labelY) labelY.textContent = `Y: ${Math.round(99 + Math.max(0, a.y - box.y) * 0.15)}`;
+      // Nav Float reads the theme under it (nav-state.ts): Chalk until the
+      // photo has spread up to the bar's height, dark after.
+      const theme = box.y + pin.getBoundingClientRect().top <= navMid() ? 'dark' : 'light';
+      story.dataset.navTheme = theme;
+      about.dataset.navTheme = theme;
     };
     draw();
     ScrollTrigger.addEventListener('refresh', draw);
@@ -150,6 +157,8 @@ export function initStorySequence() {
 
     return () => {
       ScrollTrigger.removeEventListener('refresh', draw);
+      story.dataset.navTheme = 'dark';
+      about.dataset.navTheme = 'light';
       gsap.set([...Array.from(cards), cta, about, story.querySelector('[data-story-stats]'), ...Array.from(lines)].filter(Boolean), { clearProps: 'all' });
     };
   });

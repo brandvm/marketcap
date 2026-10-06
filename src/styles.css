@@ -585,22 +585,49 @@ html.is-menu-open {
 .story.is-static [data-story-guides] { display: none; }
 .story.is-static .story-statement { padding-bottom: 0; }
 
-/* repo-css: js-state — nav-state.ts / nav-menu.ts toggle .is-solid,
-   .is-hidden and .is-open on G | Nav W. Transitions are set on the classes
-   in the Designer. */
-.g-nav-w.is-solid,
-.g-nav-w.is-open { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
-.g-nav-w.is-solid .nav-button,
-.g-nav-w.is-open .nav-button {
+/* repo-css: js-state — the bar scrolls away with the page; nav-state.ts
+   and nav-menu.ts toggle these classes on G | Nav W ([data-nav]):
+   .is-solid  pages without a dark hero (set once, never changes);
+   .is-float  the bar is off screen: Nav Float shows, and on desktop the
+              inline links become the closed sheet (the Designer styles the
+              sheet at Tablet and below);
+   .is-swapping  one frame around that switch, so the links don't slide;
+   .is-open   the menu sheet is open.
+   Nav Float's own .is-dark (light boxes over dark sections) is a combo in
+   the Designer with the Ironstone Variable mode. */
+.g-nav-w.is-solid { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
+.g-nav-w.is-solid .nav-button {
   --_colors-semantic---button--background: var(--_colors---brand--ironstone);
   --_colors-semantic---button--foreground: var(--_colors---brand--kolin);
   --_colors-semantic---button--background-hover: var(--_colors---brand--clay);
   --_colors-semantic---button--foreground-hover: var(--_colors---brand--kolin);
 }
-.g-nav-w.is-hidden { transform: translateY(-100%); }
-.g-nav-w.is-open .nav-menu { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-.g-nav-w.is-open .nav-toggle-line:nth-child(2) { transform: translateY(0.21875em) rotate(45deg); }
-.g-nav-w.is-open .nav-toggle-line:nth-child(3) { transform: translateY(-0.21875em) rotate(-45deg); }
+.g-nav-w.is-float .nav-float,
+.g-nav-w.is-open .nav-float { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
+.g-nav-w.is-open .nav-float-cta { opacity: 0; visibility: hidden; } /* the sheet has its own CTA */
+/* Desktop sheet: same values the Designer sets on Nav Menu at Tablet. */
+.g-nav-w.is-float .nav-menu {
+  position: fixed; left: auto; right: 0; top: 0; bottom: 0; z-index: 101;
+  width: 30em; max-width: 100%; height: 100svh;
+  flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 1.25em;
+  padding: calc(var(--_layout---nav--height) + 2.5em) var(--_layout---nav--padding-h) 2.5em;
+  background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone);
+  overflow-y: auto; visibility: hidden; transform: translate(100%, 0);
+}
+.g-nav-w.is-float .nav-menu .nav-link { font-size: var(--_typography-role---size--h3); line-height: 1.15; letter-spacing: -0.02em; }
+.g-nav-w.is-float .nav-menu-cta { display: inline-flex; margin-top: 1.25em; }
+.g-nav-w.is-swapping .nav-menu,
+.g-nav-w.is-swapping .nav-menu .nav-link { transition: none; }
+.g-nav-w.is-open .nav-menu { visibility: visible; transform: none; transition-delay: 0s; }
+.g-nav-w.is-open .nav-scrim { opacity: 1; visibility: visible; transition-delay: 0s; }
+/* Three lines → X. Offsets = gap + line height (bar 0.375em + 1px at 16px,
+   float 0.4286em + 1px at the button's 14px). */
+.nav-toggle-line { transition: transform 350ms cubic-bezier(0.64, 0.05, 0, 1), opacity 200ms ease; }
+.g-nav-w.is-open .nav-toggle-line:nth-child(2 of .nav-toggle-line) { opacity: 0; } /* "of": the bar's toggle starts with its SR Only label */
+.g-nav-w.is-open .nav-toggle .nav-toggle-line:nth-child(1 of .nav-toggle-line) { transform: translateY(0.4375em) rotate(45deg); }
+.g-nav-w.is-open .nav-toggle .nav-toggle-line:nth-child(3 of .nav-toggle-line) { transform: translateY(-0.4375em) rotate(-45deg); }
+.g-nav-w.is-open .nav-float-toggle .nav-toggle-line:nth-child(1 of .nav-toggle-line) { transform: translateY(0.5em) rotate(45deg); }
+.g-nav-w.is-open .nav-float-toggle .nav-toggle-line:nth-child(3 of .nav-toggle-line) { transform: translateY(-0.5em) rotate(-45deg); }
 
 /* repo-css: js-state — custom-select.ts (the style guide's Select
    specimens; the Searchable Select component uses Finsweet). */
@@ -841,7 +868,8 @@ html.is-menu-open {
   .icon-box::before,
   .icon-box::after,
   .hero-card-img,
-  .g-nav-w,
+  .nav-float,
+  .nav-scrim,
   .nav-menu,
   .nav-toggle-line {
     transition: none !important;

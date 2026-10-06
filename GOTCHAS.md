@@ -697,6 +697,22 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: human + claude
 
+### 2026-10-06 · backdrop-filter traps fixed children (floating nav)
+- Area: css
+- Scope: template-candidate
+- Symptom: with G | Nav W made absolute (the bar scrolls away), the fixed
+  menu sheet and floating buttons inside it would scroll away too.
+- Cause: `backdrop-filter`, `filter`, `transform` and `will-change:
+  transform` make an element the containing block of its `position: fixed`
+  descendants. The bar's glass blur and its old auto-hide transform did that.
+- Fix: the blur lives on a child, **Nav Bg** (absolute, inset 0, z-index -1);
+  G | Nav W has no transform or will-change. Keep those properties off any
+  wrapper that holds fixed elements. Related: the bar's toggle starts with an
+  SR Only label and the float's doesn't, so the X rules use
+  `:nth-child(n of .nav-toggle-line)`.
+- Status: fixed in this commit
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
