@@ -472,10 +472,13 @@ html.is-menu-open {
 .icon-box::after { border-color: var(--_colors---brand--ironstone); }
 .cursor-button::before,
 .cursor-button::after { border-color: var(--_colors---brand--kolin); }
+/* C | Button and the cursor button carry their 1px border on the inner
+   Button Color, not on this element, so the lines sit at 0 to overlap it
+   (at -1px they ran just outside the edge with a hairline gap). */
 .button::before,
-.cursor-button::before { top: -1px; bottom: -1px; left: -0.75em; right: -0.75em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
+.cursor-button::before { top: 0; bottom: 0; left: -0.75em; right: -0.75em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
 .button::after,
-.cursor-button::after { left: -1px; right: -1px; top: -0.75em; bottom: -0.75em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
+.cursor-button::after { left: 0; right: 0; top: -0.75em; bottom: -0.75em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
 .icon-box::before { top: -1px; bottom: -1px; left: -0.5em; right: -0.5em; border-top-width: 1px; border-bottom-width: 1px; transform: scaleX(0); }
 .icon-box::after { left: -1px; right: -1px; top: -0.5em; bottom: -0.5em; border-left-width: 1px; border-right-width: 1px; transform: scaleY(0); transition-delay: 80ms; }
 .button:hover::before,

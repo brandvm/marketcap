@@ -583,6 +583,57 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed (Icon Box + all grid classes, 2026-10-06)
 - Found by: human
 
+### 2026-10-06 · Canvas `.wf-empty`: empty elements show as 75px boxes or vanish
+- Area: designer
+- Scope: template-candidate
+- Symptom: on the Designer canvas, empty shapes (markers, guide lines,
+  timeline dot/line, overlays, fades) showed as dashed placeholder boxes;
+  once given padding, em-sized ones collapsed to 0×0. Published pages were fine.
+- Cause: the canvas adds `.wf-empty` to any element without content:
+  `padding-bottom/right: 75px`, `font-size: 0`, `line-height: 0` and a dashed
+  outline. em sizes then compute to 0. (First guessed margin — wrong.)
+- Fix: every class used on an empty element sets padding 0 on all sides and
+  `font-size: inherit` (the live default, so the published page is unchanged).
+  Done for Marker, Nav Toggle Line, Timeline Dot/Line/Fade, S Bg Overlay,
+  Steps List Track/Progress, Guides V/H/Marker, Dev Wash, Mark Figure Line
+  H/V/Marker, Sg Swatch Color, Sg Radius, Divider, Map Frame, G | Nav,
+  G | Footer, G | Components. Do the same for any new empty element.
+- Status: fixed (Webflow styles, 2026-10-06)
+- Found by: human
+
+### 2026-10-06 · Split text in Webflow Spans flattens when edited
+- Area: designer
+- Scope: template-candidate
+- Symptom: editing a step or statement's text from the Settings panel turned
+  the styled pieces (marker, [ 1 ], title, description) into one plain sentence.
+- Cause: the importer makes every `<span>` a Webflow text Span; Spans inside a
+  text parent (button, paragraph, figcaption, heading, link) are rich-text
+  children, and editing the parent's text rewrites them.
+- Fix: rebuild each piece as a custom element with tag `span` (same classes and
+  attributes), move its text node in, remove the old Span. Done for 22 on Home
+  (Approach steps, Story statement), 71 on the style guide, the Nav toggle and
+  the Footer legal links. Standalone Spans in plain blocks (chips, labels) are
+  fine. Open: the style guide's Sg Value table cells (Spans holding spans,
+  ~380) — generated docs, left as is.
+- Status: fixed for site content
+- Found by: human
+
+### 2026-10-06 · C | Button crop lines sat outside the edge; cursor button stuck on scroll
+- Area: css
+- Scope: project
+- Symptom: a hairline gap between the crop lines and the Dev Card cursor
+  button's edge; after scrolling a card under a still mouse the button stayed
+  where it was until the mouse moved.
+- Cause: in the prototype `.button` carries its own 1px border, so lines at
+  -1px land on it; in C | Button the border is on the inner Button Color, so
+  -1px is outside it. The follower only listened to pointer events, which
+  don't fire while the page scrolls under a still pointer.
+- Fix: `.button`/`.cursor-button` lines at 0. `cursor-button.ts` keeps the
+  last pointer position and on scroll re-checks the topmost card under it
+  (`elementFromPoint`, so the covered card in the sticky stack stays hidden).
+- Status: fixed in this commit
+- Found by: human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
