@@ -17,6 +17,22 @@ function speakFinal(node: HTMLElement, final: string) {
   node.after(copy);
 }
 
+// CMS Number fields have no thousands separators (85083): a bare integer of
+// four or more digits is shown as 85,083. Anything else (2k+, $63M, 1.03)
+// is kept as written.
+function formatFinal(text: string) {
+  const raw = text.trim();
+  return /^\d{4,}$/.test(raw) ? Number(raw).toLocaleString('en-US') : raw;
+}
+
+// Reads the final value from the markup once and writes it back formatted,
+// so the resting text is right even when nothing animates (reduced motion).
+export function primeCount(el: HTMLElement) {
+  const final = formatFinal(el.dataset.final ?? el.textContent ?? '');
+  el.dataset.final = final;
+  el.textContent = final;
+}
+
 export function setCount(el: Element, progress: number) {
   const node = el as HTMLElement;
   const target = Number(node.dataset.count ?? 0);
@@ -40,7 +56,7 @@ export function initCountUp() {
     (el) => !el.closest('[data-story], [data-dev-card]'),
   );
   items.forEach((el) => {
-    el.dataset.final = el.textContent ?? '';
+    primeCount(el);
     if (reducedMotion()) return;
     const state = { v: 0 };
     setCount(el, 0);

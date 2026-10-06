@@ -61,6 +61,7 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | P | Pages panel: drag the new **Media** page (now `/media`) into the `design` folder → `/design/media`; Page settings: exclude from search, add `<meta name="robots" content="noindex">`. Then add a **Background Video** with `video/out/hero-1080-graded.mp4`, publish, and tell Claude | The API can't move a page into a folder. Webflow transcodes the upload to muted .mp4 and .webm; Claude copies those URLs into the hero C \| Video (now on the raw upload as a stand-in). | ☑ done 10-06 (Kajal) |
 | Q | Re-paste all three snippets from `marketcap/loader.html` (head code, the Embed in Global Components, footer code) and publish | Load-flash fix: font preload, paint held until repo CSS loads, stylesheet URL set once. A push never updates these. | ☑ done 10-06 (Kajal) |
 | R | CMS › Developments › field **Stage**: rename option **Planning** → **In planning** | Kajal's choice (10-06). The API can't edit option names; renaming in the Designer keeps the option id, so items keep their stage. | ☑ done 10-06 (Kajal) |
+| S | Home › Developments list › **Dev Card** instance → prop **Link** → Collection Page › **Current Development** | Same API gap as N: a link prop only takes url/email/phone. Until then both cards link to the medical centre (the component default). The Developments page and the template's "Other development" card need the same once built. | ☐ |
 
 ## Not manual — waiting for the repo step
 

@@ -8,7 +8,7 @@
 // only scrubs the visual changes. Markup: [data-dev] with [data-dev-head]
 // and [data-dev-card] (each holding [data-dev-wash] and [data-count]).
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
-import { setCount } from './count-up';
+import { primeCount, setCount } from './count-up';
 
 // The sticky offset the card rests at (CSS top of .dev-card).
 const stuckTop = (card: HTMLElement) => parseFloat(getComputedStyle(card).top) || 0;
@@ -21,7 +21,7 @@ export function initDevCards() {
   if (!cards.length) return;
 
   const counts = cards.map((card) => Array.from(card.querySelectorAll<HTMLElement>('[data-count]')));
-  counts.flat().forEach((el) => (el.dataset.final = el.textContent ?? ''));
+  counts.flat().forEach(primeCount);
 
   if (reducedMotion()) return;
 
