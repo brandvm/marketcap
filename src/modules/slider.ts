@@ -21,11 +21,21 @@ export function initSlider() {
       if (prev) prev.disabled = track.scrollLeft <= 2;
       if (next) next.disabled = track.scrollLeft >= max;
     };
+    // The track bleeds to the viewport edges (Slider Track: margins
+    // calc(50% - 50vw), padding calc(50vw - 50%)). Snapping must keep the
+    // items on the content column, so scroll-padding copies the computed
+    // padding; a percentage scroll-padding would resolve against the track.
+    const inset = () => {
+      const { paddingLeft, paddingRight } = getComputedStyle(track);
+      track.style.scrollPaddingLeft = paddingLeft;
+      track.style.scrollPaddingRight = paddingRight;
+    };
+    inset();
 
     prev?.addEventListener('click', () => track.scrollBy({ left: -step(), behavior: 'smooth' }));
     next?.addEventListener('click', () => track.scrollBy({ left: step(), behavior: 'smooth' }));
     track.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
+    window.addEventListener('resize', () => { inset(); update(); });
     update();
   });
 }

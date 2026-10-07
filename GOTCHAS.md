@@ -856,6 +856,10 @@ repos to improve `brandvm/wf-template`.
   with two (Site Rows and Status Rows to Spec Rows) the second list shows
   the first field's items until its source is set in the Designer
   (MANUAL-TODO AE).
+  A multi-image field can't be a list source at all through the API
+  (`{fieldId}` is rejected; `{collectionId, fieldId}` stores the plain
+  collection). Build the list on its parent collection, then switch the
+  source and bind the image in the Designer (MANUAL-TODO AF, AG).
 - Status: open
 - Found by: claude
 

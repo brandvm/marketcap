@@ -5,7 +5,8 @@
 //   · The set is the group's [data-lightbox-item]s — in Webflow a hidden
 //     Collection List of the project's multi-image field, so the popup can
 //     show more images than the page — or, without those, its triggers.
-//   · Opening starts on the clicked image; thumbnails and ← → switch it.
+//   · Opening starts on the clicked image; the side arrows, thumbnails and
+//     the ← → keys switch it (arrows and thumbnails hide for a single image).
 // Markup: [data-lightbox-group] › button[data-lightbox] holding an <img>;
 // optional img[data-lightbox-item] elements (hidden) for the full set;
 // optional data-full on an <img> for a larger file. Page scroll pauses.
@@ -25,12 +26,20 @@ export function initLightbox() {
   dialog.innerHTML = `
     <div class="lightbox-stage"><img class="lightbox-media" alt=""></div>
     <div class="lightbox-thumbs" role="group" aria-label="All images"></div>
+    <button class="icon-box lightbox-prev" type="button" aria-label="Previous image">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M9 2L4 7l5 5"/></svg>
+    </button>
+    <button class="icon-box lightbox-next" type="button" aria-label="Next image">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M5 2l5 5-5 5"/></svg>
+    </button>
     <button class="icon-box lightbox-close" type="button" aria-label="Close">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M2 2l10 10M12 2L2 12"/></svg>
     </button>`;
   document.body.append(dialog);
   const media = dialog.querySelector<HTMLImageElement>('.lightbox-media')!;
   const strip = dialog.querySelector<HTMLElement>('.lightbox-thumbs')!;
+  const prevBtn = dialog.querySelector<HTMLButtonElement>('.lightbox-prev')!;
+  const nextBtn = dialog.querySelector<HTMLButtonElement>('.lightbox-next')!;
   let set: HTMLImageElement[] = [];
   let index = 0;
   let opener: HTMLElement | null = null;
@@ -61,6 +70,7 @@ export function initLightbox() {
 
     strip.innerHTML = '';
     strip.hidden = set.length < 2;
+    prevBtn.hidden = nextBtn.hidden = set.length < 2;
     set.forEach((img, n) => {
       const b = document.createElement('button');
       b.type = 'button';
@@ -79,6 +89,8 @@ export function initLightbox() {
 
   triggers.forEach((t) => t.addEventListener('click', () => open(t)));
   dialog.querySelector('.lightbox-close')!.addEventListener('click', () => dialog.close());
+  prevBtn.addEventListener('click', () => show(index - 1));
+  nextBtn.addEventListener('click', () => show(index + 1));
   // A click on the backdrop area (the dialog or the stage, not the image) closes it.
   dialog.addEventListener('click', (event) => {
     const t = event.target as Element;

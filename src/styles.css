@@ -520,6 +520,19 @@ html.is-menu-open {
 /* repo-css: designer-cant — attribute state: disabled slider arrows. */
 .icon-box[disabled] { opacity: 0.35; cursor: default; pointer-events: none; }
 
+/* repo-css: designer-cant — :nth-child(3n+1): the CMS gallery repeats one
+   full-width image, then two halves. Same values as Gallery Item › Is Wide,
+   which can't be given to every third Collection Item from the Designer. */
+.gallery-cell:nth-child(3n+1) { grid-column: 1 / -1; }
+.gallery-cell:nth-child(3n+1) .gallery-item { aspect-ratio: 21 / 8; }
+/* A set that would end on a full image plus one lone half (2, 5, 8…
+   images) ends on two halves instead, so no half is left empty. */
+.gallery-cell:nth-child(3n+1):nth-last-child(2) { grid-column: auto; }
+.gallery-cell:nth-child(3n+1):nth-last-child(2) .gallery-item { aspect-ratio: 6 / 5; }
+@media screen and (max-width: 767px) {
+  .gallery-cell:nth-child(3n+1) .gallery-item { aspect-ratio: 4 / 3; }
+}
+
 /* repo-css: designer-cant — descendant rules into a component root: C | Button
    instances can't take a combo class, so their placement inside these
    blocks stays here. Everything else that used to sit in this block now
@@ -647,7 +660,10 @@ html.is-menu-open {
    ::backdrop. Webflow strips `open` on publish, so the style guide's
    static specimen carries data-static instead. */
 .lightbox:not([open]):not([data-static]) { display: none; }
-.lightbox::backdrop { background-color: rgb(38 11 7 / 0.88); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+.lightbox::backdrop { background-color: rgb(225 214 208 / 0.94); /* Chalk */ -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+/* repo-css: js-state — lightbox.ts hides the arrows and thumbnails for a
+   single image with `hidden`, which Icon Box's display:flex would beat. */
+.lightbox [hidden] { display: none; }
 
 /* ============================================================
    06. UTILITIES
