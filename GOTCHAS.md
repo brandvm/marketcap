@@ -849,7 +849,13 @@ repos to improve `brandvm/wf-template`.
 - Fix: multi-reference / multi-image sources, "exclude current" and
   date bindings are Designer steps (MANUAL-TODO Z, AA, AB). Roles: put
   `data-aria-role` on the element; `aria-roles.ts` sets it at runtime.
-  Line break: open (see the report of 2026-10-07).
+  Line break: fixed with the combo D3 › Pre Line (`white-space: pre-line`).
+  Update 2026-10-07: on a template page the stored `{collectionId}` is
+  resolved to the item's first multi-reference field to that collection,
+  so a single such field works without the Designer (Program, Stages);
+  with two (Site Rows and Status Rows to Spec Rows) the second list shows
+  the first field's items until its source is set in the Designer
+  (MANUAL-TODO AE).
 - Status: open
 - Found by: claude
 
