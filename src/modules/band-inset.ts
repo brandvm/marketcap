@@ -2,11 +2,12 @@
 // inset frame as it scrolls past — Section/Padding H clear at the top and
 // sides, 4px corners, flush with the next section at the bottom (Figma
 // "Image after scroll"). The section is clipped, so the page background
-// shows around it; the content (value tag) moves in by the same inset so it
-// keeps its place inside the frame.
-// Markup: <section data-band-inset> (Photo Band component root) with its
-// content wrapper [data-band-content]. Off under reduced motion: the band
-// stays full width.
+// shows around it. The value tag (pinned at Section/Padding H from the band
+// edge) moves in by half the inset, so it ends 20px inside the frame at 1680
+// as in the Figma.
+// Markup: <section data-band-inset> (Photo Band component root) with the
+// tag as [data-band-content]. Off under reduced motion: the band stays full
+// width.
 import { gsap, reducedMotion } from './gsap';
 
 const RADIUS = 4;
@@ -32,6 +33,6 @@ export function initBandInset() {
       { clipPath: () => `inset(${pad()}px ${pad()}px 0px ${pad()}px round ${RADIUS}px)`, ease: 'none', immediateRender: false },
       0,
     );
-    if (content) tl.fromTo(content, { x: 0, y: 0 }, { x: () => pad(), y: () => pad(), ease: 'none', immediateRender: false }, 0);
+    if (content) tl.fromTo(content, { x: 0, y: 0 }, { x: () => pad() / 2, y: () => pad() / 2, ease: 'none', immediateRender: false }, 0);
   });
 }
