@@ -21,6 +21,7 @@ import { initFinsweet, resetFinsweet } from './modules/finsweet';
 import { initPlaceholders } from './modules/placeholders';
 import { initProjectStages } from './modules/project-stages';
 import { initAriaRoles } from './modules/aria-roles';
+import { initBandInset } from './modules/band-inset';
 import { initTransition } from './modules/transition';
 import { gsap, ScrollTrigger } from './modules/gsap';
 
@@ -51,6 +52,7 @@ const pageModules: Array<[string, () => void]> = [
   ['placeholders', initPlaceholders],
   ['project-stages', initProjectStages],
   ['aria-roles', initAriaRoles],
+  ['band-inset', initBandInset],
   ['custom-select', initCustomSelect],
   ['lightbox', initLightbox],
   // Finsweet stays last: List's init() must see attributes earlier modules set.
