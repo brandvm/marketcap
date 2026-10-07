@@ -19,6 +19,8 @@ import { initCustomSelect } from './modules/custom-select';
 import { initLightbox } from './modules/lightbox';
 import { initFinsweet, resetFinsweet } from './modules/finsweet';
 import { initPlaceholders } from './modules/placeholders';
+import { initProjectStages } from './modules/project-stages';
+import { initAriaRoles } from './modules/aria-roles';
 import { initTransition } from './modules/transition';
 import { gsap, ScrollTrigger } from './modules/gsap';
 
@@ -47,6 +49,8 @@ const pageModules: Array<[string, () => void]> = [
   ['brand-lines', initBrandLines],
   ['slider', initSlider],
   ['placeholders', initPlaceholders],
+  ['project-stages', initProjectStages],
+  ['aria-roles', initAriaRoles],
   ['custom-select', initCustomSelect],
   ['lightbox', initLightbox],
   // Finsweet stays last: List's init() must see attributes earlier modules set.

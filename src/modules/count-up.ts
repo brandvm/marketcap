@@ -51,7 +51,23 @@ export function setCount(el: Element, progress: number) {
   node.textContent = `${node.dataset.prefix ?? ''}${value}${node.dataset.suffix ?? ''}`;
 }
 
+// Static CMS numbers that don't count (Photo Band value): a bare number gets
+// its thousands separator and an optional unit, e.g. 85083 + data-unit="ft²"
+// → "85,083 ft²". Text values ("4,185 m²") are left as written.
+// Markup: [data-format-number] (optional data-unit).
+function formatNumbers() {
+  document.querySelectorAll<HTMLElement>('[data-format-number]').forEach((el) => {
+    if (el.dataset.formatted) return;
+    const raw = (el.textContent ?? '').trim();
+    if (!/^\d+(\.\d+)?$/.test(raw)) return;
+    const unit = el.dataset.unit?.trim();
+    el.textContent = `${Number(raw).toLocaleString('en-US')}${unit ? ` ${unit}` : ''}`;
+    el.dataset.formatted = 'true';
+  });
+}
+
 export function initCountUp() {
+  formatNumbers();
   // Dev Cards outside a [data-dev] section (the Developments list) don't
   // count, as in the prototype, but still need their CMS numbers formatted
   // (85083 → 85,083); dev-cards.ts does both inside [data-dev].

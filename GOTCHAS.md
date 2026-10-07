@@ -831,6 +831,28 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-07 · CMS template: list sources, item roles and bound line breaks
+- Area: mcp
+- Scope: template-candidate
+- Symptom: building the development template:
+  - `set_settings` source `{collectionId, fieldId}` on a nested Collection
+    List reported success but stored `{collectionId}` only, so the Program
+    list showed every Program Row, not the item's multi-reference;
+  - a list filter can't exclude the current item (`slug` is "Unknown
+    field"), and system fields (`updated-on`) can't be bound;
+  - `role="row"` set on a Collection Item published as `role="listitem"`
+    (and the inner list as `role="list"`), breaking a table built from it;
+  - a plain-text field holding "\n", bound to a heading, publishes the
+    newline as a space, so the prototype's line break is lost.
+- Cause: MCP surface limits; Webflow writes list roles on every
+  Collection List (see the 2026-10-06 roles entry).
+- Fix: multi-reference / multi-image sources, "exclude current" and
+  date bindings are Designer steps (MANUAL-TODO Z, AA, AB). Roles: put
+  `data-aria-role` on the element; `aria-roles.ts` sets it at runtime.
+  Line break: open (see the report of 2026-10-07).
+- Status: open
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
