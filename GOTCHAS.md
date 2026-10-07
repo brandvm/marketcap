@@ -35,7 +35,7 @@ repos to improve `brandvm/wf-template`.
   the Layout mode at Tablet, Mobile Landscape and Mobile instead (the
   ThreeStars/Reformd pattern). Either do the same for every responsive
   collection, or pick the one collection that gets auto-modes up front.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-02 · Style MCP rejects variables on row-gap / column-gap
@@ -47,7 +47,7 @@ repos to improve `brandvm/wf-template`.
 - Cause: the MCP only accepts variables on the legacy gap names.
 - Fix: bind `grid-row-gap` / `grid-column-gap` instead — they render as
   `row-gap` / `column-gap` on flex and grid alike.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-02 · "Label" is a reserved class name
@@ -58,7 +58,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: class is `Label Text` (same as ThreeStars); the Typography Styles
   mode stays `Label`. Update 2026-10-05: only the API refuses the name —
   a `Label` class can be created in the Designer (see the Form entry).
-- Status: fixed
+- Status: fixed · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-02 · Tag styles other than body are unreachable by MCP
@@ -76,7 +76,7 @@ repos to improve `brandvm/wf-template`.
   carries Webflow's defaults (h1 38px / 700 / margin-bottom 10px), and
   `set_style_variable_mode` works on it. `get_styles` lists only `body`
   until then.
-- Status: workaround confirmed
+- Status: workaround confirmed · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-02 · Filling in REPO in loader.html breaks the browser tests
@@ -93,7 +93,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: the test reads the repo name back from `var SITE = "…"` in the
   loader and builds `stage`/`release` from it. That works whether or not
   REPO has been filled in.
-- Status: fixed in this repo (same commit as this entry); not upstreamed
+- Status: fixed in this repo (same commit as this entry); not upstreamed · upstreamed wf-template 12d8433
 - Found by: claude
 
 <!-- Add new entries here, newest first. -->
@@ -109,7 +109,7 @@ repos to improve `brandvm/wf-template`.
   default mode.
 - Fix: omit `mode_id` to write the Base mode value. Checked: the other
   modes' values stay as they were.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · Style values containing `var()` collapse to one variable
@@ -132,7 +132,7 @@ repos to improve `brandvm/wf-template`.
   `calc(100% + ⟨Spacing/4⟩)` on Select List both read back through
   `query_styles` as a plain `{id}` binding. A calc value therefore can't
   be confirmed through the MCP; check it on the canvas.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · "Form" is a reserved class name; outline-width takes no variable
@@ -149,7 +149,7 @@ repos to improve `brandvm/wf-template`.
   normally. So: create a reserved name in the Designer, then style it
   through the MCP. Outline width set as the literal 0.125em (Spacing/2's
   value) on Gallery Thumb › Is Active.
-- Status: workaround confirmed
+- Status: workaround confirmed · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · WHTML importer: classes, forms, images and limits
@@ -190,7 +190,7 @@ repos to improve `brandvm/wf-template`.
     remove the span. Done for 32 shapes on the style guide.
   - AGENTS.md's importer line should be corrected (not edited here: agent
     rules change only with the user's OK).
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · A two-class combo can't be edited from a three-class element
@@ -205,7 +205,7 @@ repos to improve `brandvm/wf-template`.
   the value on Section › Is Hero, then add the class back. The CSS
   `.section.is-hero` still matches the three-class element on the page.
   When planning combos, keep shared values on the shortest chain.
-- Status: documented
+- Status: documented · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-05 · Gradient layers have no size/tile in the Designer
@@ -223,7 +223,7 @@ repos to improve `brandvm/wf-template`.
   repo CSS, tagged `designer-cant`. The MCP could write it into the class
   (`update_style` accepts it), but nothing in the Designer would show it,
   so it would be a hidden override. Kajal chose the repo.
-- Status: workaround confirmed
+- Status: workaround confirmed · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-05 · Horizontal scrollers drag vertically
@@ -235,7 +235,7 @@ repos to improve `brandvm/wf-template`.
   The prototype rule had the same gap.
 - Fix: set `overflow-y: hidden` in the Designer on every horizontal
   scroller (Slider Track, Lightbox Thumbs).
-- Status: fixed (Webflow styles, 2026-10-05)
+- Status: fixed (Webflow styles, 2026-10-05) · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-05 · Component props: what the MCP can and can't wire
@@ -261,7 +261,7 @@ repos to improve `brandvm/wf-template`.
 - Cause: MCP surface limits.
 - Fix: build bindable text as `<div>` (Text Block), not `<span>`. Rename
   slots and fill them in the Designer (MANUAL-TODO F–G).
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · Style guide previews lack the script hooks
@@ -290,7 +290,7 @@ repos to improve `brandvm/wf-template`.
   the same classes and attributes (`type="button"`), move the children in
   (`move_element` also moves bare text nodes), then remove the Link.
   Instances can't be anchors, but definitions accept `scope_component_id`.
-- Status: fixed on the style guide and in Nav (23 buttons)
+- Status: fixed on the style guide and in Nav (23 buttons) · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-05 · Sitemap indexing API is plan-gated
@@ -303,7 +303,7 @@ repos to improve `brandvm/wf-template`.
   site plan.
 - Fix: exclude pages from the sitemap and site search in Page settings;
   add `noindex` via page head code. Tracked in MANUAL-TODO.md (A–C).
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Element builder: rejected actions can still leave an element
@@ -316,7 +316,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: after any builder error, re-query the parent and remove strays.
   `placeholder` has no setting either; set it in the Designer
   (MANUAL-TODO J).
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · TextBlock builder makes an uneditable Block; WHTML drops fs-* attributes
@@ -337,7 +337,7 @@ repos to improve `brandvm/wf-template`.
   with `set_attributes` and `name` via `set_settings` after an import. If an
   element keeps returning the component-map conflict, rebuild it with the
   element builder and remove the old one.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Finsweet Combo Box 2.7.1 differs from its docs
@@ -365,7 +365,7 @@ repos to improve `brandvm/wf-template`.
   select and fires `input` + `change`, so a select with
   `fs-list-element="sort-trigger"` drives List Sort (checked in a harness
   page: all four sorts reorder the list).
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Webflow form and dropdown defaults leak through our classes
@@ -384,7 +384,7 @@ repos to improve `brandvm/wf-template`.
   **Form Block** (margin-bottom 0) on every Form Block wrapper (style
   guide ×4, Footer, Searchable Select). Give every new Form Block that
   class, and check new form or dropdown classes against these defaults.
-- Status: fixed (Webflow styles, 2026-10-06)
+- Status: fixed (Webflow styles, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-06 · Template focus rule overrides Designer focus states on inputs
@@ -406,7 +406,7 @@ repos to improve `brandvm/wf-template`.
   Form/Focus, offset 3px; Form Input › Focus border colour = its base
   border variable. Every input class needs its own Focus Visible state
   and a Focus border colour.
-- Status: fixed (this commit + Webflow styles, 2026-10-06); not upstreamed
+- Status: fixed (this commit + Webflow styles, 2026-10-06); not upstreamed · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-06 · CMS API: Number fields are integers; new collections need a site publish
@@ -425,7 +425,7 @@ repos to improve `brandvm/wf-template`.
   belongs on the image field (no separate alt fields); it is stored per
   file within a field, so a file repeated in one multi-image field shares
   one alt.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Webflow rewrites roles and drops attributes on publish
@@ -443,7 +443,7 @@ repos to improve `brandvm/wf-template`.
   `data-static`, and repo CSS hides only `.lightbox:not([open]):not([data-static])`.
   Never rely on a role or boolean attribute surviving a Webflow element;
   check the published HTML.
-- Status: fixed (custom-select, lightbox rule)
+- Status: fixed (custom-select, lightbox rule) · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · WHTML drops the whole class list if one class is missing
@@ -455,7 +455,7 @@ repos to improve `brandvm/wf-template`.
   all of them, silently.
 - Fix: create every class before importing, then re-query the imported
   elements' `styleNames` and fix stragglers with `set_style`.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Nested button components: what the MCP can't do
@@ -469,7 +469,7 @@ repos to improve `brandvm/wf-template`.
 - Cause: MCP surface limits.
 - Fix: Kajal linked the variant props in the Designer ("Link to new prop").
   Insert relative to a plain element or append to the parent.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Native `<button type="submit">` in Webflow forms
@@ -487,7 +487,7 @@ repos to improve `brandvm/wf-template`.
   font-family and colour inherit, cursor pointer. Newsletter align-items
   flex-start. The Turnstile state is expected; test submits in a real
   browser, not headless.
-- Status: fixed (Webflow styles, 2026-10-06)
+- Status: fixed (Webflow styles, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: claude + human
 
 ### 2026-10-06 · `remove_style` only sees usages on the page in context
@@ -500,7 +500,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: query every page (`list_pages`, then `query_elements` with
   `style`) before removing a class, and call `remove_style` from the page
   that held the last usage.
-- Status: workaround confirmed
+- Status: workaround confirmed · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Body Embed stylesheet: page paints unscaled, then jumps
@@ -520,7 +520,7 @@ repos to improve `brandvm/wf-template`.
   the canvas and appends a fresh `#bv-css` link with the final URL, whose
   load/error lifts the wait; the footer loader only sets the href when the
   URL really differs. Verified by serving staging with the patched snippets.
-- Status: fixed in loader.html; needs re-paste (MANUAL-TODO Q)
+- Status: fixed in loader.html; needs re-paste (MANUAL-TODO Q) · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ### 2026-10-06 · Importer drops <img> attributes; Webflow drops valueless video booleans
@@ -535,7 +535,7 @@ repos to improve `brandvm/wf-template`.
   Give boolean attributes a value (`muted="true"`), per Kajal. The C | Video
   component binds each attribute *name* to a text prop (default `muted`,
   value `true`); clearing the prop turns it off.
-- Status: workaround confirmed
+- Status: workaround confirmed · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ### 2026-10-06 · API gaps met building Home
@@ -554,7 +554,7 @@ repos to improve `brandvm/wf-template`.
   - custom properties accept `mask-image` etc. but refuse `-webkit-` prefixes;
   - a link-type component prop takes `link_mode` `url|email|phone|popover`
     only (no page links), with `link_to`.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Inter Variable narrows large type (optical size)
@@ -566,7 +566,7 @@ repos to improve `brandvm/wf-template`.
   `font-optical-sizing: auto` large text uses the tighter Display cut. The
   prototype's Google Fonts Inter (wght axis only) is the Text cut everywhere.
 - Fix: Body tag style › custom property `font-optical-sizing: none`.
-- Status: fixed (Webflow styles, 2026-10-06)
+- Status: fixed (Webflow styles, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Designer canvas draws a templateless grid as 2×2
@@ -580,7 +580,7 @@ repos to improve `brandvm/wf-template`.
   `grid-template-rows` / `-columns` is given `auto`, which matches the
   implicit track, so published CSS behaves the same. Done for 19 classes
   (rows) and Lightbox (columns); breakpoints inherit from base.
-- Status: fixed (Icon Box + all grid classes, 2026-10-06)
+- Status: fixed (Icon Box + all grid classes, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-06 · Canvas `.wf-empty`: empty elements show as 75px boxes or vanish
@@ -598,7 +598,7 @@ repos to improve `brandvm/wf-template`.
   Steps List Track/Progress, Guides V/H/Marker, Dev Wash, Mark Figure Line
   H/V/Marker, Sg Swatch Color, Sg Radius, Divider, Map Frame, G | Nav,
   G | Footer, G | Components. Do the same for any new empty element.
-- Status: fixed (Webflow styles, 2026-10-06)
+- Status: fixed (Webflow styles, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-06 · Split text in Webflow Spans flattens when edited
@@ -615,7 +615,7 @@ repos to improve `brandvm/wf-template`.
   the Footer legal links. Standalone Spans in plain blocks (chips, labels) are
   fine. Open: the style guide's Sg Value table cells (Spans holding spans,
   ~380) — generated docs, left as is.
-- Status: fixed for site content
+- Status: fixed for site content · upstreamed wf-template 12d8433
 - Found by: human
 
 ### 2026-10-06 · C | Button crop lines sat outside the edge; cursor button stuck on scroll
@@ -644,7 +644,7 @@ repos to improve `brandvm/wf-template`.
   ignores a new `src`.
 - Fix: `capabilities.ts` removes `srcset` and `sizes` before setting `src`.
   Any module that swaps a Webflow image must do the same (or set a new srcset).
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Conditional classes are typed slugs, not linked styles
@@ -660,7 +660,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: corrected in the Designer (MANUAL-TODO T). After wiring a conditional
   class, check the published class list; re-check these attributes whenever
   a combo is renamed.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude + human
 
 ### 2026-10-06 · em spacing moved from a button to its wrapper changes size
@@ -675,7 +675,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: scale the wrapper's value by the button's font ratio,
   `calc(Content/Gap * 0.875)`, in the Designer (MANUAL-TODO U). When spacing
   moves from a sized element to its wrapper, convert the em value.
-- Status: open
+- Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Arriving at /#section lands short of the section
@@ -694,7 +694,7 @@ repos to improve `brandvm/wf-template`.
   trigger's onRefresh / onUpdate / onScrubComplete. Write values a scrubbed
   timeline animates from the trigger as well, never only from a child
   tween's callback.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ### 2026-10-06 · backdrop-filter traps fixed children (floating nav)
@@ -710,7 +710,7 @@ repos to improve `brandvm/wf-template`.
   wrapper that holds fixed elements. Related: the bar's toggle starts with an
   SR Only label and the float's doesn't, so the X rules use
   `:nth-child(n of .nav-toggle-line)`.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · gsap.from() start state reverts on load: hero flickers
@@ -727,7 +727,7 @@ repos to improve `brandvm/wf-template`.
   set() renders synchronously in the boot task that removes is-loading, so no
   frame shows the items before the reveal. Prefer set() + to() for anything
   visible at load.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ### 2026-10-06 · Line breaks in headings drop the word space
@@ -745,7 +745,7 @@ repos to improve `brandvm/wf-template`.
   line end (H1 and the Approach heading on Home). For a text prop, put a
   space before the newline (Closing CTA default "Looking toward \nthe
   future."). Re-add attributes after a re-import (`data-hero-item`).
-- Status: fixed (Webflow, 2026-10-06)
+- Status: fixed (Webflow, 2026-10-06) · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ### 2026-10-06 · Barba: first-load hooks, lost hash, missing types
@@ -767,7 +767,7 @@ repos to improve `brandvm/wf-template`.
   (`isSwap`); a capture-phase click listener remembers the clicked link's
   hash and `afterEnter` restores it before `jumpToHash()`; `src/barba.d.ts`
   declares the API we use.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Page modules torn down per Barba page
@@ -786,7 +786,7 @@ repos to improve `brandvm/wf-template`.
   once and expose refresh hooks. Webflow is re-initialised after each swap
   (`data-wf-page`, `Webflow.destroy()` / `ready()`, IX2); Turnstile then
   logs "already has been loaded" — harmless.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: claude
 
 ### 2026-10-06 · Anchors to pinned sections land at the end of the pin
@@ -810,7 +810,7 @@ repos to improve `brandvm/wf-template`.
   no offset (Kajal); the timeline snap stands down during an anchor glide
   and clamps its value. Checked same-page, cross-page and after a
   transition at 1440, 820 and 390.
-- Status: fixed in this commit
+- Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: human + claude
 
 ## Known from previous projects
