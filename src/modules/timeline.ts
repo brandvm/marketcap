@@ -53,6 +53,7 @@ export function initTimeline() {
       return;
     }
     const state = { at: 0 };
+    const snapStep = ScrollTrigger.snapDirectional(1 / last);
     const trigger = ScrollTrigger.create({
       trigger: root,
       pin: true,
@@ -61,10 +62,10 @@ export function initTimeline() {
       end: () => `+=${last * 70}%`,
       scrub: true,
       // No snapping while an anchor link scrolls through (smooth-scroll.ts).
-      // ScrollTrigger extrapolates the value from scroll velocity, so arriving
-      // at the very start while moving up can hand in a negative value:
-      // clamp it, or it snaps to the wrong end of the pin.
-      snap: { snapTo: (value: number) => (isAnchorScrolling() ? value : Math.round(Math.min(1, Math.max(0, value)) * last) / last), duration: { min: 0.2, max: 0.6 }, ease: 'power2.inOut', delay: 0.05 },
+      // Snaps in the scroll direction to the next item (what a numeric
+      // snapTo does), except while an anchor link scrolls through
+      // (smooth-scroll.ts): then it stays put so the glide can land.
+      snap: { snapTo: (value: number, self?: ScrollTrigger) => (isAnchorScrolling() ? value : snapStep(Math.min(1, Math.max(0, value)), self?.direction ?? 1)), duration: { min: 0.2, max: 0.6 }, ease: 'power2.inOut', delay: 0.05 },
       invalidateOnRefresh: true,
       onUpdate: (self) => {
         state.at = self.progress * last;
