@@ -52,6 +52,12 @@ export function setCount(el: Element, progress: number) {
 }
 
 export function initCountUp() {
+  // Dev Cards outside a [data-dev] section (the Developments list) don't
+  // count, as in the prototype, but still need their CMS numbers formatted
+  // (85083 → 85,083); dev-cards.ts does both inside [data-dev].
+  document.querySelectorAll<HTMLElement>('[data-dev-card] [data-count]').forEach((el) => {
+    if (!el.closest('[data-dev]')) primeCount(el);
+  });
   const items = Array.from(document.querySelectorAll<HTMLElement>('[data-count]')).filter(
     (el) => !el.closest('[data-story], [data-dev-card]'),
   );

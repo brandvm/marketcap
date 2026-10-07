@@ -66,6 +66,7 @@ field and insert variables with the variable picker. Gradients: Backgrounds
 | U | Style **Story CTA** → Margin Top: `calc(⟨Content/Gap⟩ * 0.875)` (variable picker inside calc) | In the prototype the gap sits on the button (font size 0.875em), in Webflow on the Story CTA wrapper (1em), so the same 2em computes 4px larger (32 vs 28 at 390, 34 vs 30 at 1440) and Story runs 4px long, pushing every section below. The API collapses a calc with a variable into a plain binding (GOTCHAS). | ☑ done 10-06 (Kajal) |
 | V | Developments page: drag the **Searchable Select** (now just above the Dev List) into **Page Head › Control** slot | The API can't move or insert elements into an instance's slot. | ☐ |
 | W | Developments page › Dev List › **Dev Card** instance → prop **Link** → Collection Page › **Current Development** | Same API gap as N and S; until then every card links to the medical centre (the component default). | ☐ |
+| X | **Closing CTA** component → switch to the **Reversed** variant → select the CTA Grid element (S Wrapper · is-wide · CTA Grid) → Flex direction **Row reverse** | The variant's override sits on the global CTA Grid style, but the element's own style is the combo `.s-wrapper.is-wide.cta-grid`, so Webflow never adds the variant class and every Reversed instance (Developments, style guide) renders the base layout. The API's variant styles are addressed by style name and can't reach the combo. | ☑ done 10-07 (Kajal) |
 
 ## Not manual — waiting for the repo step
 

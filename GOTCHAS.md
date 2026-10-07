@@ -813,6 +813,24 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit · upstreamed wf-template 12d8433
 - Found by: human + claude
 
+### 2026-10-07 · Variant overrides on a combo element never apply
+- Area: mcp
+- Scope: template-candidate
+- Symptom: every Closing CTA set to the Reversed variant (Developments,
+  style guide) rendered the base layout. The section published
+  `data-wf--closing-cta--variant="reversed"`, and the CSS had
+  `.cta-grid:where(.w-variant-8c46…)`, but no element carried that class.
+- Cause: `set_variant_styles` takes a `style_name` and resolves it to the
+  global class (`.cta-grid`). The element's own style is the combo at the end
+  of its chain (`.s-wrapper.is-wide.cta-grid`), and Webflow adds the
+  `w-variant-…` class only to elements whose own style has the override.
+  C | Button variants work because their elements carry a single class.
+- Fix: set the override in the Designer with the element selected inside the
+  variant (MANUAL-TODO X). Through the API, give variant targets a single
+  class, or check the published class list after `set_variant_styles`.
+- Status: open
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
