@@ -151,7 +151,9 @@ function runZoomLeave(current: HTMLElement, trigger: unknown) {
     img.style.visibility = 'hidden';
     zoomClone = clone;
   }
-  document.querySelectorAll<HTMLElement>('[data-cursor-button]').forEach((b) => gsap.set(b, { autoAlpha: 0 }));
+  // Only the leaving page's followers: the next container is already in the
+  // DOM, and its buttons must keep visibility (cursor-button.ts fades opacity).
+  current.querySelectorAll<HTMLElement>('[data-cursor-button]').forEach((b) => gsap.set(b, { autoAlpha: 0 }));
 
   tl.set(transitionWrap, { zIndex: 2 });
   tl.fromTo(transitionDark, { autoAlpha: 0 }, { autoAlpha: 0.8, duration: 1.1, ease: 'parallax' }, 0);

@@ -876,6 +876,22 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed (Webflow styles, 2026-10-07)
 - Found by: claude
 
+### 2026-10-07 · Restructuring a component copy: List Items and prop ids
+- Area: mcp
+- Scope: template-candidate
+- Symptom: building Dev Card Compact from a `duplicate_component` copy,
+  inserting an instance failed with "List Item can only be placed in a
+  List" after the facts' `<li>`s were moved into a DOM `ul`.
+- Cause: Webflow List Items must sit in a Webflow List element, and the
+  element builder can't create one (no `List` type; a DOM `ul` doesn't
+  count). Separately, `duplicate_component` keeps the source's prop ids, so
+  bindings copy over 1:1 to the new component's instances.
+- Fix: reuse an existing List as the new container (move it, restyle it)
+  and take the items that must leave it out as Blocks. Link props still
+  need Current <Item> in the Designer on each new instance (MANUAL-TODO AH).
+- Status: workaround confirmed
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
