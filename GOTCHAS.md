@@ -863,6 +863,19 @@ repos to improve `brandvm/wf-template`.
 - Status: open
 - Found by: claude
 
+### 2026-10-07 · Typography classes nest in em
+- Area: designer
+- Scope: template-candidate
+- Symptom: the Location unit ("ha", "Yonge") rendered at 120px after it was
+  given D4 inside a D1 figure (80px), and wrapped the figure onto two lines.
+- Cause: the Typography Role sizes are em values, so a type class inside
+  another type class multiplies (D4 1.5em × 80px). The prototype's
+  `body-s` unit inside `d2` had the same effect, only smaller.
+- Fix: a small relative class for parts inside a type class (Info Unit,
+  0.3em = 24px on an 80px figure). Don't nest type classes.
+- Status: fixed (Webflow styles, 2026-10-07)
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
