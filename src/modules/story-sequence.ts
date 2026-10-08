@@ -4,12 +4,15 @@
 //      from its slot (bottom right) until the photo fills the viewport.
 //   2. The photo darkens; "Built on Family. / Driven by Vision." resolves
 //      from blur line by line.
-//   3. The statement lifts and blurs away; the four stat cards rise in a
-//      stagger and their numbers count with the scroll; the button fades in.
+//   3. The statement lifts and blurs away while the photo cross-fades to the
+//      black-and-white stats photo (slow zoom-out); the four stat cards rise
+//      in a stagger and their numbers count with the scroll; the button fades in.
 // Markup: [data-story] › [data-story-pin] containing [data-story-media],
 // [data-story-shade], [data-story-about], [data-story-statement] (lines are
 // [data-line]), [data-stat-card], [data-story-cta] and [data-story-stats]
-// (the wrapper that drifts up over the last stretch).
+// (the wrapper that drifts up over the last stretch). [data-story-stats-media]
+// is the second photo inside [data-story-media] (Story Media Img + Is Stats,
+// opacity 0 until the script fades it in).
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
 import { setCount } from './count-up';
 
@@ -59,6 +62,7 @@ export function initStorySequence() {
   const lines = statement.querySelectorAll<HTMLElement>('[data-line]');
   const cards = story.querySelectorAll<HTMLElement>('[data-stat-card]');
   const cta = story.querySelector<HTMLElement>('[data-story-cta]');
+  const statsMedia = story.querySelector<HTMLElement>('[data-story-stats-media]');
 
   const mm = gsap.matchMedia();
 
@@ -155,11 +159,20 @@ export function initStorySequence() {
       tl.fromTo(stats, { y: 0 }, { y: () => -window.innerHeight * 0.34, duration: tl.duration() - from, ease: 'power2.in' }, from); // accelerates into the release: ends near scroll speed
     }
 
+    // Once the photo fills the frame and the statement starts to lift, it
+    // cross-fades to the black-and-white stats photo, which zooms out slowly
+    // to the end of the pin (same feel as Our Approach).
+    if (statsMedia) {
+      const swapAt = 2.3;
+      tl.to(statsMedia, { opacity: 1, duration: 0.45 }, swapAt)
+        .fromTo(statsMedia, { scale: 1.08 }, { scale: 1, duration: tl.duration() - swapAt, ease: 'none' }, swapAt);
+    }
+
     return () => {
       ScrollTrigger.removeEventListener('refresh', draw);
       story.dataset.navTheme = 'dark';
       about.dataset.navTheme = 'light';
-      gsap.set([...Array.from(cards), cta, about, story.querySelector('[data-story-stats]'), ...Array.from(lines)].filter(Boolean), { clearProps: 'all' });
+      gsap.set([...Array.from(cards), cta, about, statsMedia, story.querySelector('[data-story-stats]'), ...Array.from(lines)].filter(Boolean), { clearProps: 'all' });
     };
   });
 
