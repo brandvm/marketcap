@@ -661,6 +661,13 @@ html.is-menu-open {
    static specimen carries data-static instead. */
 .lightbox:not([open]):not([data-static]) { display: none; }
 .lightbox::backdrop { background-color: rgb(225 214 208 / 0.94); /* Chalk */ -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+/* repo-css: js-state — plans-gate.ts (dev-phase PIN on the template's
+   Plans): the plans and arrows stay hidden on the published site until the
+   gate is unlocked; the canvas (no data-wf-domain) shows everything. */
+html[data-wf-domain] [data-gate]:not(.is-unlocked) [data-gate-content] { display: none; }
+html[data-wf-domain] [data-gate].is-unlocked [data-gate-panel] { display: none; }
+html[data-wf-domain] [data-gate-error]:not(.is-shown) { display: none; }
+
 /* repo-css: js-state — lightbox.ts hides the arrows and thumbnails for a
    single image with `hidden`, which Icon Box's display:flex would beat. */
 .lightbox [hidden] { display: none; }

@@ -22,6 +22,7 @@ import { initPlaceholders } from './modules/placeholders';
 import { initProjectStages } from './modules/project-stages';
 import { initAriaRoles } from './modules/aria-roles';
 import { initBandInset } from './modules/band-inset';
+import { initPlansGate } from './modules/plans-gate';
 import { initTransition } from './modules/transition';
 import { gsap, ScrollTrigger } from './modules/gsap';
 
@@ -48,6 +49,7 @@ const pageModules: Array<[string, () => void]> = [
   ['approach-steps', initApproachSteps],
   ['capabilities', initCapabilities],
   ['brand-lines', initBrandLines],
+  ['plans-gate', initPlansGate],
   ['slider', initSlider],
   ['placeholders', initPlaceholders],
   ['project-stages', initProjectStages],
