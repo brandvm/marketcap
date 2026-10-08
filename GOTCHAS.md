@@ -940,6 +940,23 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed — Kajal built a new input in the Designer; publishes `name="Name"` (2026-10-08)
 - Found by: claude + human
 
+### 2026-10-08 · Page SEO through the API: what sticks and where
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `update_page_settings` on a CMS template took dynamic SEO text
+  and published it per item. `jsonLdSchema` reported success but was neither
+  stored nor published. `openGraph.imageUrl` rejects anything but an http URL.
+- Cause: MCP/API surface limits.
+- Fix: dynamic title/description use Webflow's token syntax, e.g.
+  `{{wf {"path":"name","type":"PlainText"\} }} | Site` (field slug as
+  path). JSON-LD and a CMS share image go in the page's head code with
+  `data_scripts_tool › set_page_freeform_code`; the same tokens work there
+  (HTML-escaped quotes: `{{wf {&quot;path&quot;:&quot;image&quot;,&quot;type&quot;:&quot;ImageRef&quot;\} }}`)
+  and render per item. A `"` typed into a CMS field would break JSON-LD
+  built from it.
+- Status: workaround confirmed (Contact, Developments Template, 2026-10-08)
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
