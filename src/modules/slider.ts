@@ -17,6 +17,12 @@ export function initSlider() {
       return item ? item.offsetWidth + gap : track.clientWidth;
     };
     const update = () => {
+      // A hidden track (Plans behind the PIN gate) shows the start state.
+      if (!track.clientWidth) {
+        if (prev) prev.disabled = true;
+        if (next) next.disabled = false;
+        return;
+      }
       const max = track.scrollWidth - track.clientWidth - 2;
       if (prev) prev.disabled = track.scrollLeft <= 2;
       if (next) next.disabled = track.scrollLeft >= max;

@@ -13,9 +13,11 @@
 //     slider and ScrollTrigger, and moves focus to the section without a
 //     ring. Nothing is remembered: every page view asks again, including
 //     one reached by a page transition.
-// Markup: <section data-gate="plans"> with [data-gate-panel] holding
-// [data-gate-digits] (four input[data-gate-digit]) and [data-gate-error];
-// the gated parts carry [data-gate-content].
+// Markup: <section data-gate="plans"> with [data-gate-panel] (Gate Stage:
+// a blurred dummy slider plus the PIN box) holding [data-gate-digits] (four
+// input[data-gate-digit]) and [data-gate-error]; the gated parts carry
+// [data-gate-content]. The slider arrows stay visible while locked and a
+// click on them focuses the first digit.
 import { ScrollTrigger, reducedMotion } from './gsap';
 
 const IMAGE_ATTRS = ['src', 'srcset', 'sizes'] as const;
@@ -125,5 +127,18 @@ export function initPlansGate() {
       input.addEventListener('focus', () => input.select());
     });
     row?.addEventListener('animationend', () => row.classList.remove('is-shake'));
+
+    // The slider arrows stay visible while locked; a click goes to the PIN.
+    gate.addEventListener(
+      'click',
+      (event) => {
+        if (gate.classList.contains('is-unlocked')) return;
+        if (!(event.target as Element).closest('[data-slider-prev], [data-slider-next]')) return;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        digits[0].focus();
+      },
+      true,
+    );
   });
 }
