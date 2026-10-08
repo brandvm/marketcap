@@ -925,6 +925,21 @@ repos to improve `brandvm/wf-template`.
 - Status: documented
 - Found by: human
 
+### 2026-10-08 · Form input `name` set through the API never publishes
+- Area: mcp
+- Scope: template-candidate
+- Symptom: the Contact Name input published `name="field"` after
+  `set_settings` name `Name`, then `Full Name`, and after a rebuild with the
+  element builder. `get_settings` returned the new value every time. Kajal's
+  Designer edit didn't help: the field already showed `Name`.
+- Cause: the API writes the value the Settings panel shows but not the one
+  publishing uses. The Designer only saves when the typed value changes.
+- Fix: set form field names in the Designer, typing a value that differs
+  from the one shown (MANUAL-TODO AJ). Check the published `name` after any
+  form import. Company and Message published correctly once edited there.
+- Status: workaround confirmed — Kajal built a new input in the Designer; publishes `name="Name"` (2026-10-08)
+- Found by: claude + human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
