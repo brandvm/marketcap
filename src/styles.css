@@ -667,6 +667,18 @@ html.is-menu-open {
 html[data-wf-domain] [data-gate]:not(.is-unlocked) [data-gate-content] { display: none; }
 html[data-wf-domain] [data-gate].is-unlocked [data-gate-panel] { display: none; }
 html[data-wf-domain] [data-gate-error]:not(.is-shown) { display: none; }
+/* The section takes focus after unlocking (so keyboard users land on the
+   plans); it needs no ring. repo-css: designer-cant — @keyframes: a wrong PIN
+   shakes the digit boxes (plans-gate.ts skips it under reduced motion). */
+[data-gate]:focus { outline: none; }
+@keyframes bv-gate-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-0.5em); }
+  40% { transform: translateX(0.5em); }
+  60% { transform: translateX(-0.35em); }
+  80% { transform: translateX(0.35em); }
+}
+[data-gate-digits].is-shake { animation: bv-gate-shake 0.4s ease; }
 
 /* repo-css: js-state — lightbox.ts hides the arrows and thumbnails for a
    single image with `hidden`, which Icon Box's display:flex would beat. */
