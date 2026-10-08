@@ -1,8 +1,9 @@
 # MarketCap Webflow build — session handoff
 
-Last updated 2026-10-06 (all 10 components built). Read this first when resuming on a
-new machine, then `AGENTS.md`, `GOTCHAS.md` and the two files next to this
-one:
+Last updated 2026-10-08: **dev phase complete, review phase started** — see
+`REVIEW.md` next to this file for the current state, open decisions and the
+launch checklist. Read this first when resuming on a new machine, then
+`AGENTS.md`, `GOTCHAS.md` and the files next to this one:
 
 - `MANUAL-TODO.md` — values the Webflow MCP can't write, entered by Kajal in
   the Designer, with their status.
@@ -16,7 +17,8 @@ original machine (or a private share) if you need the reference.
 
 ## Working rules (from Kajal)
 
-- Work directly on `master` (dev phase): no branches or PRs unless asked.
+- Work directly on `master`: no branches or PRs unless asked.
+- Review phase: work in feedback rounds; ask before every commit.
 
 - Stop for Kajal's OK after each step.
 - Don't create, rename or remove anything beyond the handoff without asking.
@@ -41,17 +43,12 @@ original machine (or a private share) if you need the reference.
 
 | # | Step | Status |
 |---|---|---|
-| 1 | Variables P1–P8 (P8 = repo CSS §01, approved-base) | Done (P8 waits for repo) |
-| 2 | Native tag styles (H1–H6, p, a) | Done |
-| 3 | Classes from CLASSES.md | Done; 23 calc/gradient values entered manually by Kajal |
-| 4 | Style guide page | Done; previews 1–13 + anatomy; nav-state previews left out (Kajal) |
-| 5 | Components | **Built** (10 of 10); waiting for Kajal's OK and MANUAL-TODO J–K |
-| 6 | CMS (Developments, Milestones, Program Rows) | Done 2026-10-06: collections, groups, items published |
-| 7 | Home page | Not started |
-| 8 | Inner pages (Developments, Development template, Contact) | Not started |
-| 9 | Repo: modules, repo CSS, `pnpm add gsap lenis`, build, push | Not started |
-| 10 | Page settings: SEO, OG, JSON-LD, favicon | Not started |
-| 11 | QA + release | Not started |
+| 1–6 | Variables, tag styles, classes, style guide, components, CMS | Done |
+| 7 | Home page | Done |
+| 8 | Inner pages (Developments, Development template, Contact, Privacy, Terms) | Done |
+| 9 | Repo: modules, repo CSS, build, push | Done |
+| 10 | Page settings: SEO, OG, JSON-LD, favicon | Done (2026-10-08) |
+| 11 | Review → QA → release | **Review in progress** (`REVIEW.md`) |
 
 ## Step 5 — components
 
@@ -124,12 +121,9 @@ the four identical stand-in Plans images all read "[Elevations]" until real
 plans are uploaded. Photo-band images have no alt (decorative). The
 prototype HANDOFF's "add an Alt field and bind it" is superseded.
 
-## Decisions waiting for Kajal (before Home)
+## Decisions waiting for Kajal
 
-- Hero film: `hero-1080-graded.mp4` recommended; Background Video can't be
-  created by the MCP (Designer, or a `<video>` Embed).
-- Capabilities tabs: keep the custom tabs (recommended) or native Tabs.
-- Whether repo work (step 9) moves up to right after Home.
+See `REVIEW.md` › Open design decisions.
 
 ## Assets
 
