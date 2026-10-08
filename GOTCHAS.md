@@ -892,6 +892,39 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed
 - Found by: claude
 
+### 2026-10-08 · Form Block and Turnstile break a flex-column form's layout
+- Area: designer
+- Scope: template-candidate
+- Symptom: the Contact form was 347px wide instead of 531px, and ran 20px
+  taller than the prototype under its last line.
+- Cause:
+  - the form's `align-self: stretch` sits on the inner `<form>`, but in a
+    flex parent the Form Block wrapper is the flex item, and it shrinks to
+    its content;
+  - webflow.js appends the Turnstile holder (`div > div > input
+    [name="cf-turnstile-response"]`) as the form's last child at runtime,
+    and a flex-column form with a gap adds one more gap for it.
+- Fix: Form Block class sets `align-self: stretch` (a plain block
+  elsewhere, so nothing else moves). Repo CSS §03 takes the Turnstile
+  holder out of the flow (`position: absolute`); the invisible widget
+  still runs.
+- Status: fixed (Webflow styles + this commit, 2026-10-08)
+- Found by: claude
+
+### 2026-10-08 · A variable mode on a class doesn't recolour inherited text
+- Area: designer
+- Scope: template-candidate
+- Symptom: setting a Colors Semantic mode on a class (e.g. Gate Panel)
+  changed its background and borders, but the text kept the parent's colour.
+- Cause: `color` is inherited as a computed value. The mode only redefines
+  the variables on that element; text that inherits `color` was already
+  resolved on an ancestor with the ancestor's mode.
+- Fix: every class that sets a colour mode also sets its own text colour
+  (the same Text variable again), so it resolves against the new mode.
+  Check this whenever a mode is added or changed on a class (Kajal).
+- Status: documented
+- Found by: human
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

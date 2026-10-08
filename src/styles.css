@@ -225,6 +225,13 @@ svg {
   display: none;
 }
 
+/* Turnstile spam check: webflow.js appends its holder as the form's last
+   child at runtime. In a flex-column form with a gap it adds one more gap
+   under the last field. Absolute keeps the (invisible) widget working. */
+form > div:has(> div > input[name="cf-turnstile-response"]) {
+  position: absolute;
+}
+
 /* Rich text */
 .w-richtext > :first-child,
 .w-richtext div:first-child > :first-child {
