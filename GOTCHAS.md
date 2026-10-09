@@ -957,6 +957,29 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed (Contact, Developments Template, 2026-10-08)
 - Found by: claude
 
+### 2026-10-09 · Turning a CMS-bound wrapper into a heading
+- Area: mcp
+- Scope: template-candidate
+- Symptom: The SEO heading map asked for H3s on the Development
+  template's Location values (wrapper div with a value and a unit inside)
+  and on the Stage titles (a paragraph). `set_tag` refuses `h3` on a
+  Block ("Valid tags: div, header, footer, nav, main, section, article,
+  aside, address, figure"), and a Heading element can't hold child
+  elements.
+- Cause: Webflow element types fix the tag set.
+- Fix: build a DOM element with `dom_tag: "h3"` and the same classes
+  (`D2 Info Value`), with DOM `span` children. A DOM span has a bindable
+  `text` setting, so CMS fields bind to it, unlike a Text Span. The
+  result is valid HTML (no div inside the h3). Single-line titles (Stage
+  Rows › Title) just become a Heading element with the same class. An
+  empty bound element gets Webflow's `w-dyn-bind-empty` class
+  (`display: none`), so the old "Unit is set" condition wasn't needed.
+  Same classes and the same nesting depth keep em sizes identical.
+  Verified by reverting the tags in the live page and comparing every
+  box at 1440/820/390: identical.
+- Status: done (template, 2026-10-09)
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
