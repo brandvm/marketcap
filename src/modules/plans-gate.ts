@@ -1,8 +1,7 @@
 // Dev-phase PIN gate (development template › Plans). A soft gate for
 // review, not protection: the image URLs are still in the page source.
-//   · The PIN is the visitor's local month and day (MMDD, e.g. 1008 on
-//     8 October). Yesterday's and tomorrow's codes also work, so nobody is
-//     locked out across time zones or around midnight.
+//   · The PIN is fixed (PIN below). It ships in the public bundle, so it
+//     only keeps casual visitors out.
 //   · Until unlocked, repo CSS hides [data-gate-content] on the published
 //     site (the canvas shows everything), and the images inside lose their
 //     src/srcset/sizes, kept only in memory, so they aren't in the DOM.
@@ -22,17 +21,7 @@ import { ScrollTrigger, reducedMotion } from './gsap';
 
 const IMAGE_ATTRS = ['src', 'srcset', 'sizes'] as const;
 
-const pinFor = (date: Date) =>
-  `${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
-
-const validPins = () => {
-  const now = new Date();
-  return [-1, 0, 1].map((offset) => {
-    const day = new Date(now);
-    day.setDate(now.getDate() + offset);
-    return pinFor(day);
-  });
-};
+const PIN = '1013';
 
 export function initPlansGate() {
   document.querySelectorAll<HTMLElement>('[data-gate]').forEach((gate) => {
@@ -90,7 +79,7 @@ export function initPlansGate() {
     const check = () => {
       const pin = digits.map((d) => d.value).join('');
       if (pin.length < digits.length) return;
-      if (validPins().includes(pin)) {
+      if (pin === PIN) {
         error?.classList.remove('is-shown');
         unlock();
       } else wrong();
