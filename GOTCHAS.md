@@ -980,6 +980,24 @@ repos to improve `brandvm/wf-template`.
 - Status: done (template, 2026-10-09)
 - Found by: claude
 
+### 2026-10-13 · Testing local code in the built-in browser
+- Area: js
+- Scope: template-candidate
+- Symptom: `?bv-dev=1` on staging loaded the staging bundle, not
+  localhost (`ERR_BLOCKED_BY_CLIENT` on `http://localhost:3000/index.js`).
+  With the browser pane hidden, GSAP timelines, CSS animations and
+  IntersectionObserver callbacks didn't advance, so a transition sampled
+  from script looked frozen and a keyframe sat on its first frame.
+- Cause: the Claude desktop browser blocks a public page from requesting
+  localhost, and a hidden pane gets no animation frames.
+- Fix: for logic checks, save the staging HTML, point the loader's `STAG`
+  at a local static server holding `dist/` (absolute URL: the loader does
+  `new URL()` on it) and open that. Class toggles and layout can be read
+  while hidden; anything that moves needs the pane visible, or a check on
+  staging by a person.
+- Status: documented
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

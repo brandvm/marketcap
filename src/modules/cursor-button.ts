@@ -30,8 +30,10 @@ export function initCursorButton() {
     const button = area.querySelector<HTMLElement>('[data-cursor-button]');
     if (!button) return;
 
-    const x = gsap.quickTo(button, 'x', { duration: 0.45, ease: 'power3.out' });
-    const y = gsap.quickTo(button, 'y', { duration: 0.45, ease: 'power3.out' });
+    // No easing: the button sits exactly under the pointer (review round 1;
+    // the 0.45 s follow read as lag).
+    const x = gsap.quickSetter(button, 'x', 'px') as (value: number) => void;
+    const y = gsap.quickSetter(button, 'y', 'px') as (value: number) => void;
     let shown = false;
 
     const target = (clientX: number, clientY: number) => {
@@ -40,10 +42,9 @@ export function initCursorButton() {
     };
     const show = (clientX: number, clientY: number) => {
       const at = target(clientX, clientY);
-      // Jump to the pointer (and reset the follow tweens there) before fading in.
-      gsap.set(button, at);
-      x(at.x, at.x);
-      y(at.y, at.y);
+      // Jump to the pointer before fading in.
+      x(at.x);
+      y(at.y);
       gsap.to(button, { opacity: 1, scale: 1, duration: 0.25 });
       shown = true;
     };

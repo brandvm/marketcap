@@ -7,10 +7,11 @@
 // Designer on Transition Dark).
 //
 // to-development: a link into a development that shows its image
-// ([data-transition-image], Dev Card and Home Hero Card) — the image grows
+// ([data-transition-image], Dev Card and Home Hero Card), with at least half
+// of that image on screen — the image grows
 // from where it sits on screen into the development hero's background
-// ([data-transition-target] on the template's S Bg), then the page fades in
-// under it and the hero intro plays.
+// ([data-transition-target] on the template's S Bg) over the unchanged
+// page, then the new page fades in under it and the hero intro plays.
 //
 // Markup: G | Page W [data-barba="wrapper"] › G | Transition
 // [data-transition-wrap] › [data-transition-dark], and G | Main W
@@ -120,10 +121,22 @@ let pendingHash = '';
 const sourceImage = (trigger: unknown) =>
   trigger instanceof Element ? trigger.querySelector<HTMLImageElement>('[data-transition-image] img') : null;
 
+// The zoom only runs from an image the visitor can actually see: at least
+// half of it inside the viewport (review round 1). A card that is mostly
+// off screen, or a link without an image (nav, footer), gets the default
+// transition.
+const zoomable = (trigger: unknown) => {
+  const img = sourceImage(trigger);
+  if (!img) return false;
+  const r = img.getBoundingClientRect();
+  if (!r.width || !r.height) return false;
+  const w = Math.min(r.right, window.innerWidth) - Math.max(r.left, 0);
+  const h = Math.min(r.bottom, window.innerHeight) - Math.max(r.top, 0);
+  return w > 0 && h > 0 && (w * h) / (r.width * r.height) >= 0.5;
+};
+
 function runZoomLeave(current: HTMLElement, trigger: unknown) {
   const img = sourceImage(trigger);
-  const transitionWrap = document.querySelector<HTMLElement>('[data-transition-wrap]')!;
-  const transitionDark = transitionWrap.querySelector<HTMLElement>('[data-transition-dark]')!;
   const tl = gsap.timeline({ onComplete: () => current.remove() });
 
   if (img) {
@@ -155,9 +168,11 @@ function runZoomLeave(current: HTMLElement, trigger: unknown) {
   // DOM, and its buttons must keep visibility (cursor-button.ts fades opacity).
   current.querySelectorAll<HTMLElement>('[data-cursor-button]').forEach((b) => gsap.set(b, { autoAlpha: 0 }));
 
-  tl.set(transitionWrap, { zIndex: 2 });
-  tl.fromTo(transitionDark, { autoAlpha: 0 }, { autoAlpha: 0.8, duration: 1.1, ease: 'parallax' }, 0);
-  tl.set(transitionDark, { autoAlpha: 0 });
+  // No dark overlay here (review round 1): it tinted the light footer while
+  // the image grew. The page stays as it is until the clone, by then the
+  // size of the new hero, covers it; the empty tween only holds the old
+  // page for the length of the zoom.
+  tl.to({}, { duration: 1.1 });
   return tl;
 }
 
@@ -300,7 +315,7 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
         name: 'to-development',
         sync: true,
         to: { namespace: ['development'] },
-        custom: ({ trigger }) => !reducedMotion() && !!sourceImage(trigger),
+        custom: ({ trigger }) => !reducedMotion() && zoomable(trigger),
         leave: (data) => runZoomLeave(data.current.container as HTMLElement, data.trigger).then(),
         enter: (data) => runZoomEnter(data.next.container as HTMLElement),
       },

@@ -31,6 +31,20 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 - Staging updates on every push. If reviewers need a build that doesn't move
   under them, cut a tag and set `RELEASE` (README › Release).
 
+## Round 1 (2026-10-13, internal review notes from Kajal)
+
+| # | Item | Where | Status |
+|---|---|---|---|
+| 1 | Remove the "Made in Webflow" badge | Site settings › General (needs a paid site or Workspace plan) | Kajal |
+| 2 | Nav bar shows again on scroll up | `nav-state.ts` + repo CSS `.is-up` | Pushed; motion to check on staging |
+| 3 | "View" cursor button follows without lag | `cursor-button.ts` (no easing) | Pushed; to check on staging |
+| 4 | Capabilities steps through the items by itself (3 s), hover still picks | `capabilities.ts` | Pushed; to check on staging |
+| 5 | Footer changed colour when a project was clicked | `transition.ts`: the image zoom no longer fades the dark overlay over the old page; zoom only from an image at least half on screen | Pushed; to check on staging |
+| 6 | Footer: remove phone numbers, add "Design by BVM" | Webflow (Footer component) | Waiting for Webflow access; wording/link to confirm |
+| 7 | Projects page: remove the Sort by filter | Webflow (Developments page) | Waiting for Webflow access |
+| 8 | Contact: Google map inside the logo mask (or a linked map image); remove phone numbers | Webflow (Contact page), JSON-LD phone too | Waiting for Webflow access |
+| 9 | Mobile pass | Staging at 390 | Started: no sideways scroll, no text under 12px; small tap targets (Cap items 20px, footer links 25px, legal links 13px, Contact text links 14px); the Contact map's address card covers about half the map. Animated sections still to review with the browser pane visible |
+
 ## Open design decisions
 
 | Item | Now | Options |

@@ -612,11 +612,20 @@ html.is-menu-open {
               inline links become the closed sheet (the Designer styles the
               sheet at Tablet and below);
    .is-swapping  one frame around that switch, so the links don't slide;
-   .is-open   the menu sheet is open.
+   .is-open   the menu sheet is open;
+   .is-up     scrolling up with the bar's own spot off screen: the bar is
+              fixed to the top, solid like .is-solid, and slides in. The
+              slide is a keyframe animation, not a transition, so the
+              wrapper only has a transform for those 350 ms (a transform
+              would trap the fixed Nav Float and menu sheet inside it).
    Nav Float's own .is-dark (light boxes over dark sections) is a combo in
    the Designer with the Ironstone Variable mode. */
-.g-nav-w.is-solid { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
-.g-nav-w.is-solid .nav-button {
+.g-nav-w.is-solid,
+.g-nav-w.is-up { background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone); border-bottom-color: var(--_colors---ironstone-tint--ironstone-12); }
+.g-nav-w.is-up { position: fixed; top: 0; left: 0; right: 0; animation: nav-up 350ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+@keyframes nav-up { from { transform: translateY(-100%); } }
+.g-nav-w.is-solid .nav-button,
+.g-nav-w.is-up .nav-button {
   --_colors-semantic---button--background: var(--_colors---brand--ironstone);
   --_colors-semantic---button--foreground: var(--_colors---brand--kolin);
   --_colors-semantic---button--background-hover: var(--_colors---brand--clay);
@@ -915,6 +924,10 @@ html[data-wf-domain] [data-gate-error]:not(.is-shown) { display: none; }
   .nav-menu,
   .nav-toggle-line {
     transition: none !important;
+  }
+
+  .g-nav-w.is-up {
+    animation: none;
   }
 
   .hero-card:hover .hero-card-img,

@@ -9,6 +9,11 @@
 //     dark if it is Section + Is Ironstone, unless [data-nav-theme] says
 //     otherwise; the innermost themed element at the bar's height wins
 //     (story-sequence.ts switches Story as its photo floods the frame).
+//   · Scrolling up brings the whole bar back (review round 1): .is-up fixes
+//     it to the top, solid, once the page has moved up UP_AFTER px with the
+//     bar's own spot off screen. Being on screen again, it takes over from
+//     Nav Float through the same observer. Scrolling down, or reaching the
+//     top, drops .is-up and the bar goes back to its place in the page.
 // Markup: [data-nav] › [data-nav-float]; optional [data-hero],
 // [data-nav-theme="dark|light"].
 // After a page transition (transition.ts) the bar's solid state and the
@@ -36,9 +41,40 @@ export function initNavState() {
   };
   new IntersectionObserver(([entry]) => setFloat(!entry.isIntersecting)).observe(nav);
 
+  // Scroll direction: `turn` is where the current run up or down started.
+  const UP_AFTER = 24;
+  const DOWN_AFTER = 8;
+  let lastY = window.scrollY;
+  let turn = lastY;
+  let goingUp = false;
+  const setUp = (value: boolean) => nav.classList.toggle('is-up', value);
+  const onDirection = () => {
+    const y = window.scrollY;
+    if (y === lastY) return;
+    const up = y < lastY;
+    if (up !== goingUp) {
+      goingUp = up;
+      turn = lastY;
+    }
+    lastY = y;
+    if (nav.classList.contains('is-open')) return;
+    if (y <= 0) setUp(false);
+    else if (up && turn - y >= UP_AFTER && y > nav.offsetHeight) setUp(true);
+    else if (!up && y - turn >= DOWN_AFTER) setUp(false);
+  };
+  window.addEventListener('scroll', onDirection, { passive: true });
+  const resetDirection = () => {
+    setUp(false);
+    lastY = turn = window.scrollY;
+    goingUp = false;
+  };
+
   const float = nav.querySelector<HTMLElement>('[data-nav-float]');
   if (!float) {
-    refresh = setSolid;
+    refresh = () => {
+      setSolid();
+      resetDirection();
+    };
     return;
   }
   const depth = (el: Element) => { let d = 0; for (let n = el.parentElement; n; n = n.parentElement) d++; return d; };
@@ -69,6 +105,7 @@ export function initNavState() {
   update();
   refresh = () => {
     setSolid();
+    resetDirection();
     collect();
     update();
   };
