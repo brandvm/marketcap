@@ -102,9 +102,27 @@ export function initApproachSteps() {
   mm.add('(max-width: 767px)', () => {
     root.classList.add('is-stacked');
     let current = -1;
+    // The rule runs down the left edge here (Designer, Mobile Landscape):
+    // it ends at the last marker and fills to the reading line.
+    const track = root.querySelector<HTMLElement>('.steps-list-track');
+    if (progress) {
+      gsap.killTweensOf(progress);
+      gsap.set(progress, { clearProps: 'width' });
+    }
+    const fit = () => {
+      const list = track?.parentElement;
+      if (!track || !list) return;
+      const last = steps[steps.length - 1];
+      const end = (last.querySelector('.marker') ?? last).getBoundingClientRect().bottom;
+      track.style.bottom = `${Math.max(0, list.getBoundingClientRect().bottom - end)}px`;
+    };
     // The last step whose top has passed 60% of the viewport height.
     const pick = () => {
       const line = window.innerHeight * 0.6;
+      if (progress && track) {
+        const box = track.getBoundingClientRect();
+        gsap.set(progress, { height: Math.min(box.height, Math.max(0, line - box.top)) });
+      }
       let index = 0;
       steps.forEach((step, i) => {
         if (step.getBoundingClientRect().top <= line) index = i;
@@ -113,11 +131,19 @@ export function initApproachSteps() {
       current = index;
       setActive(index, false, false);
     };
-    ScrollTrigger.create({ trigger: root, start: 'top bottom', end: 'bottom top', onUpdate: pick, onRefresh: pick });
-    pick();
+    const refresh = () => {
+      fit();
+      pick();
+    };
+    ScrollTrigger.create({ trigger: root, start: 'top bottom', end: 'bottom top', onUpdate: pick, onRefresh: refresh });
+    refresh();
     if (bg && !reducedMotion()) {
       gsap.fromTo(bg, { scale: 1.08 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: root, start: 'top bottom', end: 'bottom bottom', scrub: true } });
     }
-    return () => root.classList.remove('is-stacked');
+    return () => {
+      root.classList.remove('is-stacked');
+      if (track) track.style.bottom = '';
+      if (progress) gsap.set(progress, { clearProps: 'height' });
+    };
   });
 }
