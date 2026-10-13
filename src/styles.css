@@ -665,10 +665,12 @@ html.is-menu-open {
 .g-nav-w.is-float .nav-float,
 .g-nav-w.is-open .nav-float { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
 .g-nav-w.is-open .nav-float-cta { opacity: 0; visibility: hidden; } /* the sheet has its own CTA */
-/* Desktop sheet: same values the Designer sets on Nav Menu at Tablet. */
+/* Desktop sheet: same values the Designer sets on Nav Menu at Tablet.
+   Height is the large viewport: at 100svh iOS Safari showed a see-through
+   strip under the sheet whenever its bar was collapsed. */
 .g-nav-w.is-float .nav-menu {
   position: fixed; left: auto; right: 0; top: 0; bottom: 0; z-index: 101;
-  width: 30em; max-width: 100%; height: 100svh;
+  width: 30em; max-width: 100%; height: 100lvh;
   flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 1.25em;
   padding: calc(var(--_layout---nav--height) + 2.5em) var(--_layout---nav--padding-h) 2.5em;
   background-color: var(--_colors---brand--chalk); color: var(--_colors---brand--ironstone);
