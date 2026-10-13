@@ -40,9 +40,9 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 | 3 | "View" cursor button follows without lag | `cursor-button.ts` (no easing) | Pushed; to check on staging |
 | 4 | Capabilities steps through the items by itself (3 s), hover still picks | `capabilities.ts` | Pushed; to check on staging |
 | 5 | Footer changed colour when a project was clicked | `transition.ts`: the image zoom no longer fades the dark overlay over the old page; zoom only from an image at least half on screen | Pushed; to check on staging |
-| 6 | Footer: remove phone numbers, add "Design by BVM" | Webflow (Footer component) | Waiting for Webflow access; wording/link to confirm |
-| 7 | Projects page: remove the Sort by filter | Webflow (Developments page) | Waiting for Webflow access |
-| 8 | Contact: Google map inside the logo mask (or a linked map image); remove phone numbers | Webflow (Contact page), JSON-LD phone too | Waiting for Webflow access |
+| 6 | Footer: remove phone numbers, add "Design by BVM" | Webflow (Footer component) | Done 2026-10-13, on staging. Phone span removed; third legal link "Design by BVM" → https://www.brandvm.com (new tab). Wording and link to confirm with Kajal |
+| 7 | Projects page: remove the Sort by filter | Webflow (Developments page) | Done 2026-10-13, on staging. Searchable Select instance removed from Page Head's Control slot; the component and the Finsweet module stay (style guide) |
+| 8 | Contact: Google map inside the logo mask (or a linked map image); remove phone numbers | Webflow (Contact page), JSON-LD phone too | Done 2026-10-13, on staging. Phone Label Group and both JSON-LD `telephone` entries removed. The Mark Figure instance is unlinked on this page: its image is now a div (Mark Figure Media + Mask Mark) holding the Map Frame iframe and Map Tint, so the live map shows through the mark (720×294 at 1440, 370×151 at 390). The lower "Where we are" heading and Map section were removed (Kajal, 2026-10-13); the class Contact Where is now unused anywhere, and Map / Map Card / Map Frame live on only on the style guide |
 | 9 | Mobile pass | Staging at 390 | Started: no sideways scroll, no text under 12px; small tap targets (Cap items 20px, footer links 25px, legal links 13px, Contact text links 14px); the Contact map's address card covers about half the map. Animated sections still to review with the browser pane visible |
 
 ## Open design decisions

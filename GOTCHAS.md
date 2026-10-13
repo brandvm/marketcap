@@ -998,6 +998,25 @@ repos to improve `brandvm/wf-template`.
 - Status: documented
 - Found by: claude
 
+### 2026-10-13 · Unlinked instances lose conditional classes; link `rel` setting doesn't publish
+- Area: mcp
+- Scope: template-candidate
+- Symptom: after `unlink_component_instance` on Contact's Mark Figure, the
+  root and Line H kept an empty custom `class=""` attribute and lost
+  `is-contact` / `is-short`. Separately, a Link created with `static_link`
+  `rel: "noopener"` read back correctly through `get_settings` but
+  published without `rel`.
+- Cause: conditional classes are a typed `class` attribute driven by a
+  prop (see the 2026-10-06 entry), so there is nothing to resolve once the
+  instance is unlinked. The link setting's `rel` isn't written to the
+  published markup.
+- Fix: after unlinking, apply the combos as real styles (`set_style`
+  `[Mark Figure, Is Contact]`) and remove the empty `class` attribute. Set
+  `rel` as a custom attribute with `set_attributes`. Check the published
+  HTML for both.
+- Status: workaround confirmed
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
