@@ -181,6 +181,17 @@ export function initStorySequence() {
   mm.add('(max-width: 767px), (prefers-reduced-motion: reduce)', () => {
     story.classList.add('is-static');
     if (reducedMotion()) cards.forEach((card) => setCount(card.querySelector('[data-count]')!, 1));
-    return () => story.classList.remove('is-static');
+    // The photo stays in the viewport while the blocks scroll over it
+    // (styles.css); it changes to the stats photo once the cards arrive.
+    const stats = story.querySelector<HTMLElement>('[data-story-stats]');
+    if (stats && statsMedia) {
+      ScrollTrigger.create({
+        trigger: stats,
+        start: 'top 70%',
+        end: 'bottom top',
+        onToggle: (self) => story.classList.toggle('is-stats-on', self.isActive || self.progress === 1),
+      });
+    }
+    return () => story.classList.remove('is-static', 'is-stats-on');
   });
 }

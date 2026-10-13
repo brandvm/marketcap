@@ -45,6 +45,15 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 | 8 | Contact: Google map inside the logo mask (or a linked map image); remove phone numbers | Webflow (Contact page), JSON-LD phone too | Done 2026-10-13, on staging. Phone Label Group and both JSON-LD `telephone` entries removed. The Mark Figure instance is unlinked on this page: its image is now a div (Mark Figure Media + Mask Mark) holding the Map Frame iframe and Map Tint, so the live map shows through the mark (720×294 at 1440, 370×151 at 390). The lower "Where we are" heading and Map section were removed (Kajal, 2026-10-13); the class Contact Where is now unused anywhere, and Map / Map Card / Map Frame live on only on the style guide |
 | 9 | Mobile pass | Staging at 390 | Started: no sideways scroll, no text under 12px; small tap targets (Cap items 20px, footer links 25px, legal links 13px, Contact text links 14px); the Contact map's address card covers about half the map. Animated sections still to review with the browser pane visible |
 
+### Round 1 follow-ups (2026-10-13, Kajal's phone screenshots)
+
+| Item | Where | Status |
+|---|---|---|
+| Dev Card on phones: even 2-column stat grid with one divider, numbers 1.75em, padding = card body padding, stronger Is Dim overlay behind the title and facts | Webflow, Mobile Landscape and down (Dev Stats, Dev Stat + nth-child(even), Dev Stat Value, S Bg Overlay › Is Dim) | Done, on staging |
+| Hero: H1 and text lose contrast on bright video frames | Webflow, S Bg Overlay › Is Gradient (0.34 → 0.3 at 35% → 0.6; was 0.2 → 0 at 30% → 0.55), all breakpoints | Done, on staging |
+| Approach on phones: photo stays in the viewport with the zoom, steps scroll over it in one column, the step at the reading line is active (others 40%) and its photo fades in | Webflow (Steps List 1 column, Steps List Item opacity override removed at Mobile Landscape) + `approach-steps.ts` `.is-stacked` + repo CSS js-state | Webflow done; code built, waiting for commit OK |
+| Story stats on phones: photo was stretched over the whole section; now one viewport tall and sticky, changing to the black-and-white stats photo when the cards arrive | `story-sequence.ts` `.is-stats-on` + repo CSS js-state (`.story.is-static`) | Code built, waiting for commit OK |
+
 ## Open design decisions
 
 | Item | Now | Options |

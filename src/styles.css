@@ -601,6 +601,11 @@ html.is-menu-open {
 }
 [data-cap-auto] .cap-item.is-active::before { opacity: 0.25; }
 [data-cap-auto] .cap-item.is-active::after { transform: scaleX(var(--cap-progress, 0)); transform-origin: left; }
+/* repo-css: js-state — approach-steps.ts adds .is-stacked below 768px: the
+   photos stay in the viewport while the steps scroll over them (same
+   sticky set-up as .story.is-static). */
+.approach.is-stacked > .s-bg { overflow: clip; }
+.approach.is-stacked .approach-bg { position: sticky; inset: 0 auto auto 0; width: 100%; height: 100lvh; }
 .story .guides-v { left: var(--gx, 34.2%); }
 .story-guide-h { top: var(--gy, calc(100% - 26.905vw)); }
 .story-guide-m { left: var(--gx, 34.2%); top: var(--gy, calc(100% - 26.905vw)); }
@@ -617,6 +622,15 @@ html.is-menu-open {
 /* Static (reduced motion): the photo stays behind the statement and stats,
    shaded as at the end of the animated sequence, so the Kolin text reads. */
 .story.is-static [data-story-shade] { opacity: 0.45; }
+/* The photo is one viewport tall and stays put while the statement and the
+   stat cards scroll over it (it used to stretch over the whole section and
+   crop to a blur on phones). Sticky needs an ancestor that clips without
+   being a scroll container, hence overflow: clip on S Bg here. The stats
+   photo fades in when the cards arrive (.is-stats-on). */
+.story.is-static .story-pin > .s-bg { overflow: clip; }
+.story.is-static [data-story-media] { position: sticky; inset: 0 auto auto 0; width: 100%; height: 100lvh; }
+.story.is-static .story-media-img.is-stats { transition: opacity 700ms ease; }
+.story.is-static.is-stats-on .story-media-img.is-stats { opacity: 1; }
 /* Nothing scrolls or measures in the static layout: no hint, no guides. */
 .story.is-static .story-scroll,
 .story.is-static [data-story-guides] { display: none; }

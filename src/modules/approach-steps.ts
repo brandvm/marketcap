@@ -1,6 +1,8 @@
 // Our Approach: five steps (Acquire → Lease). On desktop the section pins and
 // scroll advances the progress rule and the active step; clicking a step
-// scrolls to its position. Below 768px the steps are a plain list.
+// scrolls to its position. Below 768px nothing pins: the steps are a
+// vertical list that scrolls over the photo, which stays in the viewport
+// (.is-stacked, styles.css); the step crossing the reading line is active.
 // Markup: [data-approach] with [data-approach-progress] and [data-step]
 // buttons; [data-approach-bg] parallaxes.
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
@@ -37,11 +39,11 @@ export function initApproachSteps() {
     gsap.set(progress, { width: xs[i] + (xs[i + 1] - xs[i]) * (t - i) });
   };
 
-  const setActive = (index: number, animateFill = true) => {
+  const setActive = (index: number, animateFill = true, done = true) => {
     media.forEach((m, i) => m.classList.toggle('is-active', i === Math.min(index, media.length - 1)));
     steps.forEach((step, i) => {
       step.classList.toggle('is-active', i === index);
-      step.classList.toggle('is-done', i < index);
+      step.classList.toggle('is-done', done && i < index);
       step.setAttribute('aria-current', i === index ? 'step' : 'false');
     });
     if (progress && animateFill) {
@@ -52,13 +54,18 @@ export function initApproachSteps() {
   };
   setActive(0);
 
-  if (reducedMotion()) {
-    steps.forEach((step, i) => step.addEventListener('click', () => setActive(i)));
-    return;
-  }
-
   const mm = gsap.matchMedia();
-  mm.add('(min-width: 768px)', () => {
+  const clickOnly = () => {
+    const handlers = steps.map((step, i) => {
+      const h = () => setActive(i);
+      step.addEventListener('click', h);
+      return h;
+    });
+    return () => steps.forEach((step, i) => step.removeEventListener('click', handlers[i]));
+  };
+  mm.add('(min-width: 768px) and (prefers-reduced-motion: reduce)', clickOnly);
+
+  mm.add('(min-width: 768px) and (prefers-reduced-motion: no-preference)', () => {
     let current = 0;
     const trigger = ScrollTrigger.create({
       trigger: root,
@@ -93,11 +100,24 @@ export function initApproachSteps() {
   });
 
   mm.add('(max-width: 767px)', () => {
-    const handlers = steps.map((step, i) => {
-      const h = () => setActive(i);
-      step.addEventListener('click', h);
-      return h;
-    });
-    return () => steps.forEach((step, i) => step.removeEventListener('click', handlers[i]));
+    root.classList.add('is-stacked');
+    let current = -1;
+    // The last step whose top has passed 60% of the viewport height.
+    const pick = () => {
+      const line = window.innerHeight * 0.6;
+      let index = 0;
+      steps.forEach((step, i) => {
+        if (step.getBoundingClientRect().top <= line) index = i;
+      });
+      if (index === current) return;
+      current = index;
+      setActive(index, false, false);
+    };
+    ScrollTrigger.create({ trigger: root, start: 'top bottom', end: 'bottom top', onUpdate: pick, onRefresh: pick });
+    pick();
+    if (bg && !reducedMotion()) {
+      gsap.fromTo(bg, { scale: 1.08 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: root, start: 'top bottom', end: 'bottom bottom', scrub: true } });
+    }
+    return () => root.classList.remove('is-stacked');
   });
 }
