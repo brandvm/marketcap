@@ -35,7 +35,7 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 
 | # | Item | Where | Status |
 |---|---|---|---|
-| 1 | Remove the "Made in Webflow" badge | Site settings › General (needs a paid site or Workspace plan) | Kajal |
+| 1 | Remove the "Made in Webflow" badge | Site settings › General (needs a paid site or Workspace plan) | Hidden for the preview by a temporary style block in the site head code (Kajal, 2026-10-13); remove before launch — MANUAL-TODO AM |
 | 2 | Nav bar shows again on scroll up | `nav-state.ts` + repo CSS `.is-up` | Pushed; motion to check on staging |
 | 3 | "View" cursor button follows without lag | `cursor-button.ts` (no easing) | Pushed; to check on staging |
 | 4 | Capabilities steps through the items by itself (3 s), hover still picks | `capabilities.ts`. Follow-up 2026-10-13: a hairline under the active item fills over the 3 s (`--cap-progress`, repo CSS js-state); needs Cap Item position relative in the Designer | Autoplay pushed; progress line built, waiting for commit OK |
