@@ -35,6 +35,15 @@ function startBox(media: HTMLElement): MaskBox {
   return { x: 575 * s, y: vh - MARK_H * s, s };
 }
 
+// Phones: the mark sits on the bottom edge of the screen, a little wider
+// than it and bleeding off the right, under the About copy.
+function phoneStartBox(media: HTMLElement): MaskBox {
+  const vw = media.clientWidth;
+  const vh = Math.min(media.clientHeight, window.innerHeight);
+  const s = (vw * 1.15) / MARK_W;
+  return { x: vw * 0.08, y: vh - MARK_H * s, s };
+}
+
 function endBox(media: HTMLElement): MaskBox {
   const vw = media.clientWidth;
   const vh = media.clientHeight;
@@ -187,11 +196,46 @@ export function initStorySequence() {
     if (stats && statsMedia) {
       ScrollTrigger.create({
         trigger: stats,
-        start: 'top 70%',
+        start: 'top 35%',
         end: 'bottom top',
         onToggle: (self) => story.classList.toggle('is-stats-on', self.isActive || self.progress === 1),
       });
     }
     return () => story.classList.remove('is-static', 'is-stats-on');
+  });
+
+  // Phones: a short version of step 1, without a pin. The About block is one
+  // screen tall with the photo showing through the mark at its foot; over
+  // the next 70% of a screen of scrolling the mark grows until the photo
+  // fills the (sticky) frame, the copy fades, and the statement arrives on
+  // the darkened photo. Scrolling back reverses it.
+  mm.add('(max-width: 767px) and (prefers-reduced-motion: no-preference)', () => {
+    story.classList.add('is-masked');
+    const mask = { p: 0 };
+    const draw = () => {
+      const a = phoneStartBox(media);
+      const b = endBox(media);
+      const p = mask.p;
+      applyMask(media, { x: a.x + (b.x - a.x) * p, y: a.y + (b.y - a.y) * p, s: a.s + (b.s - a.s) * p });
+      about.dataset.navTheme = p > 0.8 ? 'dark' : 'light';
+    };
+    draw();
+    ScrollTrigger.addEventListener('refresh', draw);
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: { trigger: story, start: 'top top', end: () => `+=${window.innerHeight * 0.7}`, scrub: true, invalidateOnRefresh: true },
+    });
+    tl.to(mask, { p: 1, duration: 1, ease: 'power2.in', onUpdate: draw }, 0)
+      .to(about, { opacity: 0, duration: 0.55 }, 0.1)
+      .fromTo(statement, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.7)
+      // Late, so it never greys the Chalk still showing around the mark.
+      .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.15 }, 0.85);
+    return () => {
+      ScrollTrigger.removeEventListener('refresh', draw);
+      story.classList.remove('is-masked');
+      about.dataset.navTheme = 'light';
+      ['--mask-x', '--mask-y', '--mask-w', '--mask-h'].forEach((name) => media.style.removeProperty(name));
+      gsap.set([about, statement, shade], { clearProps: 'opacity' });
+    };
   });
 }

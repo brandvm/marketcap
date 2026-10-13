@@ -615,7 +615,7 @@ html.is-menu-open {
 /* repo-css: js-state — story-sequence.ts adds .is-static (reduced motion,
    small screens): the pinned sequence becomes stacked blocks. */
 .story.is-static .story-pin { height: auto; overflow: visible; }
-.story.is-static [data-story-media] { -webkit-mask: none; mask: none; }
+.story.is-static:not(.is-masked) [data-story-media] { -webkit-mask: none; mask: none; }
 .story.is-static .story-statement,
 .story.is-static .story-stats { position: relative; inset: auto; transform: none; padding: var(--_layout---section--padding-v) var(--_layout---section--padding-h) var(--_layout---section--padding-v); }
 .story.is-static .story-about { position: relative; inset: auto; padding-bottom: var(--_layout---section--padding-v); background-color: var(--_colors---brand--chalk); }
@@ -631,6 +631,11 @@ html.is-menu-open {
 .story.is-static [data-story-media] { position: sticky; inset: 0 auto auto 0; width: 100%; height: 100lvh; }
 .story.is-static .story-media-img.is-stats { transition: opacity 700ms ease; }
 .story.is-static.is-stats-on .story-media-img.is-stats { opacity: 1; }
+/* Phones with motion (.is-masked, story-sequence.ts): the photo shows
+   through the mark at the foot of a screen-tall About block, and the mark
+   grows with the scroll. The shade waits for the script. */
+.story.is-static.is-masked .story-about { min-height: 100svh; background-color: transparent; }
+.story.is-static.is-masked [data-story-shade] { opacity: 0; }
 /* Nothing scrolls or measures in the static layout: no hint, no guides. */
 .story.is-static .story-scroll,
 .story.is-static [data-story-guides] { display: none; }
