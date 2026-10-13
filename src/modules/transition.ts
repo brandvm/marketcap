@@ -314,8 +314,13 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
       {
         name: 'to-development',
         sync: true,
-        to: { namespace: ['development'] },
-        custom: ({ trigger }) => !reducedMotion() && zoomable(trigger),
+        // custom sits inside `to` on purpose: Barba overwrites a root-level
+        // rule's result with the `to` check, so a root custom is ignored
+        // whenever `to` is set (GOTCHAS 2026-10-13).
+        to: {
+          namespace: ['development'],
+          custom: ({ trigger }) => !reducedMotion() && zoomable(trigger),
+        },
         leave: (data) => runZoomLeave(data.current.container as HTMLElement, data.trigger).then(),
         enter: (data) => runZoomEnter(data.next.container as HTMLElement),
       },

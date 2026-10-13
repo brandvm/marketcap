@@ -1017,6 +1017,23 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed
 - Found by: claude
 
+### 2026-10-13 · Barba ignores a root `custom` rule when `to` or `from` is set
+- Area: js
+- Scope: template-candidate
+- Symptom: footer links to a development felt dead: nothing moved for about
+  a second, then the page changed. The round 1 rule "zoom only from an
+  image at least half on screen" had no effect either.
+- Cause: in Barba 2.10.3's `resolve`, each rule is checked on the
+  transition root and then on `to` / `from`, and the second result
+  overwrites the first. A transition with `custom` at the root and
+  `to: { namespace }` therefore matched on namespace alone, so
+  to-development ran its image zoom with no image.
+- Fix: put `custom` inside `to` (`to: { namespace, custom }`);
+  `src/barba.d.ts` typed to allow it. Checked in the local harness: a
+  footer link gets the default transition, the Hero Card still zooms.
+- Status: fixed in this commit
+- Found by: human + claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

@@ -6,7 +6,8 @@
 // to the next item every AUTOPLAY_MS, so the photos change even for someone
 // scrolling past. It waits while the pointer is over the list or focus is
 // inside it (hover and keys still pick an item), carries on from that item
-// afterwards, and is off under reduced motion.
+// afterwards, and is off under reduced motion. A line under the active item
+// fills as its time runs out (round 1 follow-up).
 // Markup: [data-caps] with [data-cap] buttons (data-image, data-alt) and a
 // [data-cap-media] <img>.
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
@@ -26,7 +27,13 @@ export function initCapabilities() {
     img.src = item.dataset.image ?? '';
   });
 
+  let active = -1;
+  let onChange = () => {}; // set by the autoplay below
   const select = (index: number) => {
+    if (index !== active) {
+      active = index;
+      onChange();
+    }
     items.forEach((item, i) => {
       item.classList.toggle('is-active', i === index);
       item.setAttribute('aria-selected', String(i === index));
@@ -76,18 +83,47 @@ export function initCapabilities() {
     const list = items[0].closest<HTMLElement>('[data-cap-list]') ?? items[0].parentElement?.parentElement ?? root;
     let inView = false;
     let held = false; // pointer over the list or focus inside it
-    ScrollTrigger.create({ trigger: root, start: 'top 75%', end: 'bottom 25%', onToggle: (self) => (inView = self.isActive) });
-    list.addEventListener('pointerenter', () => (held = true));
-    list.addEventListener('pointerleave', () => (held = list.contains(document.activeElement)));
-    list.addEventListener('focusin', () => (held = true));
-    list.addEventListener('focusout', (event) => (held = list.contains(event.relatedTarget as Node | null) || list.matches(':hover')));
-    const timer = window.setInterval(() => {
-      // A page transition removes the section; the timer goes with it.
-      if (!root.isConnected) return window.clearInterval(timer);
-      if (!inView || held || document.hidden) return;
-      const current = items.findIndex((item) => item.classList.contains('is-active'));
-      select((current + 1) % items.length);
-    }, AUTOPLAY_MS);
+    // The time left on the active item, 0 → 1, drawn as a line under it
+    // (--cap-progress, styles.css). It restarts whenever the item changes
+    // and waits while the section is off screen or the list is held.
+    const state = { p: 0 };
+    const write = () => items.forEach((item, i) => item.style.setProperty('--cap-progress', i === active ? state.p.toFixed(3) : '0'));
+    const tween = gsap.fromTo(
+      state,
+      { p: 0 },
+      {
+        p: 1,
+        duration: AUTOPLAY_MS / 1000,
+        ease: 'none',
+        paused: true,
+        onUpdate: write,
+        onComplete: () => select((active + 1) % items.length),
+      },
+    );
+    const sync = () => tween.paused(!inView || held);
+    onChange = () => {
+      tween.restart();
+      write();
+      sync();
+    };
+    root.setAttribute('data-cap-auto', 'true');
+    ScrollTrigger.create({
+      trigger: root,
+      start: 'top 75%',
+      end: 'bottom 25%',
+      onToggle: (self) => {
+        inView = self.isActive;
+        sync();
+      },
+    });
+    const hold = (value: boolean) => {
+      held = value;
+      sync();
+    };
+    list.addEventListener('pointerenter', () => hold(true));
+    list.addEventListener('pointerleave', () => hold(list.contains(document.activeElement)));
+    list.addEventListener('focusin', () => hold(true));
+    list.addEventListener('focusout', (event) => hold(list.contains(event.relatedTarget as Node | null) || list.matches(':hover')));
   }
 
   // Guide line, marker and the collage's top edge sit midway in the gap

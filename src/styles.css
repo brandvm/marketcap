@@ -584,6 +584,23 @@ html.is-menu-open {
   .section.caps { min-height: 0; }
   .mark-figure.is-caps { top: auto; }
 }
+/* repo-css: js-state — autoplay progress: a hairline under the active
+   Capabilities item fills as --cap-progress (capabilities.ts) runs 0 → 1.
+   Only while autoplay is on ([data-cap-auto]); Cap Item is position
+   relative in the Designer. */
+[data-cap-auto] .cap-item.is-active::before,
+[data-cap-auto] .cap-item.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.45em;
+  height: 1px;
+  background: currentColor;
+  pointer-events: none;
+}
+[data-cap-auto] .cap-item.is-active::before { opacity: 0.25; }
+[data-cap-auto] .cap-item.is-active::after { transform: scaleX(var(--cap-progress, 0)); transform-origin: left; }
 .story .guides-v { left: var(--gx, 34.2%); }
 .story-guide-h { top: var(--gy, calc(100% - 26.905vw)); }
 .story-guide-m { left: var(--gx, 34.2%); top: var(--gy, calc(100% - 26.905vw)); }

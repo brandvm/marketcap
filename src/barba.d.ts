@@ -16,8 +16,8 @@ declare module '@barba/core' {
   interface BarbaTransition {
     name?: string;
     sync?: boolean;
-    from?: { namespace?: string[] };
-    to?: { namespace?: string[] };
+    from?: { namespace?: string[]; custom?: (data: BarbaData) => boolean };
+    to?: { namespace?: string[]; custom?: (data: BarbaData) => boolean };
     custom?: (data: BarbaData) => boolean;
     once?: (data: BarbaData) => Promise<unknown> | void;
     leave?: (data: BarbaData) => Promise<unknown> | void;
