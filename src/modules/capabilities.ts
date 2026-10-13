@@ -140,7 +140,11 @@ export function initCapabilities() {
   new ResizeObserver(place).observe(root);
   document.fonts?.ready.then(place);
 
+  // The collage rises into view on tablet and desktop only; on phones it is
+  // simply there (review, 2026-10-13).
   if (!reducedMotion()) {
-    gsap.from(media, { clipPath: 'inset(100% 0 0 0)', duration: 1.2, ease: 'power3.inOut', scrollTrigger: { trigger: media, start: 'top 85%' } });
+    gsap.matchMedia().add('(min-width: 768px)', () => {
+      gsap.from(media, { clipPath: 'inset(100% 0 0 0)', duration: 1.2, ease: 'power3.inOut', scrollTrigger: { trigger: media, start: 'top 85%' } });
+    });
   }
 }
