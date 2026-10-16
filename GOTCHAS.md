@@ -1075,6 +1075,29 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: claude
 
+### 2026-10-16 · Custom form messages: importer can't reach components; keep display off the class
+- Area: mcp
+- Scope: template-candidate
+- Symptom: replacing Webflow's default success / error text ("Thank you!
+  Your submission has been received!" on a grey `#ddd` box, "Oops!…" on pink
+  `#ffdede`, centred, 20px / 10px padding), `data_whtml_builder` into the
+  Footer component's Form Block failed with "Parent element … not found",
+  and opening the component canvas needs the Designer app connected.
+- Cause: the WHTML importer only reaches elements of the page in context,
+  not component definitions.
+- Fix: `data_element_builder` with `scope_component_id` builds inside the
+  component (DivBlock with Paragraph children and `set_text`). Message
+  classes: **Form Status** on the success / error boxes resets Webflow's
+  padding, background and centring but sets no `display`: webflow.js shows
+  them with an inline `display: block`, and a display on the class would
+  show them all the time. **Is Error** adds the gap above (it shows under
+  the form); **Form Message** is the inner stack. A message that replaces a
+  form in a shrink-wrapped column needs the form's width (Is Footer,
+  22.75em), or it jumps sideways. Checked by forcing each state, not by
+  sending a form.
+- Status: done (Contact Enquiry, Newsletter, 2026-10-16)
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
