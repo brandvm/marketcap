@@ -938,6 +938,11 @@ repos to improve `brandvm/wf-template`.
   from the one shown (MANUAL-TODO AJ). Check the published `name` after any
   form import. Company and Message published correctly once edited there.
 - Status: workaround confirmed — Kajal built a new input in the Designer; publishes `name="Name"` (2026-10-08)
+  Update 2026-10-16: form names behave the same. Both forms published
+  `data-name="Html Form"` while the API read the Contact form (wrapper and
+  inner form) back as `Contact`, so all submissions shared one form in the
+  backend. Name forms in the Designer too (MANUAL-TODO AO). Done by
+  Kajal: they publish `Contact Enquiry` and `Newsletter`.
 - Found by: claude + human
 
 ### 2026-10-08 · Page SEO through the API: what sticks and where
