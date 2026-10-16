@@ -1098,6 +1098,22 @@ repos to improve `brandvm/wf-template`.
 - Status: done (Contact Enquiry, Newsletter, 2026-10-16)
 - Found by: claude
 
+### 2026-10-16 · Pins created out of page order are measured in the wrong place
+- Area: js
+- Scope: template-candidate
+- Symptom: after Our Story (horizontal timeline pin) moved below
+  Capabilities, scrolling into it showed an empty Chalk screen; the
+  timeline appeared later, near the end of its pin.
+- Cause: ScrollTrigger measures pins in creation order. `timeline.ts` runs
+  before `approach-steps.ts` in the manifest, so the timeline's start was
+  calculated before the Approach pin above it had added its spacer.
+- Fix: `src/index.ts` calls `ScrollTrigger.sort()` and `refresh()` once all
+  page modules have started, so pins are measured top to bottom whatever
+  order the modules run in. Checked in the local harness at 1440: the
+  timeline pins at the top of the screen.
+- Status: fixed in this commit
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

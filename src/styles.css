@@ -625,12 +625,9 @@ html.is-menu-open {
 /* The photo is one viewport tall and stays put while the statement and the
    stat cards scroll over it (it used to stretch over the whole section and
    crop to a blur on phones). Sticky needs an ancestor that clips without
-   being a scroll container, hence overflow: clip on S Bg here. The stats
-   photo fades in when the cards arrive (.is-stats-on). */
+   being a scroll container, hence overflow: clip on S Bg here. */
 .story.is-static .story-pin > .s-bg { overflow: clip; }
 .story.is-static [data-story-media] { position: sticky; inset: 0 auto auto 0; width: 100%; height: 100lvh; }
-.story.is-static .story-media-img.is-stats { transition: opacity 700ms ease; }
-.story.is-static.is-stats-on .story-media-img.is-stats { opacity: 1; }
 /* Phones with motion (.is-masked, story-sequence.ts): the photo shows
    through the mark at the foot of a screen-tall About block, and the mark
    grows with the scroll. The shade waits for the script. */

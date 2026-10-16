@@ -58,6 +58,16 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 | Development page on phones: hero stats panel was narrow with stretched rows; the "Also in development" card's stats were ragged | Webflow: Glass › Dev Stats › Is Hero at Mobile Landscape (width 100%, align-self flex-end, 2 columns) and at Tablet (width 100%, 4 equal columns, so the box spans the row it wraps onto). Hero overlay darker on this page only: new combo S Bg Overlay › Is Project (0.48 → 0.44 at 35% → 0.68) replaces Is Gradient on the template hero; Home keeps Is Gradient. "Also in development" card on phones: Dev Card › Is Compact min-height 36em → 46em at Mobile Landscape, so the photo shows between the chips and the white panel (they used to touch); Dev Card Chips margins 1.1429em to line up with the panel. Superseded the same day: Kajal asked for the Home Dev Card here instead, so the Dev Card Compact instance was replaced by a Dev Card instance with the same CMS bindings (no status chip; Dev Card Compact is now unused but kept). Link prop needs the Designer — MANUAL-TODO AN. The card and the hero text contrast were already covered by the Dev Stats / Is Gradient changes above | Done, on staging |
 | iOS Safari: see-through strip between the collapsed Safari bar and the open nav menu | Nav Menu height 100svh → 100lvh (Webflow at Tablet; same value in the repo's desktop sheet rule) | 100lvh did not close the gap on Kajal's iPhone; the sheet now runs 6em past the viewport (height calc(100lvh + 6em), bottom auto, padding-bottom 8.5em) in Webflow and in the repo rule. To confirm on the iPhone |
 
+### Round 2 (2026-10-16, client review via Kajal)
+
+| Item | Where | Status |
+|---|---|---|
+| Remove exact financial figures ($63M) | Webflow: Story stat card 3 → 6 · Areas of the construction industry; Capabilities intro; Home SEO description and JSON-LD | Done, on staging |
+| Client copy Examples A and B | Webflow: Home Approach headline + copy; Developments Page Head (instance overrides) and Home Developments intro | Done, on staging |
+| Full copy edit (tone, family emphasis) | Copy deck (Claude Doc) for client approval | Drafted, waiting for approval |
+| Home: drop the Story statement ("Built on Family. Driven by Vision.") so the mask floods straight into the stats; move Our Story after Capabilities | `story-sequence.ts` (statement optional, pin 420% → 300%, no switch to the black-and-white photo on desktop or phones), `index.ts` (ScrollTrigger.sort), then Webflow: remove the statement, move the section | Code built, waiting for commit OK; Webflow after the push |
+| Accuracy of 18558 Yonge visuals | Hero film and generic step / capability photos | Waiting for client and architect input |
+
 ## Open design decisions
 
 | Item | Now | Options |

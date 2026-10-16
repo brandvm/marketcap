@@ -78,6 +78,13 @@ function initPage() {
   });
   try {
     pageContext = gsap.context(() => pageModules.forEach(([name, init]) => run(name, init)));
+    // Pins are measured in the order their modules create them, not in page
+    // order. When a pinned section sits below another module's pin (Our
+    // Story after Approach since review round 2), it was measured without
+    // that pin's spacer and pinned in the wrong place. Sort by position,
+    // then measure again top to bottom.
+    ScrollTrigger.sort();
+    ScrollTrigger.refresh();
   } finally {
     targets.forEach((t, i) => (t.addEventListener = originals[i]));
   }

@@ -4,9 +4,10 @@
 //      from its slot (bottom right) until the photo fills the viewport.
 //   2. The photo darkens; "Built on Family. / Driven by Vision." resolves
 //      from blur line by line.
-//   3. The statement lifts and blurs away while the photo cross-fades to the
-//      black-and-white stats photo (slow zoom-out); the four stat cards rise
-//      in a stagger and their numbers count with the scroll; the button fades in.
+//   3. The statement lifts and blurs away; the four stat cards rise in a
+//      stagger and their numbers count with the scroll; the button fades in.
+//   Review round 2: Home has no statement any more (step 2 and the lift are
+//   skipped), and the photo no longer switches to the black-and-white one.
 // Markup: [data-story] › [data-story-pin] containing [data-story-media],
 // [data-story-shade], [data-story-about], [data-story-statement] (lines are
 // [data-line]), [data-stat-card], [data-story-cta] and [data-story-stats]
@@ -67,8 +68,11 @@ export function initStorySequence() {
   const media = story.querySelector<HTMLElement>('[data-story-media]')!;
   const shade = story.querySelector<HTMLElement>('[data-story-shade]')!;
   const about = story.querySelector<HTMLElement>('[data-story-about]')!;
-  const statement = story.querySelector<HTMLElement>('[data-story-statement]')!;
-  const lines = statement.querySelectorAll<HTMLElement>('[data-line]');
+  // Optional since review round 2: the client dropped the statement, so the
+  // mask now floods straight into the stats. Pages that still carry it keep
+  // the full three-step sequence.
+  const statement = story.querySelector<HTMLElement>('[data-story-statement]');
+  const lines = statement ? statement.querySelectorAll<HTMLElement>('[data-line]') : [];
   const cards = story.querySelectorAll<HTMLElement>('[data-stat-card]');
   const cta = story.querySelector<HTMLElement>('[data-story-cta]');
   const statsMedia = story.querySelector<HTMLElement>('[data-story-stats-media]');
@@ -124,7 +128,7 @@ export function initStorySequence() {
       // turns pin spacing off by default when the pinned element's parent is a
       // flex container — the next section then slides under the pinned frame.
       scrollTrigger: {
-        trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: '+=420%', scrub: 0.8, invalidateOnRefresh: true,
+        trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: statement ? '+=420%' : '+=300%', scrub: 0.8, invalidateOnRefresh: true,
         // A refresh or a jump (anchor link, /#hash on load) renders the
         // timeline with callbacks suppressed, so the counters' onUpdate never
         // writes the number: copy their state to the text from here too.
@@ -145,37 +149,36 @@ export function initStorySequence() {
     tl.to(about, { y: () => -window.innerHeight * 0.5, duration: 0.75, ease: 'none' }, 0)
       .to(about, { filter: 'blur(14px)', opacity: 0, duration: 0.7 }, 0.05)
       .to(mask, { p: 1, duration: 1.25, ease: 'power3.in', onUpdate: draw }, 0)
-    // 2 · darken, statement resolves line by line
-      .to(shade, { opacity: 0.45, duration: 0.5 }, 1.2)
-      .to(lines, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.5, stagger: -0.2 }, 1.35)
-      .to({}, { duration: 0.4 })
-    // 3 · statement lifts and blurs; cards rise and count
-      .to(statement, { yPercent: -120, filter: 'blur(14px)', opacity: 0.55, duration: 1 }, 2.4)
-      .to(cards, { y: 0, autoAlpha: 1, duration: 0.9, stagger: 0.18, ease: 'power2.out' }, 2.45);
+    // 2 · darken; with a statement it resolves line by line, then lifts away.
+    // Without one, everything after this moves up by `skip`.
+      .to(shade, { opacity: 0.45, duration: 0.5 }, 1.2);
+    const skip = statement ? 0 : 1.1;
+    if (statement) {
+      tl.to(lines, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.5, stagger: -0.2 }, 1.35)
+        .to({}, { duration: 0.4 })
+        .to(statement, { yPercent: -120, filter: 'blur(14px)', opacity: 0.55, duration: 1 }, 2.4);
+    }
+    // 3 · cards rise and count
+    tl.to(cards, { y: 0, autoAlpha: 1, duration: 0.9, stagger: 0.18, ease: 'power2.out' }, 2.45 - skip);
 
     counters.forEach((c, i) => {
-      tl.to(c, { v: 1, duration: 0.9, ease: 'power1.out', onUpdate: () => setCount(c.el, c.v) }, 2.55 + i * 0.18);
+      tl.to(c, { v: 1, duration: 0.9, ease: 'power1.out', onUpdate: () => setCount(c.el, c.v) }, 2.55 - skip + i * 0.18);
     });
 
-    if (cta) tl.to(cta, { autoAlpha: 1, y: 0, duration: 0.3 }, 3.4);
+    if (cta) tl.to(cta, { autoAlpha: 1, y: 0, duration: 0.3 }, 3.4 - skip);
     // Last stretch: the stats drift up instead of holding still, so the
     // hand-over to normal scrolling (and back, scrolling up) stays in motion.
     const stats = story.querySelector<HTMLElement>('[data-story-stats]');
     tl.to({}, { duration: 0.3 }); // short settle after the button
     // Drift from the end of the counting to the very end of the pin.
     if (stats) {
-      const from = 3.6;
+      const from = 3.6 - skip;
       tl.fromTo(stats, { y: 0 }, { y: () => -window.innerHeight * 0.34, duration: tl.duration() - from, ease: 'power2.in' }, from); // accelerates into the release: ends near scroll speed
     }
 
-    // Once the photo fills the frame and the statement starts to lift, it
-    // cross-fades to the black-and-white stats photo, which zooms out slowly
-    // to the end of the pin (same feel as Our Approach).
-    if (statsMedia) {
-      const swapAt = 2.3;
-      tl.to(statsMedia, { opacity: 1, duration: 0.45 }, swapAt)
-        .fromTo(statsMedia, { scale: 1.08 }, { scale: 1, duration: tl.duration() - swapAt, ease: 'none' }, swapAt);
-    }
+    // The photo stays the same from the mask to the stats (review round 2:
+    // no switch to the black-and-white photo). [data-story-stats-media] is
+    // left in the markup, unused.
 
     return () => {
       ScrollTrigger.removeEventListener('refresh', draw);
@@ -191,17 +194,8 @@ export function initStorySequence() {
     story.classList.add('is-static');
     if (reducedMotion()) cards.forEach((card) => setCount(card.querySelector('[data-count]')!, 1));
     // The photo stays in the viewport while the blocks scroll over it
-    // (styles.css); it changes to the stats photo once the cards arrive.
-    const stats = story.querySelector<HTMLElement>('[data-story-stats]');
-    if (stats && statsMedia) {
-      ScrollTrigger.create({
-        trigger: stats,
-        start: 'top 35%',
-        end: 'bottom top',
-        onToggle: (self) => story.classList.toggle('is-stats-on', self.isActive || self.progress === 1),
-      });
-    }
-    return () => story.classList.remove('is-static', 'is-stats-on');
+    // (styles.css), and stays the same photo throughout (review round 2).
+    return () => story.classList.remove('is-static');
   });
 
   // Phones: a short version of step 1, without a pin. The About block is one
@@ -227,15 +221,15 @@ export function initStorySequence() {
     });
     tl.to(mask, { p: 1, duration: 1, ease: 'power2.in', onUpdate: draw }, 0)
       .to(about, { opacity: 0, duration: 0.55 }, 0.1)
-      .fromTo(statement, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.7)
       // Late, so it never greys the Chalk still showing around the mark.
       .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.15 }, 0.85);
+    if (statement) tl.fromTo(statement, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.7);
     return () => {
       ScrollTrigger.removeEventListener('refresh', draw);
       story.classList.remove('is-masked');
       about.dataset.navTheme = 'light';
       ['--mask-x', '--mask-y', '--mask-w', '--mask-h'].forEach((name) => media.style.removeProperty(name));
-      gsap.set([about, statement, shade], { clearProps: 'opacity' });
+      gsap.set([about, statement, shade].filter(Boolean), { clearProps: 'opacity' });
     };
   });
 }
