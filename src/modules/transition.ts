@@ -33,6 +33,8 @@ type PageHooks = {
 
 type WebflowHost = typeof window & {
   Webflow?: { destroy?: () => void; ready?: () => void; require?: (name: string) => { init?: () => void } | undefined };
+  jQuery?: (target: Document) => { off: (event: string) => unknown; trigger: (event: string) => unknown };
+  turnstile?: { remove: (widget: Element | string) => void };
   dataLayer?: unknown[];
 };
 
@@ -94,21 +96,40 @@ function runPageEnterAnimation(next: HTMLElement) {
   });
 }
 
-// Copies class and aria-current from the next page's [data-barba-update]
-// nodes onto the persistent nav's (Osmo boilerplate, typed).
-function initBarbaNavUpdate(html: string) {
-  const tpl = document.createElement('template');
-  tpl.innerHTML = html.trim();
-  const nextNodes = tpl.content.querySelectorAll('[data-barba-update]');
-  const currentNodes = document.querySelectorAll('[data-nav] [data-barba-update]');
-  currentNodes.forEach((curr, index) => {
-    const next = nextNodes[index];
-    if (!next) return;
-    const status = next.getAttribute('aria-current');
-    if (status !== null) curr.setAttribute('aria-current', status);
-    else curr.removeAttribute('aria-current');
-    curr.setAttribute('class', next.getAttribute('class') || '');
+// Links outside the Barba container (Nav, G | Transition) keep the first
+// page's current state. Webflow publishes `w--current` + aria-current="page"
+// on links whose path is the page's own path and that carry no #hash
+// (/#about on Home is not current), so apply the same rule after each swap.
+const normalizePath = (path: string) => path.replace(/\/+$/, '') || '/';
+
+function syncCurrentLinks(container: HTMLElement) {
+  const here = normalizePath(location.pathname);
+  document.querySelectorAll<HTMLAnchorElement>('a[href]').forEach((link) => {
+    if (container.contains(link)) return; // fresh from the server
+    const url = new URL(link.getAttribute('href')!, location.href);
+    const current = url.origin === location.origin && !url.hash && normalizePath(url.pathname) === here;
+    link.classList.toggle('w--current', current);
+    if (current) link.setAttribute('aria-current', 'page');
+    else link.removeAttribute('aria-current');
   });
+}
+
+// Barba swaps the container and the <title>, not the rest of <head>: copy
+// the page-specific tags (SEO, social previews, JSON-LD from page settings
+// and page head code) so tools reading the live DOM see the right page.
+const HEAD_TAGS = [
+  'meta[name="description"]',
+  'meta[name="robots"]',
+  'meta[property^="og:"]',
+  'meta[name^="twitter:"]',
+  'link[rel="canonical"]',
+  'script[type="application/ld+json"]',
+].join(',');
+
+function syncHead(html: string) {
+  const next = new DOMParser().parseFromString(html, 'text/html');
+  document.head.querySelectorAll(HEAD_TAGS).forEach((el) => el.remove());
+  next.head.querySelectorAll(HEAD_TAGS).forEach((el) => document.head.appendChild(document.importNode(el, true)));
 }
 
 // -----------------------------------------
@@ -213,19 +234,74 @@ async function runZoomEnter(next: HTMLElement) {
 // WEBFLOW RUNTIME after a swap
 // -----------------------------------------
 
+// The leaving page's Turnstile widgets: Turnstile keeps resetting them after
+// their forms are gone ("Cannot find Widget …") unless they are removed.
+function removeTurnstile(container: HTMLElement) {
+  const ts = (window as WebflowHost).turnstile;
+  if (!ts) return;
+  container.querySelectorAll('form [name="cf-turnstile-response"]').forEach((input) => {
+    const holder = input.closest('form > div');
+    try {
+      if (holder) ts.remove(holder);
+    } catch {
+      /* already gone */
+    }
+  });
+}
+
 // webflow.js binds forms, Turnstile, dropdowns and IX2 once per full load.
+// Forms: when Turnstile is already loaded, webflow.js renders each form's
+// widget from `$(document).on('ready')`, an event jQuery 3 never fires, so
+// after a swap no widget appears and Webflow keeps every submit disabled.
+// Drop the previous page's handlers, let Webflow bind the new forms, then
+// fire that event once: each widget renders when its form nears the viewport.
 function reinitWebflow(html: string) {
   const page = html.match(/<html[^>]*\sdata-wf-page="([^"]+)"/)?.[1];
   if (page) document.documentElement.dataset.wfPage = page;
-  const wf = (window as WebflowHost).Webflow;
+  const host = window as WebflowHost;
+  const wf = host.Webflow;
   try {
+    host.jQuery?.(document).off('ready');
     wf?.destroy?.();
     wf?.ready?.();
     wf?.require?.('ix2')?.init?.();
+    if (host.turnstile) host.jQuery?.(document).trigger('ready');
     releaseWebflowAnchors();
   } catch (error) {
     console.warn('[transition] Webflow re-init failed', error);
   }
+}
+
+// -----------------------------------------
+// FOCUS AND ANNOUNCEMENT after a swap
+// -----------------------------------------
+
+// A full load starts keyboard and screen-reader users at the top of the new
+// page; a swap would leave focus on the link that was clicked, now gone.
+// Move focus to the section a #hash landed on, or to <main>, without
+// scrolling ([tabindex="-1"] draws no ring, styles.css §07), and announce
+// the new page's title in a polite live region outside the container.
+let announcer: HTMLElement | null = null;
+
+function focusPage(container: HTMLElement) {
+  const id = decodeURIComponent(location.hash.slice(1));
+  const target = (id && document.getElementById(id)) || container.querySelector<HTMLElement>('main') || container;
+  if (!target.matches('a[href], button, input, select, textarea, [tabindex]')) target.setAttribute('tabindex', '-1');
+  target.focus({ preventScroll: true });
+
+  if (!announcer) {
+    announcer = document.createElement('div');
+    announcer.className = 'sr-only';
+    announcer.setAttribute('aria-live', 'polite');
+    announcer.setAttribute('aria-atomic', 'true');
+    document.body.appendChild(announcer);
+  }
+  // Cleared first so the same title (back and forth) is announced again.
+  announcer.textContent = '';
+  const title = document.title;
+  requestAnimationFrame(() => {
+    if (announcer) announcer.textContent = title;
+  });
 }
 
 function pushPageView() {
@@ -254,7 +330,10 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
     true,
   );
 
-  barba.hooks.beforeLeave(() => closeNavMenu());
+  barba.hooks.beforeLeave((data) => {
+    closeNavMenu();
+    removeTurnstile(data.current.container);
+  });
 
   barba.hooks.afterLeave(() => destroyPage());
 
@@ -275,7 +354,7 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
   });
 
   barba.hooks.enter((data) => {
-    if (isSwap(data)) initBarbaNavUpdate(data.next.html);
+    if (isSwap(data)) syncHead(data.next.html);
   });
 
   barba.hooks.afterEnter((data) => {
@@ -288,6 +367,7 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
     if (hash && !location.hash && data.trigger instanceof Element) {
       history.replaceState(history.state, '', `${location.pathname}${location.search}${hash}`);
     }
+    syncCurrentLinks(data.next.container as HTMLElement);
     reinitWebflow(data.next.html);
     initPage();
     refreshNavState();
@@ -295,6 +375,7 @@ export function initTransition({ initPage, destroyPage }: PageHooks): boolean {
     lenis?.start();
     ScrollTrigger.refresh();
     jumpToHash();
+    focusPage(data.next.container as HTMLElement);
     pushPageView();
   });
 

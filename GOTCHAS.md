@@ -1034,6 +1034,42 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: human + claude
 
+### 2026-10-16 · Barba: forms dead after a page change; stale head and current links
+- Area: js
+- Scope: template-candidate
+- Symptom: comparing a direct load with arriving by transition (Home,
+  Contact, Developments, Privacy, and two swaps in a row):
+  - every form reached by a transition (Contact, the footer newsletter)
+    had no Turnstile widget, so Webflow kept its submit disabled for good;
+    the console showed "Turnstile already has been loaded" and "Cannot
+    find Widget …";
+  - links outside the container (Nav, floating nav, menu sheet) kept the
+    first page's `w--current` / `aria-current="page"`: after Contact → Home
+    the "Start a conversation" buttons still announced as the current page;
+  - meta description, Open Graph, Twitter, robots and JSON-LD stayed the
+    first page's (Barba swaps only the container and `<title>`).
+- Cause: webflow.js renders a form's Turnstile widget from
+  `$(document).on("ready")` whenever `turnstile` is already defined, and
+  jQuery 3 never fires that event; on a full load the script's onload event
+  is used instead, so only swaps were broken. Webflow writes current states
+  at publish time, so they don't move with Barba.
+- Fix: `transition.ts` — beforeLeave removes the old page's widgets
+  (`turnstile.remove`); the re-init clears `$(document).off("ready")`, runs
+  `Webflow.destroy()` / `ready()` / IX2, then fires
+  `$(document).trigger("ready")` once, so each widget renders when its form
+  nears the viewport, as on a direct load. `syncCurrentLinks()` applies
+  Webflow's rule (same path, no hash) to every link outside the container;
+  `syncHead()` copies the page-specific head tags from the next page.
+  Also (accessibility, not Webflow): `focusPage()` moves focus to the
+  #hash target or `<main>` without scrolling and announces the new title in
+  a polite `.sr-only` live region, since a swap otherwise leaves focus on
+  the clicked link, which is gone. Checked: all four routes and a double swap now match a direct load. The
+  "already loaded" warning stays (webflow.js re-adds the Turnstile script on
+  every `ready()`; harmless). Token and submit can't be checked headless or
+  in the hidden pane: confirm a real submit in a normal browser.
+- Status: fixed in this commit
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
