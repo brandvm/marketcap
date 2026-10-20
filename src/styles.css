@@ -584,6 +584,48 @@ html.is-menu-open {
   .section.caps { min-height: 0; }
   .mark-figure.is-caps { top: auto; }
 }
+/* repo-css: js-state — Growth chart (growth-chart.ts): the SVG, labels,
+   pinned dots and crosshair are drawn by script, so their styles live here.
+   Colour comes from the Growth Chart class (Designer: Brand/Field), used as
+   currentColor; the head reuses the Guides classes and only gets placed. */
+.gc { --hx: 0px; --hy: 0px; }
+.gc-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.gc-labels, .gc-head { position: absolute; inset: 0; pointer-events: none; }
+.gc-grid line { stroke: color-mix(in srgb, currentColor 18%, transparent); stroke-width: 1; }
+.gc-grid .gc-fine { stroke: color-mix(in srgb, currentColor 14%, transparent); }
+.gc-grid .gc-fine.is-faint { stroke: color-mix(in srgb, currentColor 7%, transparent); }
+.gc-grid .gc-baseline { stroke: color-mix(in srgb, currentColor 60%, transparent); }
+.gc-amount { position: absolute; transform: translateY(-120%); padding-left: 0.25em; font-size: 0.6875em; line-height: 1; color: color-mix(in srgb, currentColor 80%, transparent); white-space: nowrap; }
+.gc-axis { position: absolute; white-space: nowrap; font-size: 0.75em; }
+.gc-decade { position: absolute; transform: translateX(-50%); font-size: 0.875em; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; }
+.gc-bar { fill: color-mix(in srgb, currentColor 26%, transparent); }
+.gc-line { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
+.gc-ghost { fill: none; stroke: color-mix(in srgb, currentColor 35%, transparent); stroke-width: 1; stroke-dasharray: 3 6; }
+.gc-fill-top { stop-color: currentColor; stop-opacity: 0.38; }
+.gc-fill-bottom { stop-color: currentColor; stop-opacity: 0.02; }
+/* Pinned dots: Chalk centre (literal, matches the section ground). */
+.gc-pin { position: absolute; width: 0; height: 0; opacity: 0; transform: scale(0.4); transition: opacity 350ms ease, transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1.2); }
+.gc-pin.is-shown { opacity: 1; transform: none; }
+.gc-pin-dot {
+  position: absolute; left: -0.3125em; top: -0.3125em; width: 0.625em; height: 0.625em; box-sizing: border-box; border-radius: 50%;
+  background: #e1d6d0; border: 1.5px solid currentColor; box-shadow: 0 0 0 0.375em color-mix(in srgb, currentColor 14%, transparent);
+}
+.gc-pin-year { right: 0.75em; bottom: 0.4em; white-space: nowrap; color: color-mix(in srgb, currentColor 85%, transparent); }
+.gc-pin.is-at .gc-pin-year { opacity: 0; }
+.gc-head .guides-v { left: var(--hx); }
+.gc-head .guides-h { top: var(--hy); }
+.gc-head .guides-marker { left: var(--hx); top: var(--hy); }
+.gc-read { white-space: nowrap; top: calc(var(--hy) - 1.6em); }
+.gc-read-x { left: calc(var(--hx) + 0.75em); }
+.gc-read-y { right: calc(100% - var(--hx) + 0.75em); }
+@media screen and (max-width: 767px) {
+  .gc-decade { font-size: 0.6875em; }
+  .gc-amount { font-size: 0.5625em; }
+  .gc-axis, .gc-pin-year { font-size: 0.625em; }
+  .gc-read { font-size: 0.75em; }
+}
+@media (prefers-reduced-motion: reduce) { .gc-pin { transition: none; } }
+
 /* repo-css: js-state — autoplay progress: a hairline under the active
    Capabilities item fills as --cap-progress (capabilities.ts) runs 0 → 1.
    Only while autoplay is on ([data-cap-auto]); Cap Item is position
