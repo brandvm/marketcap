@@ -4,15 +4,10 @@
 // 2025, then jumps towards ~$100M by 2027 with no point or number at the end.
 // Amounts appear only inside the chart (gridline labels $10M–$60M, a pinned
 // dot per $10M crossed, and the X / Y read-out, which stops on 2025 / $60M+).
-// On scroll the chart draws from the moment it's fully on screen; the
-// section then pins with the chart centred (or just under the nav when the
-// screen is short) and the drawing finishes as the pin releases. Reduced
-// motion shows it whole, unpinned.
-// Markup: [data-growth-section] › … › [data-growth-chart] (an empty div; its
-// Designer class sets the size and the ink colour, which the SVG uses as
-// currentColor). Pinned: the chart's .s-wrapper.
-import { ScrollTrigger, reducedMotion } from './gsap';
-
+// Drawn by story-sequence.ts as the last step of the About scroll (on the
+// Ironstone ground the mask reveals); the scroll position sets its progress.
+// Markup: [data-growth-chart] (an empty div; its Designer class sets the size
+// and the ink colour, which the SVG uses as currentColor).
 const NS = 'http://www.w3.org/2000/svg';
 const Y0 = 1980;
 const Y1 = 2027;
@@ -70,7 +65,7 @@ function smooth(points: Array<[number, number]>) {
   return d;
 }
 
-function buildChart(host: HTMLElement) {
+export function buildGrowthChart(host: HTMLElement) {
   host.classList.add('gc');
   host.replaceChildren();
   const svg = svgEl('svg', { class: 'gc-svg', 'aria-hidden': 'true' });
@@ -199,57 +194,7 @@ function buildChart(host: HTMLElement) {
     };
     set(progress);
   };
-  return { build, set: (e: number) => set(e) };
+  return { build, set: (e: number) => set(e), get progress() { return progress; } };
 }
 
-const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-
-export function initGrowthChart() {
-  const section = document.querySelector<HTMLElement>('[data-growth-section]');
-  const host = section?.querySelector<HTMLElement>('[data-growth-chart]');
-  if (!section || !host) return;
-  const chart = buildChart(host);
-  chart.build();
-
-  if (reducedMotion()) {
-    chart.set(1);
-    ScrollTrigger.create({ trigger: host, start: 'top bottom', onRefresh: () => { chart.build(); chart.set(1); } });
-    return;
-  }
-
-  const wrapper = host.closest<HTMLElement>('.s-wrapper') ?? host.parentElement!;
-  const pinLength = () => window.innerHeight * (window.innerWidth < 768 ? 0.9 : 1.2);
-  // Where the wrapper pins: the chart's middle at mid-screen, unless that
-  // would push the heading under the nav (laptops) or the chart off the
-  // bottom; then the whole block sits just below the nav instead.
-  const stick = () => {
-    const vh = window.innerHeight;
-    const clear = 5.5 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
-    const centred = vh / 2 - (host.offsetTop + host.offsetHeight / 2);
-    const lowest = vh - wrapper.offsetHeight - 16;
-    return Math.max(Math.min(centred, lowest), Math.min(clear, lowest));
-  };
-  // host.offsetTop is measured from the wrapper (S Wrapper is position
-  // relative), so the chart's top while pinned is stick() + host.offsetTop.
-  ScrollTrigger.create({
-    trigger: wrapper,
-    pin: true,
-    pinSpacing: true, // explicit: see story-sequence.ts (flex parents)
-    start: () => `top ${stick()}px`,
-    end: () => `+=${pinLength()}`,
-    invalidateOnRefresh: true,
-    onRefresh: () => chart.build(),
-  });
-  // Drawn from "chart fully on screen" to the end of the pin: the approach
-  // (chart bottom from the screen's bottom to its pinned place), then the
-  // pin. Computed here rather than read from the pin, which is refreshed
-  // after this trigger (later on the page).
-  ScrollTrigger.create({
-    trigger: host,
-    start: 'bottom bottom',
-    end: () => `+=${Math.max(1, window.innerHeight - (stick() + host.offsetTop + host.offsetHeight)) + pinLength()}`,
-    invalidateOnRefresh: true,
-    onUpdate: (self) => chart.set(easeInOut(self.progress)),
-    onRefresh: (self) => chart.set(easeInOut(self.progress)),
-  });
-}
+export const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);

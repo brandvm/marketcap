@@ -8,7 +8,6 @@ import { initNavState } from './modules/nav-state';
 import { initNavMenu } from './modules/nav-menu';
 import { initStorySequence } from './modules/story-sequence';
 import { initTimeline } from './modules/timeline';
-import { initGrowthChart } from './modules/growth-chart';
 import { initDevCards } from './modules/dev-cards';
 import { initCursorButton } from './modules/cursor-button';
 import { initCountUp } from './modules/count-up';
@@ -43,7 +42,6 @@ function run(name: string, init: () => void) {
 const pageModules: Array<[string, () => void]> = [
   ['hero-intro', initHeroIntro],
   ['story-sequence', initStorySequence],
-  ['growth-chart', initGrowthChart],
   ['timeline', initTimeline],
   ['dev-cards', initDevCards],
   ['cursor-button', initCursorButton],

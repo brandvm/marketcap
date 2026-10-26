@@ -1114,6 +1114,21 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: claude
 
+### 2026-10-26 · Style API refuses custom properties and fails the whole update
+- Area: mcp
+- Scope: template-candidate
+- Symptom: `update_style` on Growth Chart with `--gc-ground: #260b07` next to
+  `color` and `height` returned `Invalid style property --gc-ground`
+  (OPERATION_FAILED), and none of the other properties in that call were
+  written.
+- Cause: the style API only takes known CSS properties; a `--name` custom
+  property is rejected, and one bad property fails the whole action.
+- Fix: send custom properties separately, or put them in repo CSS (here
+  `.story-growth { --gc-ground }`, the pinned dots' centre colour). Retry the
+  other properties without it and read the style back.
+- Status: workaround confirmed
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

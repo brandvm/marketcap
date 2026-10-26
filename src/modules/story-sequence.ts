@@ -8,6 +8,10 @@
 //      stagger and their numbers count with the scroll; the button fades in.
 //   Review round 2: Home has no statement any more (step 2 and the lift are
 //   skipped), and the photo no longer switches to the black-and-white one.
+//   Review round 3: the mask reveals a plain Ironstone ground (no photo, no
+//   shade) and step 3 is the Growth chart instead of the stat cards: its
+//   heading rises in, then the chart draws with the scroll
+//   ([data-story-growth] holding [data-growth-chart], growth-chart.ts).
 // Markup: [data-story] › [data-story-pin] containing [data-story-media],
 // [data-story-shade], [data-story-about], [data-story-statement] (lines are
 // [data-line]), [data-stat-card], [data-story-cta] and [data-story-stats]
@@ -16,6 +20,7 @@
 // opacity 0 until the script fades it in).
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
 import { setCount } from './count-up';
+import { buildGrowthChart, easeInOut } from './growth-chart';
 
 // The mark artwork is 1106 × 452 units. Its middle parallelogram is the
 // shape that grows to cover the screen; (442, 226) is its centre and an
@@ -66,7 +71,7 @@ export function initStorySequence() {
   if (!story) return;
   const pin = story.querySelector<HTMLElement>('[data-story-pin]')!;
   const media = story.querySelector<HTMLElement>('[data-story-media]')!;
-  const shade = story.querySelector<HTMLElement>('[data-story-shade]')!;
+  const shade = story.querySelector<HTMLElement>('[data-story-shade]'); // gone with the photo (round 3)
   const about = story.querySelector<HTMLElement>('[data-story-about]')!;
   // Optional since review round 2: the client dropped the statement, so the
   // mask now floods straight into the stats. Pages that still carry it keep
@@ -76,6 +81,19 @@ export function initStorySequence() {
   const cards = story.querySelectorAll<HTMLElement>('[data-stat-card]');
   const cta = story.querySelector<HTMLElement>('[data-story-cta]');
   const statsMedia = story.querySelector<HTMLElement>('[data-story-stats-media]');
+  // Round 3: the Growth chart in place of the cards (optional).
+  const growth = story.querySelector<HTMLElement>('[data-story-growth]');
+  const growthHost = growth?.querySelector<HTMLElement>('[data-growth-chart]') ?? null;
+  const chart = growthHost ? buildGrowthChart(growthHost) : null;
+  const drawn = { p: 0 };
+  const syncChart = () => chart?.set(easeInOut(drawn.p));
+  const rebuildChart = () => { chart?.build(); syncChart(); };
+  rebuildChart();
+  // Redraw at the new size on every refresh (a trigger, so the page context
+  // tears it down with the rest on a page change).
+  if (chart) ScrollTrigger.create({ trigger: story, onRefresh: rebuildChart });
+  // No photo (round 3): nothing to darken.
+  const photo = story.querySelector<HTMLElement>('[data-story-zoom]');
 
   const mm = gsap.matchMedia();
 
@@ -120,6 +138,7 @@ export function initStorySequence() {
     // while the statement plays, whatever the screen height.
     gsap.set(cards, { y: () => window.innerHeight, autoAlpha: 0 });
     if (cta) gsap.set(cta, { autoAlpha: 0, y: 16 });
+    if (growth) gsap.set(growth, { y: () => window.innerHeight * 0.2, autoAlpha: 0 });
     gsap.set(lines, { opacity: 0, filter: 'blur(16px)', y: 24 });
 
     const tl = gsap.timeline({
@@ -128,11 +147,11 @@ export function initStorySequence() {
       // turns pin spacing off by default when the pinned element's parent is a
       // flex container — the next section then slides under the pinned frame.
       scrollTrigger: {
-        trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: statement ? '+=420%' : '+=300%', scrub: 0.8, invalidateOnRefresh: true,
+        trigger: pin, pin: true, pinSpacing: true, start: 'top top', end: statement ? '+=420%' : growth ? '+=400%' : '+=300%', scrub: 0.8, invalidateOnRefresh: true,
         // A refresh or a jump (anchor link, /#hash on load) renders the
         // timeline with callbacks suppressed, so the counters' onUpdate never
         // writes the number: copy their state to the text from here too.
-        onRefresh: () => syncCounts(), onUpdate: () => syncCounts(), onScrubComplete: () => syncCounts(),
+        onRefresh: () => { syncCounts(); syncChart(); }, onUpdate: () => { syncCounts(); syncChart(); }, onScrubComplete: () => { syncCounts(); syncChart(); },
       },
       // No anticipatePin: with Lenis it pre-applies the pin a frame early and
       // reads as a jolt where the pin starts and ends.
@@ -140,7 +159,7 @@ export function initStorySequence() {
 
     // Subtle zoom-out of the photo across the whole pin (same feel as Our
     // Approach). Only the inner image scales; the mask stays on its wrapper.
-    const zoom = story.querySelector<HTMLElement>('[data-story-zoom]');
+    const zoom = photo;
     if (zoom) tl.fromTo(zoom, { scale: 1.14 }, { scale: 1, duration: 4.2, ease: 'none' }, 0);
 
     // 1 · copy blurs out while the corner drifts, then the image floods the frame.
@@ -148,10 +167,10 @@ export function initStorySequence() {
     // over, so the page never appears to stop dead ("hit a wall").
     tl.to(about, { y: () => -window.innerHeight * 0.5, duration: 0.75, ease: 'none' }, 0)
       .to(about, { filter: 'blur(14px)', opacity: 0, duration: 0.7 }, 0.05)
-      .to(mask, { p: 1, duration: 1.25, ease: 'power3.in', onUpdate: draw }, 0)
-    // 2 · darken; with a statement it resolves line by line, then lifts away.
-    // Without one, everything after this moves up by `skip`.
-      .to(shade, { opacity: 0.45, duration: 0.5 }, 1.2);
+      .to(mask, { p: 1, duration: 1.25, ease: 'power3.in', onUpdate: draw }, 0);
+    // 2 · darken the photo; with a statement it resolves line by line, then
+    // lifts away. Without one, everything after this moves up by `skip`.
+    if (photo && shade) tl.to(shade, { opacity: 0.45, duration: 0.5 }, 1.2);
     const skip = statement ? 0 : 1.1;
     if (statement) {
       tl.to(lines, { opacity: 1, filter: 'blur(0px)', y: 0, duration: 0.5, stagger: -0.2 }, 1.35)
@@ -165,14 +184,21 @@ export function initStorySequence() {
       tl.to(c, { v: 1, duration: 0.9, ease: 'power1.out', onUpdate: () => setCount(c.el, c.v) }, 2.55 - skip + i * 0.18);
     });
 
-    if (cta) tl.to(cta, { autoAlpha: 1, y: 0, duration: 0.3 }, 3.4 - skip);
+    // 3 (round 3) · the Growth heading rises in as the ground fills the
+    // frame, then the chart draws over most of the pin.
+    if (growth) {
+      tl.to(growth, { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' }, 1.1)
+        .to(drawn, { p: 1, duration: 2.4, onUpdate: syncChart }, 1.5);
+    }
+    const ctaAt = growth ? 3.95 : 3.4 - skip;
+    if (cta) tl.to(cta, { autoAlpha: 1, y: 0, duration: 0.3 }, ctaAt);
     // Last stretch: the stats drift up instead of holding still, so the
     // hand-over to normal scrolling (and back, scrolling up) stays in motion.
     const stats = story.querySelector<HTMLElement>('[data-story-stats]');
     tl.to({}, { duration: 0.3 }); // short settle after the button
     // Drift from the end of the counting to the very end of the pin.
     if (stats) {
-      const from = 3.6 - skip;
+      const from = ctaAt + 0.2;
       tl.fromTo(stats, { y: 0 }, { y: () => -window.innerHeight * 0.34, duration: tl.duration() - from, ease: 'power2.in' }, from); // accelerates into the release: ends near scroll speed
     }
 
@@ -184,7 +210,7 @@ export function initStorySequence() {
       ScrollTrigger.removeEventListener('refresh', draw);
       story.dataset.navTheme = 'dark';
       about.dataset.navTheme = 'light';
-      gsap.set([...Array.from(cards), cta, about, statsMedia, story.querySelector('[data-story-stats]'), ...Array.from(lines)].filter(Boolean), { clearProps: 'all' });
+      gsap.set([...Array.from(cards), cta, about, statsMedia, growth, story.querySelector('[data-story-stats]'), ...Array.from(lines)].filter(Boolean), { clearProps: 'all' });
     };
   });
 
@@ -193,6 +219,17 @@ export function initStorySequence() {
   mm.add('(max-width: 767px), (prefers-reduced-motion: reduce)', () => {
     story.classList.add('is-static');
     if (reducedMotion()) cards.forEach((card) => setCount(card.querySelector('[data-count]')!, 1));
+    // The chart draws as it scrolls up the screen (whole under reduced motion).
+    if (growthHost && reducedMotion()) {
+      drawn.p = 1;
+      syncChart();
+    } else if (growthHost) {
+      ScrollTrigger.create({
+        trigger: growthHost, start: 'bottom bottom', end: 'bottom 45%', scrub: true, invalidateOnRefresh: true,
+        onUpdate: (self) => { drawn.p = self.progress; syncChart(); },
+        onRefresh: (self) => { drawn.p = self.progress; syncChart(); },
+      });
+    }
     // The photo stays in the viewport while the blocks scroll over it
     // (styles.css), and stays the same photo throughout (review round 2).
     return () => story.classList.remove('is-static');
@@ -220,9 +257,9 @@ export function initStorySequence() {
       scrollTrigger: { trigger: story, start: 'top top', end: () => `+=${window.innerHeight * 0.7}`, scrub: true, invalidateOnRefresh: true },
     });
     tl.to(mask, { p: 1, duration: 1, ease: 'power2.in', onUpdate: draw }, 0)
-      .to(about, { opacity: 0, duration: 0.55 }, 0.1)
-      // Late, so it never greys the Chalk still showing around the mark.
-      .fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.15 }, 0.85);
+      .to(about, { opacity: 0, duration: 0.55 }, 0.1);
+    // Late, so it never greys the Chalk still showing around the mark.
+    if (photo && shade) tl.fromTo(shade, { opacity: 0 }, { opacity: 0.45, duration: 0.15 }, 0.85);
     if (statement) tl.fromTo(statement, { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.7);
     return () => {
       ScrollTrigger.removeEventListener('refresh', draw);
