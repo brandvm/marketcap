@@ -573,17 +573,6 @@ html.is-menu-open {
   .timeline-list { flex-direction: column; align-items: stretch; width: auto; padding: 0; gap: 3em; background: none; transform: none !important; }
 }
 
-/* repo-css: js-state — Story guides and the Capabilities guide line follow
-   values the modules write (--gx, --gy, --cap-y). */
-.caps { --cap-y: calc(100% - 26.905vw); }
-.section.caps { min-height: calc(var(--cap-y) + 65.8vw * 452 / 1106); }
-.mark-figure.is-caps { top: var(--cap-y); }
-@media screen and (max-width: 991px) {
-  /* The collage leaves the mask slot and flows below the list (Designer
-     sets position relative there), so the two rules above stand down. */
-  .section.caps { min-height: 0; }
-  .mark-figure.is-caps { top: auto; }
-}
 /* repo-css: js-state — Growth chart (growth-chart.ts): the SVG, labels,
    pinned dots and crosshair are drawn by script, so their styles live here.
    Colour comes from the Growth Chart class (Designer), used as currentColor
@@ -631,23 +620,23 @@ html.is-menu-open {
 }
 @media (prefers-reduced-motion: reduce) { .gc-pin { transition: none; } }
 
-/* repo-css: js-state — autoplay progress: a hairline under the active
-   Capabilities item fills as --cap-progress (capabilities.ts) runs 0 → 1.
-   Only while autoplay is on ([data-cap-auto]); Cap Item is position
-   relative in the Designer. */
-[data-cap-auto] .cap-item.is-active::before,
-[data-cap-auto] .cap-item.is-active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.45em;
-  height: 1px;
-  background: currentColor;
-  pointer-events: none;
-}
-[data-cap-auto] .cap-item.is-active::before { opacity: 0.25; }
-[data-cap-auto] .cap-item.is-active::after { transform: scaleX(var(--cap-progress, 0)); transform-origin: left; }
+/* repo-css: js-state — Capabilities grid (capabilities.ts): the script
+   writes grid-template-columns / -rows so the active box's column and row
+   grow; the tracks animate (the Designer's transition list has no
+   grid-template). The active box's foot line fills as --cap-progress runs
+   0 → 1, only while autoplay is on ([data-cap-auto]). */
+[data-cap-grid] { transition: grid-template-columns 0.8s cubic-bezier(0.65, 0, 0.35, 1), grid-template-rows 0.8s cubic-bezier(0.65, 0, 0.35, 1); }
+[data-cap] [data-cap-img] { transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1), filter 0.6s ease; filter: brightness(0.62); }
+[data-cap].is-active [data-cap-img] { filter: none; }
+@media (hover: hover) { [data-cap]:not(.is-active):hover [data-cap-img] { filter: brightness(0.8); transform: scale(1.03); } }
+/* Only the active box shows its number and name (with its scrim); the
+   text stays in the accessibility tree, so every button keeps its name. */
+[data-cap] [data-cap-label] { opacity: 0; transform: translateY(0.75em); transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+[data-cap].is-active [data-cap-label] { opacity: 1; transform: none; transition-delay: 0.25s; }
+[data-cap-progress] { transform: scaleX(0); transform-origin: left; }
+[data-cap-auto] [data-cap].is-active [data-cap-progress] { transform: scaleX(var(--cap-progress, 0)); }
+@media (prefers-reduced-motion: reduce) { [data-cap-grid], [data-cap] [data-cap-img], [data-cap] [data-cap-label] { transition: none; } }
+
 /* repo-css: js-state — approach-steps.ts adds .is-stacked below 768px: the
    photos stay in the viewport while the steps scroll over them (same
    sticky set-up as .story.is-static). */

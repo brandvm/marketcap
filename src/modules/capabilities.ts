@@ -1,150 +1,102 @@
-// Capabilities: the list works like tabs — the active item is full opacity,
-// the photo inside the logo-mark collage cross-fades to match. In Webflow
-// this maps onto the native Tabs element (no JS); this module only adds the
-// cross-fade and the reveal of the collage on enter.
-// Autoplay (review round 1): while the section is on screen the list steps
-// to the next item every AUTOPLAY_MS, so the photos change even for someone
-// scrolling past. It waits while the pointer is over the list or focus is
-// inside it (hover and keys still pick an item), carries on from that item
-// afterwards, and is off under reduced motion. A line under the active item
-// fills as its time runs out (round 1 follow-up).
-// Markup: [data-caps] with [data-cap] buttons (data-image, data-alt) and a
-// [data-cap-media] <img>.
+// Capabilities (review round 3): a 3 × 2 grid of photo boxes, one per
+// capability (2 × 3 on phones). The active box is larger in both directions:
+// its column and its row take a bigger share of the grid, the other boxes
+// give up the room, and the grid's own size never changes. The tracks
+// animate (CSS transition on grid-template-*).
+// The active box changes on a timer (AUTOPLAY_MS, while the section is on
+// screen) and on click; a click jumps to that box and the timer carries on
+// from there. Hover and focus don't pause it. A line along the active box's
+// foot fills as its time runs out (--cap-progress). Reduced motion: no timer.
+// Markup: [data-caps] › [data-cap-grid] of [data-cap] buttons (each holds
+// its photo and name; [data-cap-label] shows on the active box only).
+// Columns/rows of the grid come from the item order.
 import { gsap, ScrollTrigger, reducedMotion } from './gsap';
 
-const AUTOPLAY_MS = 3000;
+const AUTOPLAY_MS = 3500;
+// Share of the grid the active column / row takes, in fr against 1fr.
+const GROW_COL = 2;
+const GROW_ROW = 1.6;
 
 export function initCapabilities() {
   const root = document.querySelector<HTMLElement>('[data-caps]');
-  if (!root) return;
-  const items = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cap]'));
-  const media = root.querySelector<HTMLImageElement>('[data-cap-media]');
-  if (!items.length || !media) return;
+  const grid = root?.querySelector<HTMLElement>('[data-cap-grid]');
+  if (!root || !grid) return;
+  const items = Array.from(grid.querySelectorAll<HTMLButtonElement>('[data-cap]'));
+  if (!items.length) return;
 
-  // Warm the cache so the swap is instant.
-  items.forEach((item) => {
-    const img = new Image();
-    img.src = item.dataset.image ?? '';
-  });
-
+  // 3 columns, 2 on phones (Webflow's Mobile Landscape breakpoint). Not
+  // read back from the grid: the inline tracks written below would hide it.
+  const phone = window.matchMedia('(max-width: 767px)');
+  const columns = () => (phone.matches ? 2 : 3);
   let active = -1;
-  let onChange = () => {}; // set by the autoplay below
+
+  const layout = () => {
+    if (active < 0) return;
+    const cols = columns();
+    const rows = Math.ceil(items.length / cols);
+    const col = active % cols;
+    const row = Math.floor(active / cols);
+    grid.style.gridTemplateColumns = Array.from({ length: cols }, (_, i) => (i === col ? `${GROW_COL}fr` : '1fr')).join(' ');
+    grid.style.gridTemplateRows = Array.from({ length: rows }, (_, i) => (i === row ? `${GROW_ROW}fr` : '1fr')).join(' ');
+  };
+
+  let onChange = () => {}; // restarts the timer (below)
   const select = (index: number) => {
-    if (index !== active) {
-      active = index;
-      onChange();
-    }
+    const changed = index !== active;
+    active = index;
     items.forEach((item, i) => {
       item.classList.toggle('is-active', i === index);
-      item.setAttribute('aria-selected', String(i === index));
-      item.tabIndex = i === index ? 0 : -1;
+      item.setAttribute('aria-pressed', String(i === index));
     });
-    const next = items[index];
-    if (media.getAttribute('src') === next.dataset.image) return;
-    // Webflow publishes responsive images with srcset/sizes, which win over
-    // src; drop them so the swapped photo actually shows.
-    const swap = () => {
-      media.removeAttribute('srcset');
-      media.removeAttribute('sizes');
-      media.src = next.dataset.image ?? '';
-      media.alt = next.dataset.alt ?? '';
-    };
-    if (reducedMotion()) {
-      swap();
-      return;
-    }
-    gsap.to(media, {
-      opacity: 0,
-      duration: 0.2,
-      onComplete: () => {
-        swap();
-        gsap.to(media, { opacity: 1, duration: 0.45 });
-      },
-    });
+    layout();
+    if (changed) onChange();
   };
 
-  items.forEach((item, i) => {
-    item.addEventListener('click', () => select(i));
-    item.addEventListener('mouseenter', () => select(i));
-    // Tabs keyboard pattern: one tab stop, arrows / Home / End move and select.
+  items.forEach((item, i) => item.addEventListener('click', () => select(i)));
+  // Arrow keys move focus between the boxes (Enter / Space select).
+  items.forEach((item, i) =>
     item.addEventListener('keydown', (event) => {
-      const last = items.length - 1;
-      const to = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: last }[event.key];
-      if (to === undefined) return;
+      const cols = columns();
+      const to = { ArrowRight: i + 1, ArrowLeft: i - 1, ArrowDown: i + cols, ArrowUp: i - cols, Home: 0, End: items.length - 1 }[event.key];
+      if (to === undefined || to < 0 || to >= items.length) return;
       event.preventDefault();
-      const next = (to + items.length) % items.length;
-      items[next].focus();
-      select(next);
-    });
-  });
-  select(Math.max(0, items.findIndex((i) => i.classList.contains('is-active'))));
+      items[to].focus();
+    }),
+  );
+  select(Math.max(0, items.findIndex((item) => item.classList.contains('is-active'))));
+  // The column count changes at the phone breakpoint: rebuild the tracks.
+  // (A context-owned trigger, so a page change tears it down.)
+  ScrollTrigger.create({ trigger: root, onRefresh: layout });
 
-  if (!reducedMotion()) {
-    const list = items[0].closest<HTMLElement>('[data-cap-list]') ?? items[0].parentElement?.parentElement ?? root;
-    let inView = false;
-    let held = false; // pointer over the list or focus inside it
-    // The time left on the active item, 0 → 1, drawn as a line under it
-    // (--cap-progress, styles.css). It restarts whenever the item changes
-    // and waits while the section is off screen or the list is held.
-    const state = { p: 0 };
-    const write = () => items.forEach((item, i) => item.style.setProperty('--cap-progress', i === active ? state.p.toFixed(3) : '0'));
-    const tween = gsap.fromTo(
-      state,
-      { p: 0 },
-      {
-        p: 1,
-        duration: AUTOPLAY_MS / 1000,
-        ease: 'none',
-        paused: true,
-        onUpdate: write,
-        onComplete: () => select((active + 1) % items.length),
-      },
-    );
-    const sync = () => tween.paused(!inView || held);
-    onChange = () => {
-      tween.restart();
-      write();
-      sync();
-    };
-    root.setAttribute('data-cap-auto', 'true');
-    ScrollTrigger.create({
-      trigger: root,
-      start: 'top 75%',
-      end: 'bottom 25%',
-      onToggle: (self) => {
-        inView = self.isActive;
-        sync();
-      },
-    });
-    const hold = (value: boolean) => {
-      held = value;
-      sync();
-    };
-    list.addEventListener('pointerenter', () => hold(true));
-    list.addEventListener('pointerleave', () => hold(list.contains(document.activeElement)));
-    list.addEventListener('focusin', () => hold(true));
-    list.addEventListener('focusout', (event) => hold(list.contains(event.relatedTarget as Node | null) || list.matches(':hover')));
-  }
-
-  // Guide line, marker and the collage's top edge sit midway in the gap
-  // between the section heading and the list, whatever the heading wraps to.
-  const heading = root.querySelector<HTMLElement>('[data-cap-heading]');
-  const list = root.querySelector<HTMLElement>('[data-cap-list]');
-  const place = () => {
-    if (!heading || !list) return;
-    const box = root.getBoundingClientRect();
-    const y = (heading.getBoundingClientRect().bottom + list.getBoundingClientRect().top) / 2 - box.top;
-    root.style.setProperty('--cap-y', `${Math.round(y)}px`);
+  if (reducedMotion()) return;
+  let inView = false;
+  const state = { p: 0 };
+  const write = () => items.forEach((item, i) => item.style.setProperty('--cap-progress', i === active ? state.p.toFixed(3) : '0'));
+  const tween = gsap.fromTo(
+    state,
+    { p: 0 },
+    {
+      p: 1,
+      duration: AUTOPLAY_MS / 1000,
+      ease: 'none',
+      paused: true,
+      onUpdate: write,
+      onComplete: () => select((active + 1) % items.length),
+    },
+  );
+  onChange = () => {
+    tween.restart();
+    write();
+    tween.paused(!inView);
   };
-  place();
-  new ResizeObserver(place).observe(root);
-  document.fonts?.ready.then(place);
-
-  // The collage rises into view on tablet and desktop only; on phones it is
-  // simply there (review, 2026-10-13).
-  if (!reducedMotion()) {
-    gsap.matchMedia().add('(min-width: 768px)', () => {
-      gsap.from(media, { clipPath: 'inset(100% 0 0 0)', duration: 1.2, ease: 'power3.inOut', scrollTrigger: { trigger: media, start: 'top 85%' } });
-    });
-  }
+  root.setAttribute('data-cap-auto', 'true');
+  ScrollTrigger.create({
+    trigger: grid,
+    start: 'top 75%',
+    end: 'bottom 25%',
+    onToggle: (self) => {
+      inView = self.isActive;
+      tween.paused(!inView);
+    },
+  });
 }
