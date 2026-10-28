@@ -108,8 +108,9 @@ export function buildGrowthChart(host: HTMLElement) {
     svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
     svg.replaceChildren();
     labels.replaceChildren();
-    // Room on the right for the X read-out, which sits right of the point.
-    const box = { x0: 0, x1: W - (small ? 58 : 80), base: H - (small ? 26 : 36), top: small ? 34 : 44 };
+    // Room on the right for the X read-out, which sits right of the point
+    // (on phones it flips to the left of the point instead, near the edge).
+    const box = { x0: 0, x1: W - (small ? 8 : 80), base: H - (small ? 26 : 36), top: small ? 34 : 44 };
     const xOf = (year: number) => box.x0 + ((year - Y0 + 0.5) / (Y1 - Y0 + 1)) * (box.x1 - box.x0);
     const xEdge = (year: number) => box.x0 + ((year - Y0) / (Y1 - Y0 + 1)) * (box.x1 - box.x0);
     const yOf = (v: number) => box.base - v * (box.base - box.top);
@@ -219,6 +220,7 @@ export function buildGrowthChart(host: HTMLElement) {
       host.style.setProperty('--hx', `${hx}px`);
       host.style.setProperty('--hy', `${hy}px`);
       readX.textContent = `X: ${Math.floor(Y0 + th * (Y1 - Y0) + 1e-6)}`;
+      readX.classList.toggle('is-left', hx + readX.offsetWidth + 16 > W);
     };
     set(progress);
   };

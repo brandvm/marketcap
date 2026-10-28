@@ -615,6 +615,7 @@ html.is-menu-open {
 .gc .guides-label { color: currentColor; }
 .gc-read { white-space: nowrap; top: calc(var(--hy) - 1.6em); }
 .gc-read-x { left: calc(var(--hx) + 0.75em); }
+.gc-read-x.is-left { left: auto; right: calc(100% - var(--hx) + 0.75em); }
 @media screen and (max-width: 767px) {
   .gc-decade { font-size: 0.6875em; }
   .gc-axis, .gc-period { font-size: 0.625em; }
