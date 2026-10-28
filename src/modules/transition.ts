@@ -10,7 +10,8 @@
 // ([data-transition-image], Dev Card and Home Hero Card), with at least half
 // of that image on screen — the image grows
 // from where it sits on screen into the development hero's background
-// ([data-transition-target] on the template's S Bg) over the unchanged
+// ([data-transition-target] on the template's S Bg, holding an image or a
+// video) over the unchanged
 // page, then the new page fades in under it and the hero intro plays.
 //
 // Markup: G | Page W [data-barba="wrapper"] › G | Transition
@@ -204,19 +205,49 @@ function decode(src: string) {
   return Promise.race([img.decode().catch(() => {}), new Promise((r) => setTimeout(r, 900))]);
 }
 
+// A hero video: wait for its first frame (same cap as decode), so the page
+// fades in onto a picture, not an empty Ironstone box. The muted attribute
+// isn't always applied to markup Barba inserts, and an unmuted video can't
+// autoplay, so set the property before play().
+function firstFrame(video: HTMLVideoElement) {
+  video.muted = true;
+  if (!reducedMotion()) video.play().catch(() => {});
+  if (video.readyState >= 2) return Promise.resolve();
+  return Promise.race([
+    new Promise((r) => video.addEventListener('loadeddata', r, { once: true })),
+    new Promise((r) => setTimeout(r, 900)),
+  ]);
+}
+
 async function runZoomEnter(next: HTMLElement) {
   const clone = zoomClone;
-  const target = next.querySelector<HTMLImageElement>('[data-transition-target] img');
+  // The development hero shows an image or, since 2026-10-28, a video; a
+  // conditionally hidden one has no box.
+  const target = [...next.querySelectorAll<HTMLImageElement | HTMLVideoElement>('[data-transition-target] :is(img, video)')].find(
+    (el) => el.getClientRects().length > 0,
+  );
   gsap.set(next, { zIndex: 3, autoAlpha: 0 });
-  if (!clone || !target) return runPageEnterAnimation(next);
+  if (!clone || !target) {
+    // The clone must never outlive the zoom: with no target it stayed on top
+    // of the new page at the card's old spot.
+    clone?.remove();
+    zoomClone = null;
+    gsap.set(next, { autoAlpha: 1 });
+    return runPageEnterAnimation(next);
+  }
 
   // The hero sits at the top of the fixed new page, so its rect is where the
   // background will be once the page settles at scroll 0.
   const to = target.getBoundingClientRect();
-  const hiRes = target.currentSrc || target.src;
-  const ready = decode(hiRes).then(() => {
-    if (hiRes) clone.src = hiRes;
-  });
+  let ready: Promise<unknown>;
+  if (target instanceof HTMLVideoElement) {
+    ready = firstFrame(target);
+  } else {
+    const hiRes = target.currentSrc || target.src;
+    ready = decode(hiRes).then(() => {
+      if (hiRes) clone.src = hiRes;
+    });
+  }
 
   const tl = gsap.timeline();
   tl.to(clone, { left: to.left, top: to.top, width: to.width, height: to.height, borderRadius: 0, duration: 1.1, ease: 'parallax' }, 0);

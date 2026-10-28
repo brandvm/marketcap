@@ -1129,6 +1129,24 @@ repos to improve `brandvm/wf-template`.
 - Status: workaround confirmed
 - Found by: claude
 
+### 2026-10-28 · Card zoom glitched into a development with a hero video
+- Area: js
+- Scope: project
+- Symptom: clicking a Dev Card into Four-storey Medical Centre (hero now a
+  video) left the zoomed card image stuck on screen while the new page slid
+  up invisible underneath; image-hero developments were fine.
+- Cause: `runZoomEnter` only looked for `[data-transition-target] img`. With
+  a video there was no img, so it fell back to the slide-up but kept the
+  clone (z-index 99) and the `autoAlpha: 0` it had just set on the page.
+- Fix: the target is the first visible `img` or `video` in the S Bg; for a
+  video the hand-over waits for its first frame (`loadeddata`, 900 ms cap,
+  `muted` set as a property before `play()`). With no target the clone is
+  removed and the page made visible before the fallback. Checked in the
+  local harness: clone grows to the hero, video plays, page fades in, clone
+  removed.
+- Status: fixed in this commit
+- Found by: human + claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so
