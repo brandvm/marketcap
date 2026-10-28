@@ -1,9 +1,11 @@
-// Growth (Home): a script-drawn chart of sales across the family's
-// businesses since 1980. It's a shape for the story, not a dataset: steady,
-// accelerating growth reaches the $60M gridline exactly as the year turns
-// 2025, then jumps towards ~$100M by 2027 with no point or number at the end.
-// Amounts appear only inside the chart (gridline labels $10M–$60M, a pinned
-// dot per $10M crossed, and the X / Y read-out, which stops on 2025 / $60M+).
+// Growth (Home): a script-drawn chart of growth across the family's
+// businesses since 1980. It's a shape for the story, not a dataset, and it
+// carries no amounts (client review, 2026-10-28: no asset values online):
+// the line, bars and gridlines have no scale, and the read-out gives the
+// year only. The three growth periods the client named are shaded bands
+// that light up as the line reaches them; the line climbs steeply inside
+// them and gently between. The head stops at 2025; the rise after it has
+// no point or label.
 // Drawn by story-sequence.ts as the last step of the About scroll (on the
 // Ironstone ground the mask reveals); the scroll position sets its progress.
 // Markup: [data-growth-chart] (an empty div; its Designer class sets the size
@@ -12,14 +14,32 @@ const NS = 'http://www.w3.org/2000/svg';
 const Y0 = 1980;
 const Y1 = 2027;
 const YEARS = Array.from({ length: Y1 - Y0 + 1 }, (_, i) => Y0 + i);
-const GRIDLINES = 10; // one per $10M, to $100M
-const LABELLED = 6; // labels and pinned dots: $10M–$60M only
+const GRIDLINES = 10; // texture only: no labels, no scale
+const PERIODS = [
+  { from: 1987, to: 1993, label: 'Late 1980s – early 1990s', short: 'Late ’80s – ’90s' },
+  { from: 2007, to: 2016, label: '2007 – 2016', short: '2007–16' },
+  { from: 2018, to: 2024, label: '2018 – 2024', short: '2018–24' },
+];
 const JUMP = 2025;
-const AT_JUMP = LABELLED / GRIDLINES;
+const AT_JUMP = 0.62;
 const END = 0.97;
 const E_JUMP = (JUMP - Y0) / (Y1 - Y0);
+// Growth rate per year: steep inside a period (soft edges), gentle between.
+const rate = (year: number) => {
+  const inside = PERIODS.reduce((m, p) => {
+    const edge = Math.min(year - (p.from - 1), p.to + 1 - year);
+    return Math.max(m, Math.max(0, Math.min(1, edge / 1.5)));
+  }, 0);
+  return 0.08 + inside * (1 - 0.08);
+};
+// The trend integrates the rate (fine steps), scaled to reach AT_JUMP at 2025.
+const TOTAL = (() => { let s = 0; for (let y = Y0; y < JUMP; y += 0.05) s += rate(y) * 0.05; return s; })();
 const trend = (year: number) => {
-  if (year <= JUMP) return AT_JUMP * (0.03 + 0.97 * Math.pow((year - Y0) / (JUMP - Y0), 1.65));
+  if (year <= JUMP) {
+    let s = 0;
+    for (let y = Y0; y < year; y += 0.05) s += rate(y) * Math.min(0.05, year - y);
+    return AT_JUMP * (0.04 + 0.96 * (s / TOTAL));
+  }
   const u = Math.min(1, (year - JUMP) / (Y1 - JUMP));
   return AT_JUMP + (END - AT_JUMP) * Math.pow(u, 1.8);
 };
@@ -27,7 +47,7 @@ const trend = (year: number) => {
 // (none from 2020, so the last years only rise).
 const value = (year: number) => {
   const t = (year - Y0) / (Y1 - Y0);
-  const ripple = year >= 2020 ? 0 : 0.016 * Math.sin(year * 1.7) + 0.009 * Math.sin(year * 0.63);
+  const ripple = year >= 2020 ? 0 : 0.014 * Math.sin(year * 1.7) + 0.008 * Math.sin(year * 0.63);
   return Math.max(0.02, Math.min(1, trend(year) * 0.9 + ripple * (0.4 + t)));
 };
 
@@ -74,8 +94,7 @@ export function buildGrowthChart(host: HTMLElement) {
   const head = div('gc-head');
   head.setAttribute('aria-hidden', 'true');
   const readX = div('guides-label gc-read gc-read-x', 'X: 1980');
-  const readY = div('guides-label gc-read gc-read-y', 'Y: $1M');
-  head.append(div('guides-v'), div('guides-h'), div('guides-marker'), readX, readY);
+  head.append(div('guides-v'), div('guides-marker'), readX);
   host.append(svg, labels, head);
 
   let progress = 0;
@@ -106,7 +125,24 @@ export function buildGrowthChart(host: HTMLElement) {
     defs.append(grad, clip);
     svg.append(defs);
 
-    // Decade gridlines and labels; value gridlines, labelled to $60M.
+    // Growth periods: shaded bands behind everything, each labelled at its
+    // top, where the line hasn't reached yet.
+    const bandLayer = svgEl('g', { class: 'gc-bands' });
+    const bands = PERIODS.map((p, i) => {
+      const x = xEdge(p.from);
+      const w = xEdge(p.to + 1) - x;
+      const rect = svgEl('rect', { class: 'gc-band', x, y: box.top - 10, width: w, height: box.base - box.top + 10 });
+      bandLayer.append(rect);
+      const l = div('guides-label gc-period');
+      l.append(div('gc-period-index', `[ 0${i + 1} ]`), div('', small ? p.short : p.label));
+      l.style.left = `${x + w / 2}px`;
+      l.style.top = `${box.top}px`;
+      labels.append(l);
+      return { at: (p.from - Y0) / (Y1 - Y0), end: (p.to + 1 - Y0) / (Y1 - Y0), rect, l };
+    });
+    svg.append(bandLayer);
+
+    // Decade gridlines and labels; unlabelled level lines for texture.
     const grid = svgEl('g', { class: 'gc-grid' });
     for (let y = 1980; y <= 2020; y += 10) {
       const x = xEdge(y);
@@ -118,14 +154,9 @@ export function buildGrowthChart(host: HTMLElement) {
     }
     for (let k = 1; k <= GRIDLINES; k++) {
       const y = box.base - (k / GRIDLINES) * (box.base - box.top);
-      grid.append(svgEl('line', { class: k > LABELLED ? 'gc-fine is-faint' : 'gc-fine', x1: box.x0, x2: box.x1, y1: y, y2: y }));
-      if (k > LABELLED) continue;
-      const amount = div('gc-amount', `$${k * 10}M`);
-      amount.style.left = `${box.x0}px`;
-      amount.style.top = `${y}px`;
-      labels.append(amount);
+      grid.append(svgEl('line', { class: 'gc-fine is-faint', x1: box.x0, x2: box.x1, y1: y, y2: y }));
     }
-    const axis = div('label-text gc-axis', "[ Sales across the family's businesses ]");
+    const axis = div('label-text gc-axis', "[ Growth across the family's businesses ]");
     axis.style.left = `${box.x0}px`;
     axis.style.top = `${box.top - (small ? 30 : 40)}px`;
     labels.append(axis);
@@ -151,46 +182,40 @@ export function buildGrowthChart(host: HTMLElement) {
       return [xOf(year), yOf(trend(year))];
     };
 
-    // A dot pinned where the line crosses each labelled $10M gridline, left
-    // behind as the head passes, with the year it was reached. The $60M dot
-    // sits exactly on 2025.
-    const pins = Array.from({ length: LABELLED }, (_, i) => {
-      const k = i + 1;
-      const level = k / GRIDLINES;
-      let e = E_JUMP;
-      if (k < LABELLED) {
-        for (let s = 0; s <= 2000; s++) {
-          if (trend(Y0 + (s / 2000) * (Y1 - Y0)) >= level) { e = s / 2000; break; }
-        }
-      }
+    // A dot pinned on the line where each period ends, left behind as the
+    // head passes.
+    const pins = bands.map(({ end }) => {
+      const [x, y] = tipAt(end);
       const p = div('gc-pin');
-      p.style.left = `${xOf(Y0 + e * (Y1 - Y0))}px`;
-      p.style.top = `${yOf(level)}px`;
-      p.append(div('gc-pin-dot'), div('guides-label gc-pin-year', String(Math.floor(Y0 + e * (Y1 - Y0) + 1e-6))));
+      p.style.left = `${x}px`;
+      p.style.top = `${y}px`;
+      p.append(div('gc-pin-dot'));
       labels.append(p);
-      return { e, p };
+      return { e: end, p };
     });
 
     set = (e: number) => {
       progress = e;
       const t = Math.max(0, Math.min(1, e));
-      pins.forEach(({ e: at, p }) => {
-        p.classList.toggle('is-shown', t >= at);
-        // The read-out says the year while the head sits on a dot.
-        p.classList.toggle('is-at', t >= at && t - at < 0.06);
+      pins.forEach(({ e: at, p }) => p.classList.toggle('is-shown', t >= at));
+      // A band lights up when the line reaches it and stays lit; it's
+      // strongest while the head is inside it.
+      bands.forEach(({ at, end, rect, l }) => {
+        const shown = t >= at;
+        const active = shown && t < end;
+        rect.classList.toggle('is-shown', shown);
+        rect.classList.toggle('is-active', active);
+        l.classList.toggle('is-shown', shown);
       });
-      // The line draws to t; the head (crosshair, read-outs) stops at the
-      // $60M dot and the jump after it carries no point or number.
+      // The line draws to t; the head (crosshair, read-out) stops at 2025
+      // and the rise after it carries no point or label.
       const [lx] = tipAt(Math.max(0.0001, t));
       const th = Math.min(t, E_JUMP);
       const [hx, hy] = tipAt(Math.max(0.0001, th));
       clipRect.setAttribute('width', String(lx + 2));
       host.style.setProperty('--hx', `${hx}px`);
       host.style.setProperty('--hy', `${hy}px`);
-      const year = Math.floor(Y0 + th * (Y1 - Y0) + 1e-6);
-      const millions = Math.max(1, Math.floor(((box.base - hy) / (box.base - box.top)) * GRIDLINES * 10));
-      readX.textContent = `X: ${year}`;
-      readY.textContent = th >= E_JUMP - 0.0005 || millions >= 60 ? 'Y: $60M+' : `Y: $${millions}M`;
+      readX.textContent = `X: ${Math.floor(Y0 + th * (Y1 - Y0) + 1e-6)}`;
     };
     set(progress);
   };
