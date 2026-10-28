@@ -4,7 +4,7 @@
 // the line, bars and gridlines have no scale, and the read-out gives the
 // year only. The three growth periods the client named are shaded bands
 // that light up as the line reaches them; the line climbs steeply inside
-// them and gently between. The head stops at 2025; the rise after it has
+// them and gently between. The head stops at 2026; the rise after it has
 // no point or label.
 // Drawn by story-sequence.ts as the last step of the About scroll (on the
 // Ironstone ground the mask reveals); the scroll position sets its progress.
@@ -12,7 +12,7 @@
 // and the ink colour, which the SVG uses as currentColor).
 const NS = 'http://www.w3.org/2000/svg';
 const Y0 = 1980;
-const Y1 = 2027;
+const Y1 = 2028;
 const YEARS = Array.from({ length: Y1 - Y0 + 1 }, (_, i) => Y0 + i);
 const GRIDLINES = 10; // texture only: no labels, no scale
 const PERIODS = [
@@ -20,7 +20,7 @@ const PERIODS = [
   { from: 2007, to: 2016, label: '2007 – 2016', short: '2007–16' },
   { from: 2018, to: 2024, label: '2018 – 2024', short: '2018–24' },
 ];
-const JUMP = 2025;
+const JUMP = 2026;
 const AT_JUMP = 0.62;
 const END = 0.97;
 const E_JUMP = (JUMP - Y0) / (Y1 - Y0);
@@ -32,7 +32,7 @@ const rate = (year: number) => {
   }, 0);
   return 0.08 + inside * (1 - 0.08);
 };
-// The trend integrates the rate (fine steps), scaled to reach AT_JUMP at 2025.
+// The trend integrates the rate (fine steps), scaled to reach AT_JUMP at 2026.
 const TOTAL = (() => { let s = 0; for (let y = Y0; y < JUMP; y += 0.05) s += rate(y) * 0.05; return s; })();
 const trend = (year: number) => {
   if (year <= JUMP) {
@@ -114,6 +114,9 @@ export function buildGrowthChart(host: HTMLElement) {
     const xEdge = (year: number) => box.x0 + ((year - Y0) / (Y1 - Y0 + 1)) * (box.x1 - box.x0);
     const yOf = (v: number) => box.base - v * (box.base - box.top);
     const step = (box.x1 - box.x0) / YEARS.length;
+    // The crosshair spans the plot only, clear of the axis title above it.
+    host.style.setProperty('--gt', `${box.top - 10}px`);
+    host.style.setProperty('--gb', `${H - box.base}px`);
     const uid = 'gc' + Math.random().toString(36).slice(2, 7);
 
     const defs = svgEl('defs');
@@ -207,7 +210,7 @@ export function buildGrowthChart(host: HTMLElement) {
         rect.classList.toggle('is-active', active);
         l.classList.toggle('is-shown', shown);
       });
-      // The line draws to t; the head (crosshair, read-out) stops at 2025
+      // The line draws to t; the head (crosshair, read-out) stops at 2026
       // and the rise after it carries no point or label.
       const [lx] = tipAt(Math.max(0.0001, t));
       const th = Math.min(t, E_JUMP);

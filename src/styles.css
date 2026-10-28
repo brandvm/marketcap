@@ -593,7 +593,7 @@ html.is-menu-open {
 .gc-period.is-shown { opacity: 1; }
 .gc-period-index { opacity: 0.6; }
 .gc-axis { position: absolute; white-space: nowrap; font-size: 0.75em; }
-.gc-decade { position: absolute; transform: translateX(-50%); font-size: 0.875em; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; }
+.gc-decade { position: absolute; padding-left: 0.4em; font-size: 0.875em; line-height: 1; letter-spacing: 0.02em; white-space: nowrap; }
 .gc-bar { fill: color-mix(in srgb, currentColor 26%, transparent); }
 .gc-line { fill: none; stroke: currentColor; stroke-width: 2.5; stroke-linecap: round; }
 .gc-ghost { fill: none; stroke: color-mix(in srgb, currentColor 35%, transparent); stroke-width: 1; stroke-dasharray: 3 6; }
@@ -609,8 +609,9 @@ html.is-menu-open {
   position: absolute; left: -0.3125em; top: -0.3125em; width: 0.625em; height: 0.625em; box-sizing: border-box; border-radius: 50%;
   background: var(--gc-ground, #e1d6d0); border: 1.5px solid currentColor; box-shadow: 0 0 0 0.375em color-mix(in srgb, currentColor 14%, transparent);
 }
-.gc-head .guides-v { left: var(--hx); background-color: color-mix(in srgb, currentColor 40%, transparent); }
-.gc-head .guides-marker { left: var(--hx); top: var(--hy); background-color: currentColor; }
+/* .gc first: .story .guides-v (below) would pin it to the left edge. */
+.gc .gc-head .guides-v { left: var(--hx); top: var(--gt, 0px); bottom: var(--gb, 0px); height: auto; background-color: color-mix(in srgb, currentColor 40%, transparent); }
+.gc .gc-head .guides-marker { left: var(--hx); top: var(--hy); background-color: currentColor; }
 .gc .guides-label { color: currentColor; }
 .gc-read { white-space: nowrap; top: calc(var(--hy) - 1.6em); }
 .gc-read-x { left: calc(var(--hx) + 0.75em); }
