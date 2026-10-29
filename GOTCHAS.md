@@ -1126,7 +1126,7 @@ repos to improve `brandvm/wf-template`.
 - Fix: send custom properties separately, or put them in repo CSS (here
   `.story-growth { --gc-ground }`, the pinned dots' centre colour). Retry the
   other properties without it and read the style back.
-- Status: workaround confirmed
+- Status: harvested into wf-template 0.9.0; workaround confirmed
 - Found by: claude
 
 ### 2026-10-28 · Card zoom glitched into a development with a hero video
