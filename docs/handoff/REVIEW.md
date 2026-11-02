@@ -65,7 +65,7 @@ build theirs from CMS fields. JSON-LD: Organization (Home), ContactPage
 | Remove exact financial figures ($63M) | Webflow: Story stat card 3 → 6 · Areas of the construction industry; Capabilities intro; Home SEO description and JSON-LD | Done, on staging |
 | Client copy Examples A and B | Webflow: Home Approach headline + copy; Developments Page Head (instance overrides) and Home Developments intro | Done, on staging |
 | Full copy edit (tone, family emphasis) | Copy deck (Claude Doc) for client approval | Drafted, waiting for approval |
-| Home: drop the Story statement ("Built on Family. Driven by Vision.") so the mask floods straight into the stats; move Our Story after Capabilities | `story-sequence.ts` (statement optional, pin 420% → 300%, no switch to the black-and-white photo on desktop or phones), `index.ts` (ScrollTrigger.sort), then Webflow: remove the statement, move the section | Code built, waiting for commit OK; Webflow after the push |
+| Home: drop the Story statement ("Built on Family. Driven by Vision.") so the mask floods straight into the stats; move Our Story after Capabilities | `story-sequence.ts` (statement optional, pin 420% → 300%, no switch to the black-and-white photo on desktop or phones), `index.ts` (ScrollTrigger.sort), then Webflow: remove the statement, move the section | Done, on staging (00d99fa + Webflow). The mask now shows the black-and-white yard photo throughout; the unused stats photo and the statement were removed. Our Story takes the existing Kolin colour (new chain Section › Timeline › is-kolin) so it differs from Capabilities |
 | Accuracy of 18558 Yonge visuals | Hero film and generic step / capability photos | Waiting for client and architect input |
 
 ## Open design decisions
