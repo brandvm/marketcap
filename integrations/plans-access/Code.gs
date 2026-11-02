@@ -32,16 +32,20 @@ function setup() {
   const access = sheet_(ACCESS, COLS);
   const log = sheet_(LOG, LOG_COLS);
   const settings = sheet_(SETTINGS, ['Setting', 'Value', 'Notes']);
-  if (settings.getLastRow() < 2) {
-    settings.getRange(2, 1, 5, 3).setValues([
-      ['Notify emails', Session.getEffectiveUser().getEmail(), 'Who gets "new request" emails. Separate several with commas.'],
-      ['Auto-approve', 'No', 'Yes = every request is approved and gets a PIN at once, with no click needed.'],
-      ['Site name', 'MarketCap', 'Used in the email subject lines.'],
-      ['Sender name', 'MarketCap', 'Shown as the sender of the emails.'],
-      ['Days signed in', TOKEN_DAYS_DEFAULT, 'How long a device stays unlocked after a login.'],
-    ]);
-    settings.getRange('B3').setDataValidation(SpreadsheetApp.newDataValidation().requireValueInList(['No', 'Yes'], true).build());
-  }
+  // Add any setting that isn't there yet (re-running setup keeps your values).
+  const defaults = [
+    ['Notify emails', Session.getEffectiveUser().getEmail(), 'Who gets "new request" emails. Any addresses, separated by commas.'],
+    ['Auto-approve', 'No', 'Yes = every request is approved and gets a PIN at once, with no click needed.'],
+    ['Site name', 'MarketCap', 'Used in the email subject lines.'],
+    ['Sender name', 'MarketCap', 'Shown as the sender name. The address is always the Google account that runs this script.'],
+    ['Days signed in', TOKEN_DAYS_DEFAULT, 'How long a device stays unlocked after a login.'],
+    ['Reply-to email', '', 'Optional: replies to the PIN and request emails go here (e.g. the client), not to the sending account.'],
+  ];
+  const have = settings.getLastRow() > 1 ? settings.getRange(2, 1, settings.getLastRow() - 1, 1).getValues().map((r) => String(r[0]).trim()) : [];
+  defaults.filter((d) => have.indexOf(d[0]) < 0).forEach((d) => settings.appendRow(d));
+  const rows = settings.getRange(2, 1, settings.getLastRow() - 1, 1).getValues().map((r) => String(r[0]).trim());
+  settings.getRange(rows.indexOf('Auto-approve') + 2, 2).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['No', 'Yes'], true).build());
   access.getRange(2, C.Status, 1000).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(STATUSES, true).setAllowInvalid(false).build());
   const rules = [['Approved', '#d9ead3'], ['Pending', '#fff2cc'], ['Revoked', '#f4cccc']].map(([text, bg]) =>
@@ -75,10 +79,11 @@ function menuApprove() { selectedEmails_().forEach((e) => approve_(e, 'menu')); 
 function menuResend() { selectedEmails_().forEach((e) => resendPin_(e, 'menu')); }
 function menuRevoke() { selectedEmails_().forEach((e) => setStatus_(e, 'Revoked', 'menu')); }
 
-/** Status dropdown changed by hand: Approved sends the PIN, Revoked is logged. */
+/** A row edited by hand (email or status, in either order): Approved with no
+ *  PIN yet sends the PIN; Revoked is logged. */
 function handleEdit(e) {
   const range = e.range;
-  if (range.getSheet().getName() !== ACCESS || range.getColumn() > C.Status || range.getLastColumn() < C.Status) return;
+  if (range.getSheet().getName() !== ACCESS || range.getColumn() > C.Status) return;
   for (let r = range.getRow(); r <= range.getLastRow(); r++) {
     if (r < 2) continue;
     const row = range.getSheet().getRange(r, 1, 1, COLS.length).getValues()[0];
@@ -86,7 +91,7 @@ function handleEdit(e) {
     const status = row[C.Status - 1];
     if (!email) continue;
     if (status === 'Approved' && !row[C.PIN - 1]) approve_(email, 'sheet');
-    else if (status === 'Revoked' && e.oldValue !== 'Revoked') log_('revoked', email, {}, 'by sheet');
+    else if (status === 'Revoked' && range.getColumn() <= C.Status && range.getLastColumn() >= C.Status && e.oldValue !== 'Revoked') log_('revoked', email, {}, 'by sheet');
   }
 }
 
@@ -224,7 +229,7 @@ function setStatus_(email, status, by) {
 function sendPin_(email, name, pin) {
   const site = setting_('Site name', 'MarketCap');
   const hello = name ? 'Hi ' + escape_(String(name).split(' ')[0]) + ',' : 'Hello,';
-  MailApp.sendEmail({
+  mail_({
     to: email,
     name: setting_('Sender name', site),
     subject: 'Your PIN for the ' + site + ' development plans',
@@ -243,7 +248,7 @@ function notifyAdmins_(email, name, company, page) {
   if (!to) return;
   const url = ScriptApp.getService().getUrl() + '?a=approve&e=' + encodeURIComponent(email) + '&s=' + encodeURIComponent(sign_('approve:' + email));
   const site = setting_('Site name', 'MarketCap');
-  MailApp.sendEmail({
+  mail_({
     to: to,
     name: setting_('Sender name', site),
     subject: 'Plans access request: ' + (name || email),
@@ -329,6 +334,13 @@ function withLock_(fn) {
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try { return fn(); } finally { lock.releaseLock(); }
+}
+
+/** MailApp with the optional Reply-to setting (only passed when it's a valid address). */
+function mail_(options) {
+  const r = String(setting_('Reply-to email', '')).trim();
+  if (valid_(norm_(r))) options.replyTo = r;
+  MailApp.sendEmail(options);
 }
 
 function norm_(email) { return String(email || '').trim().toLowerCase(); }
