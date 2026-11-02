@@ -752,12 +752,23 @@ html.is-menu-open {
    static specimen carries data-static instead. */
 .lightbox:not([open]):not([data-static]) { display: none; }
 .lightbox::backdrop { background-color: rgb(225 214 208 / 0.94); /* Chalk */ -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
-/* repo-css: js-state — plans-gate.ts (dev-phase PIN on the template's
+/* repo-css: js-state — plans-gate.ts (email + PIN on the template's
    Plans): the plans and arrows stay hidden on the published site until the
-   gate is unlocked; the canvas (no data-wf-domain) shows everything. */
+   gate is unlocked; the canvas (no data-wf-domain) shows everything. The
+   panel shows either the login or the request view (.is-requesting); the
+   messages show only once the script fills them. */
 html[data-wf-domain] [data-gate]:not(.is-unlocked) [data-gate-content] { display: none; }
 html[data-wf-domain] [data-gate].is-unlocked [data-gate-panel] { display: none; }
-html[data-wf-domain] [data-gate-error]:not(.is-shown) { display: none; }
+html[data-wf-domain] [data-gate-error]:not(.is-shown),
+html[data-wf-domain] [data-gate-status]:not(.is-shown) { display: none; }
+html[data-wf-domain] [data-gate]:not(.is-requesting) [data-gate-request],
+html[data-wf-domain] [data-gate].is-requesting [data-gate-login] { display: none; }
+/* while a remembered device is being checked, or a login is being sent */
+[data-gate].is-checking [data-gate-panel],
+[data-gate][aria-busy] [data-gate-panel] { cursor: progress; }
+[data-gate].is-checking [data-gate-login],
+[data-gate][aria-busy] [data-gate-digits] { opacity: 0.5; transition: opacity 0.2s; }
+[data-gate-field="website"] { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 /* The section takes focus after unlocking (so keyboard users land on the
    plans); it needs no ring. repo-css: designer-cant — @keyframes: a wrong PIN
    shakes the digit boxes (plans-gate.ts skips it under reduced motion). */
