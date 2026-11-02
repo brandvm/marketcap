@@ -316,6 +316,9 @@ repos to improve `brandvm/wf-template`.
 - Fix: after any builder error, re-query the parent and remove strays.
   `placeholder` has no setting either; set it in the Designer
   (MANUAL-TODO J).
+  Update 2026-11-02: the reservation applies to Webflow form elements
+  (FormTextInput) only. A custom DOM `input` takes `placeholder` through
+  `set_attributes`, and it reads back (Plans gate inputs, MANUAL-TODO AQ).
 - Status: open · upstreamed wf-template 12d8433
 - Found by: claude
 
