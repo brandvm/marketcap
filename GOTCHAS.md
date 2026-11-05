@@ -1022,7 +1022,12 @@ repos to improve `brandvm/wf-template`.
   `[Mark Figure, Is Contact]`) and remove the empty `class` attribute. Set
   `rel` as a custom attribute with `set_attributes`. Check the published
   HTML for both.
-- Status: workaround confirmed
+  Update 2026-11-05: the setting's `rel` does publish, as a separate
+  `<link rel="noopener" href="…">` element right after the `<a>` (seen on
+  the Footer's "Site by" link). Once `rel` is a custom attribute, rewrite
+  the link setting without `rel` (`static_link` mode, `to`,
+  `open_in_new_tab` only), or the stray `<link>` stays.
+- Status: workaround confirmed; stray `<link>` removed from the Footer (2026-11-05)
 - Found by: claude
 
 ### 2026-10-13 · Barba ignores a root `custom` rule when `to` or `from` is set
@@ -1166,6 +1171,40 @@ repos to improve `brandvm/wf-template`.
   so it served the staging bundle (every push went live). Set RELEASE in
   the same step as attaching the domain.
 - Status: fixed in this commit
+- Found by: claude
+
+### 2026-11-05 · Element builder refuses attributes on a new DOM element
+- Area: mcp
+- Scope: template-candidate
+- Symptom: adding a `<source>` to C | Video, `data_element_builder` with
+  `type: "DOM"` and `settings: [{ key: "attributes", … }]` failed with
+  `Setting "attributes" is not applicable to this element`, although the
+  description says settings apply to DOM elements. Nothing was created.
+- Cause: MCP surface limit; the attributes setting only exists once the
+  element does.
+- Fix: build the bare DOM element (`set_dom_config` only), then
+  `set_settings` key `attributes` on it. Static values and prop bindings
+  both work there (`media` + `src` bound to a prop + `type`), and `media`
+  on a `<source>` survives publish. Re-query the parent after any builder
+  error (see the 2026-10-06 builder entry).
+- Status: workaround confirmed
+- Found by: claude
+
+### 2026-11-05 · CMS Image field can't bind to a text prop (video poster)
+- Area: mcp
+- Scope: template-candidate
+- Symptom: binding C | Video's Poster URL (a string prop) to the
+  Developments "Video Poster" Image field returned `Incompatible binding:
+  CMS field … cannot bind to target`. The template published `poster=""`.
+- Cause: an Image field only binds to image settings and image props; a
+  `poster` attribute takes a string.
+- Fix: a Link field, "Video Poster URL", holding the asset's CDN URL, bound
+  to the prop. Phone sources follow the same pattern: a "Video Link Mobile"
+  Link field bound to the new "MP4 Mobile URL" prop. Where an item leaves
+  it empty, the `<source media=… src="">` it publishes is skipped by the
+  browser (checked at 375 px). Hiding it needs Designer conditional
+  visibility ("MP4 Mobile URL is set").
+- Status: workaround confirmed
 - Found by: claude
 
 ## Known from previous projects
