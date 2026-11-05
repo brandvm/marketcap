@@ -1150,6 +1150,24 @@ repos to improve `brandvm/wf-template`.
 - Status: fixed in this commit
 - Found by: human + claude
 
+### 2026-11-05 · First release: the loader test refuses a filled-in RELEASE
+- Area: release
+- Scope: template-candidate
+- Symptom: after tagging v1.0.0 and setting `var RELEASE = "1.0.0";` in
+  `loader.html` (AGENTS.md: keep it identical to what is installed),
+  `pnpm test` failed with "loader.html must ship with `var RELEASE = null;`",
+  so the push would have failed CI.
+- Cause: `tests/environment-switcher.spec.mjs` checked for and replaced
+  the literal `var RELEASE = null;`. The two rules conflict from the first
+  release on.
+- Fix: the test matches `var RELEASE = null;` or any quoted tag with a
+  regex and swaps in its own value per test. Also found on the same day:
+  the site had been live on www.marketcapltd.com with RELEASE still null,
+  so it served the staging bundle (every push went live). Set RELEASE in
+  the same step as attaching the domain.
+- Status: fixed in this commit
+- Found by: claude
+
 ## Known from previous projects
 
 Inherited from `wf-template`. Found across earlier client repos; listed so

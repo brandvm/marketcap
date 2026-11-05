@@ -7,9 +7,12 @@ const source = readFileSync(new URL('../loader.html', import.meta.url), 'utf8')
   .replace(/<!--[\s\S]*?-->/g, '').replaceAll('REPO', 'wf-example');
 // Client repos fill REPO in, so read the name back rather than assume it.
 const repo = source.match(/var SITE = "([^"]+)"/)[1];
-if (!source.includes('var RELEASE = null;')) throw new Error('loader.html must ship with `var RELEASE = null;`');
+// loader.html mirrors what is installed, so after a release it carries the
+// tag (`var RELEASE = "1.0.0";`) rather than null; each test sets its own.
+const releaseLine = /var RELEASE = (?:null|"[^"]*");/;
+if (!releaseLine.test(source)) throw new Error('loader.html must declare `var RELEASE = null;` or a quoted tag');
 function loader(release) {
-  const text = source.replace('var RELEASE = null;', `var RELEASE = ${JSON.stringify(release)};`);
+  const text = source.replace(releaseLine, `var RELEASE = ${JSON.stringify(release)};`);
   return {
     scripts: [...text.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(match => match[0]),
     links: [...text.matchAll(/<link\b[^>]*>/g)].map(match => match[0])
