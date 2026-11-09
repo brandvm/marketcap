@@ -7,8 +7,9 @@
 //   · A remembered device is checked again on every page view: the script
 //     logs the view (email, page title, URL) and refuses revoked emails.
 //   · No PIN: "Request a PIN" swaps in a short form (name, email, company).
-//     The script logs it and emails the client an Approve button; an email
-//     that is already approved just gets its PIN again.
+//     The script logs it and emails the client Approve and Decline buttons;
+//     an email that is already approved just gets its PIN again, and a
+//     declined one is told so (unless the sheet's settings say not to).
 //   · Until unlocked, repo CSS hides [data-gate-content] on the published
 //     site (the canvas shows everything), and the images inside lose their
 //     src/srcset/sizes, kept only in memory, so they aren't in the DOM.
@@ -39,6 +40,7 @@ const MESSAGES: Record<string, string> = {
   wrong: "That email and PIN don't match. Check both and try again.",
   email: 'Enter the email address your PIN was sent to first.',
   pending: "Your request is waiting for approval. We'll email your PIN as soon as it's approved.",
+  declined: "We're not able to share the plans with this email address. Please get in touch if you think this is a mistake.",
   locked: 'Too many tries. Please wait 15 minutes, or request your PIN again.',
   offline: "We couldn't check your PIN just now. Please try again.",
   requested: "Thanks. We'll email your PIN as soon as your request is approved.",

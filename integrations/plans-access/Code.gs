@@ -3,10 +3,15 @@
  *
  * Email + PIN access to the development plans on the website.
  *   - Access tab: one row per email. Status is a dropdown:
- *     Pending → Approved (PIN generated and emailed) → Revoked.
+ *     Pending → Approved (PIN generated and emailed) → Revoked, or
+ *     Pending → Declined.
  *   - Log tab: every request, login, failed login, plan view, approval,
- *     PIN email and revocation, with time, email, page title and URL.
+ *     decline, PIN email and revocation, with time, email, page title and URL.
  *   - Settings tab: who gets the request emails, auto-approve, wording.
+ *   - The client never needs the sheet: the request email has Approve and
+ *     Decline buttons, and the "access given" email has a Revoke button.
+ *     Each opens a confirm page, so a mail scanner that opens links can't
+ *     act on them.
  *
  * The website (src/modules/plans-gate.ts) talks to this script through its
  * web app URL. Setup steps: integrations/plans-access/README.md.
@@ -19,7 +24,7 @@ const LOG = 'Log';
 const SETTINGS = 'Settings';
 const COLS = ['Email', 'Name', 'Company', 'Status', 'PIN', 'Requested', 'Approved', 'Last login', 'Logins', 'First page', 'Notes'];
 const C = Object.fromEntries(COLS.map((name, i) => [name, i + 1]));
-const STATUSES = ['Pending', 'Approved', 'Revoked'];
+const STATUSES = ['Pending', 'Approved', 'Declined', 'Revoked'];
 const LOG_COLS = ['Time', 'Event', 'Email', 'Page title', 'Page URL', 'Detail', 'Device'];
 const TOKEN_DAYS_DEFAULT = 30;
 const MAX_FAILS = 5;            // wrong PINs per email before a lockout
@@ -40,15 +45,16 @@ function setup() {
     ['Sender name', 'MarketCap', 'Shown as the sender name. The address is always the Google account that runs this script.'],
     ['Days signed in', TOKEN_DAYS_DEFAULT, 'How long a device stays unlocked after a login.'],
     ['Reply-to email', '', 'Optional: replies to the PIN and request emails go here (e.g. the client), not to the sending account.'],
+    ['Email declined visitors', 'Yes', 'Yes = a declined visitor gets a short, polite email, and the website tells them too. No = they hear nothing.'],
   ];
   const have = settings.getLastRow() > 1 ? settings.getRange(2, 1, settings.getLastRow() - 1, 1).getValues().map((r) => String(r[0]).trim()) : [];
   defaults.filter((d) => have.indexOf(d[0]) < 0).forEach((d) => settings.appendRow(d));
   const rows = settings.getRange(2, 1, settings.getLastRow() - 1, 1).getValues().map((r) => String(r[0]).trim());
-  settings.getRange(rows.indexOf('Auto-approve') + 2, 2).setDataValidation(
-    SpreadsheetApp.newDataValidation().requireValueInList(['No', 'Yes'], true).build());
+  ['Auto-approve', 'Email declined visitors'].forEach((name) => settings.getRange(rows.indexOf(name) + 2, 2).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['No', 'Yes'], true).build()));
   access.getRange(2, C.Status, 1000).setDataValidation(
     SpreadsheetApp.newDataValidation().requireValueInList(STATUSES, true).setAllowInvalid(false).build());
-  const rules = [['Approved', '#d9ead3'], ['Pending', '#fff2cc'], ['Revoked', '#f4cccc']].map(([text, bg]) =>
+  const rules = [['Approved', '#d9ead3'], ['Pending', '#fff2cc'], ['Declined', '#e6e6e6'], ['Revoked', '#f4cccc']].map(([text, bg]) =>
     SpreadsheetApp.newConditionalFormatRule().whenTextEqualTo(text).setBackground(bg)
       .setRanges([access.getRange(2, C.Status, 1000)]).build());
   access.setConditionalFormatRules(rules);
@@ -68,6 +74,7 @@ function setup() {
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Plans access')
     .addItem('Approve selected rows', 'menuApprove')
+    .addItem('Decline selected rows', 'menuDecline')
     .addItem('Email PIN again to selected rows', 'menuResend')
     .addItem('Revoke selected rows', 'menuRevoke')
     .addSeparator()
@@ -76,14 +83,16 @@ function onOpen() {
 }
 
 function menuApprove() { selectedEmails_().forEach((e) => approve_(e, 'menu')); }
+function menuDecline() { selectedEmails_().forEach((e) => decline_(e, 'menu')); }
 function menuResend() { selectedEmails_().forEach((e) => resendPin_(e, 'menu')); }
-function menuRevoke() { selectedEmails_().forEach((e) => setStatus_(e, 'Revoked', 'menu')); }
+function menuRevoke() { selectedEmails_().forEach((e) => revoke_(e, 'menu')); }
 
 /** A row edited by hand (email or status, in either order): Approved with no
- *  PIN yet sends the PIN; Revoked is logged. */
+ *  PIN yet sends the PIN; Declined may email the visitor; Revoked is logged. */
 function handleEdit(e) {
   const range = e.range;
   if (range.getSheet().getName() !== ACCESS || range.getColumn() > C.Status) return;
+  const statusEdited = range.getLastColumn() >= C.Status;
   for (let r = range.getRow(); r <= range.getLastRow(); r++) {
     if (r < 2) continue;
     const row = range.getSheet().getRange(r, 1, 1, COLS.length).getValues()[0];
@@ -91,7 +100,10 @@ function handleEdit(e) {
     const status = row[C.Status - 1];
     if (!email) continue;
     if (status === 'Approved' && !row[C.PIN - 1]) approve_(email, 'sheet');
-    else if (status === 'Revoked' && range.getColumn() <= C.Status && range.getLastColumn() >= C.Status && e.oldValue !== 'Revoked') log_('revoked', email, {}, 'by sheet');
+    else if (status === 'Declined' && statusEdited && e.oldValue !== 'Declined') {
+      log_('declined', email, {}, 'by sheet');
+      if (tellDeclined_()) sendDeclined_(email, row[C.Name - 1]);
+    } else if (status === 'Revoked' && statusEdited && e.oldValue !== 'Revoked') log_('revoked', email, {}, 'by sheet');
   }
 }
 
@@ -114,15 +126,60 @@ function doPost(e) {
   return json_({ ok: false, reason: 'bad' });
 }
 
-/** One-click approval from the request email: ?a=approve&e=<email>&s=<signature>. */
+/** Email buttons: ?a=approve|decline|revoke&e=<email>&s=<signature>.
+ *  Opening the link only shows a confirm page. Mail scanners open every link
+ *  in an email, so nothing changes until the confirm button is pressed
+ *  (confirmAction, through google.script.run). */
+const EMAIL_ACTIONS = {
+  approve: { title: 'Approve access?', button: 'Approve and send PIN', color: '#824331' },
+  decline: { title: 'Decline this request?', button: 'Decline', color: '#260b07' },
+  revoke: { title: 'Revoke access?', button: 'Revoke access', color: '#a3352a' },
+};
+
 function doGet(e) {
   const p = e.parameter || {};
-  if (p.a === 'approve' && p.e && p.s === sign_('approve:' + norm_(p.e))) {
-    const result = approve_(norm_(p.e), 'email button');
-    return page_(result.ok ? 'Access approved' : 'Nothing to approve',
-      result.ok ? 'A PIN has been emailed to ' + norm_(p.e) + '. They can now see the plans.' : result.message);
+  const email = norm_(p.e);
+  const action = EMAIL_ACTIONS[p.a];
+  if (!action || !email || p.s !== sign_(p.a + ':' + email)) return page_('Plans access', 'This link is not valid.');
+  const found = find_(email);
+  if (!found) return page_('Plans access', email + ' is not on the access list.');
+  const name = String(found.row[C.Name - 1] || '');
+  const company = String(found.row[C.Company - 1] || '');
+  const status = String(found.row[C.Status - 1] || 'Pending');
+  const who = (name || email) + (company ? ' (' + company + ')' : '');
+  let text;
+  if (p.a === 'approve') {
+    text = status === 'Approved'
+      ? who + ' already has access. Their PIN will be emailed to ' + email + ' again.'
+      : 'A 4-digit PIN will be emailed to ' + email + ', and ' + who + ' will be able to see the plans.';
+  } else if (p.a === 'decline') {
+    if (status === 'Declined') return page_('Already declined', who + "'s request has already been declined.");
+    text = 'The request from ' + who + ' will be declined' +
+      (status === 'Approved' ? ', and the access they have now will be removed' : '') + '.' +
+      (tellDeclined_() ? ' They will get a short, polite email saying so.' : ' They will not be told.');
+  } else {
+    if (status !== 'Approved') return page_('Nothing to revoke', who + " doesn't have access at the moment (status: " + status + ').');
+    text = 'The PIN for ' + email + ' will stop working, and any device that ' + who + ' signed in on will be locked on its next visit.';
   }
-  return page_('Plans access', 'This link is not valid.');
+  return confirmPage_(action, text, { a: p.a, e: email, s: p.s });
+}
+
+/** Called by the confirm page's button. Checks the signature again. */
+function confirmAction(a, e, s) {
+  const email = norm_(e);
+  if (!EMAIL_ACTIONS[a] || !email || s !== sign_(a + ':' + email)) return { title: 'Plans access', text: 'This link is not valid.' };
+  if (a === 'approve') {
+    const result = approve_(email, 'email button');
+    return result.ok
+      ? { title: 'Access approved', text: 'A PIN has been emailed to ' + email + '. They can now see the plans.' }
+      : { title: 'Nothing to approve', text: result.message };
+  }
+  if (a === 'decline') {
+    const result = decline_(email, 'email button');
+    return { title: result.ok ? 'Request declined' : 'Nothing to decline', text: result.message };
+  }
+  const result = revoke_(email, 'email button');
+  return { title: result.ok ? 'Access revoked' : 'Nothing to revoke', text: result.message };
 }
 
 function login_(email, pin, page) {
@@ -144,7 +201,8 @@ function login_(email, pin, page) {
   cache.put(failKey, String(fails + 1), LOCK_MINUTES * 60);
   const why = !found ? 'no access' : status === 'Approved' ? 'wrong PIN' : status.toLowerCase();
   log_('login_failed', email, page, why);
-  return { ok: false, reason: found && status === 'Pending' ? 'pending' : 'wrong' };
+  if (status === 'Pending' || (status === 'Declined' && !tellDeclined_())) return { ok: false, reason: 'pending' };
+  return { ok: false, reason: status === 'Declined' ? 'declined' : 'wrong' };
 }
 
 /** A remembered device opening the plans: re-checked so a revoke works at once. */
@@ -175,8 +233,10 @@ function request_(body, page) {
     return { ok: true, state: 'sent' };
   }
   if (found) {
-    log_('request_again', email, page, String(found.row[C.Status - 1]).toLowerCase());
-    return { ok: true, state: 'pending' };
+    // Declined and revoked emails don't reach the client again.
+    const status = String(found.row[C.Status - 1]);
+    log_('request_again', email, page, status.toLowerCase());
+    return { ok: true, state: status === 'Declined' && tellDeclined_() ? 'declined' : 'pending' };
   }
   withLock_(() => {
     sheet_(ACCESS, COLS).appendRow([email, name, company, 'Pending', '', new Date(), '', '', 0, page.title || page.url, '']);
@@ -190,7 +250,7 @@ function request_(body, page) {
   return { ok: true, state: 'requested' };
 }
 
-/* ---------- approve, resend, revoke ---------- */
+/* ---------- approve, decline, resend, revoke ---------- */
 
 function approve_(email, by) {
   return withLock_(() => {
@@ -206,7 +266,21 @@ function approve_(email, by) {
       log_('approved', email, {}, 'by ' + by);
     }
     sendPin_(email, found.row[C.Name - 1], pin);
+    if (!already) notifyApproved_(email, found.row[C.Name - 1], found.row[C.Company - 1], by);
     return { ok: true, message: already ? 'Already approved; the PIN was emailed again.' : 'Approved.' };
+  });
+}
+
+function decline_(email, by) {
+  return withLock_(() => {
+    const found = find_(email);
+    if (!found) return { ok: false, message: email + ' is not on the access list.' };
+    if (found.row[C.Status - 1] === 'Declined') return { ok: false, message: email + ' has already been declined.' };
+    found.sheet.getRange(found.r, C.Status).setValue('Declined');
+    log_('declined', email, {}, 'by ' + by);
+    const tell = tellDeclined_();
+    if (tell) sendDeclined_(email, found.row[C.Name - 1]);
+    return { ok: true, message: email + (tell ? ' has been told that the request was not approved.' : ' was declined and has not been told.') };
   });
 }
 
@@ -217,11 +291,15 @@ function resendPin_(email, by) {
   log_('pin_resent', email, {}, 'by ' + by);
 }
 
-function setStatus_(email, status, by) {
-  const found = find_(email);
-  if (!found) return;
-  found.sheet.getRange(found.r, C.Status).setValue(status);
-  log_(status.toLowerCase(), email, {}, 'by ' + by);
+function revoke_(email, by) {
+  return withLock_(() => {
+    const found = find_(email);
+    if (!found) return { ok: false, message: email + ' is not on the access list.' };
+    if (found.row[C.Status - 1] !== 'Approved') return { ok: false, message: email + " doesn't have access at the moment." };
+    found.sheet.getRange(found.r, C.Status).setValue('Revoked');
+    log_('revoked', email, {}, 'by ' + by);
+    return { ok: true, message: 'The PIN for ' + email + ' no longer works, and their devices are locked on the next visit.' };
+  });
 }
 
 /* ---------- email ---------- */
@@ -243,10 +321,24 @@ function sendPin_(email, name, pin) {
   log_('pin_sent', email, {}, '');
 }
 
+function sendDeclined_(email, name) {
+  const site = setting_('Site name', 'MarketCap');
+  const hello = name ? 'Hi ' + escape_(String(name).split(' ')[0]) + ',' : 'Hello,';
+  mail_({
+    to: email,
+    name: setting_('Sender name', site),
+    subject: 'Your request for the ' + site + ' development plans',
+    htmlBody:
+      '<div style="font:16px/1.5 Helvetica,Arial,sans-serif;color:#260b07">' +
+      '<p>' + hello + '</p><p>Thank you for your interest in the development plans on the ' + escape_(site) + ' website.</p>' +
+      "<p>We're not able to share them with you at the moment. If you think this is a mistake, just reply to this email.</p></div>",
+  });
+  log_('decline_sent', email, {}, '');
+}
+
 function notifyAdmins_(email, name, company, page) {
   const to = String(setting_('Notify emails', '')).trim();
   if (!to) return;
-  const url = ScriptApp.getService().getUrl() + '?a=approve&e=' + encodeURIComponent(email) + '&s=' + encodeURIComponent(sign_('approve:' + email));
   const site = setting_('Site name', 'MarketCap');
   mail_({
     to: to,
@@ -256,9 +348,38 @@ function notifyAdmins_(email, name, company, page) {
       '<div style="font:16px/1.5 Helvetica,Arial,sans-serif;color:#260b07">' +
       '<p><b>' + escape_(name || '(no name)') + '</b>' + (company ? ' · ' + escape_(company) : '') + '<br>' + escape_(email) + '</p>' +
       '<p>Asked for access on: ' + escape_(page.title || page.url || 'the website') + '</p>' +
-      '<p><a href="' + url + '" style="display:inline-block;background:#824331;color:#fff;padding:12px 22px;text-decoration:none;border-radius:2px">Approve and send PIN</a></p>' +
-      '<p style="color:#7a6a64;font-size:13px">Or set their Status to Approved in the access sheet. To ignore the request, do nothing.</p></div>',
+      '<p>' + button_(actionUrl_('approve', email), 'Approve and send PIN', EMAIL_ACTIONS.approve.color) + ' &nbsp; ' +
+      button_(actionUrl_('decline', email), 'Decline', EMAIL_ACTIONS.decline.color) + '</p>' +
+      '<p style="color:#7a6a64;font-size:13px">Each button opens a page where you confirm. To decide later, keep this email.</p></div>',
   });
+}
+
+const BY_WORDS = { 'auto-approve': 'automatically', 'email button': 'from the request email', menu: 'from the sheet menu', sheet: 'in the access sheet' };
+
+/** After every new approval: tells the people on Notify emails, with a Revoke button. */
+function notifyApproved_(email, name, company, by) {
+  const to = String(setting_('Notify emails', '')).trim();
+  if (!to) return;
+  const site = setting_('Site name', 'MarketCap');
+  mail_({
+    to: to,
+    name: setting_('Sender name', site),
+    subject: 'Plans access given: ' + (name || email),
+    htmlBody:
+      '<div style="font:16px/1.5 Helvetica,Arial,sans-serif;color:#260b07">' +
+      '<p><b>' + escape_(name || '(no name)') + '</b>' + (company ? ' · ' + escape_(company) : '') + '<br>' + escape_(email) + '</p>' +
+      '<p>Can now see the development plans (approved ' + escape_(BY_WORDS[by] || 'by ' + by) + '). Their PIN has been emailed to them.</p>' +
+      '<p>' + button_(actionUrl_('revoke', email), 'Revoke access', EMAIL_ACTIONS.revoke.color) + '</p>' +
+      '<p style="color:#7a6a64;font-size:13px">Keep this email: the button works at any time and opens a page where you confirm.</p></div>',
+  });
+}
+
+function actionUrl_(action, email) {
+  return ScriptApp.getService().getUrl() + '?a=' + action + '&e=' + encodeURIComponent(email) + '&s=' + encodeURIComponent(sign_(action + ':' + email));
+}
+
+function button_(url, label, color) {
+  return '<a href="' + escape_(url) + '" style="display:inline-block;background:' + color + ';color:#fff;padding:12px 22px;text-decoration:none;border-radius:2px">' + escape_(label) + '</a>';
 }
 
 /* ---------- helpers ---------- */
@@ -302,6 +423,8 @@ function setting_(name, fallback) {
   const hit = rows.find((r) => String(r[0]).trim() === name);
   return hit && hit[1] !== '' ? hit[1] : fallback;
 }
+
+function tellDeclined_() { return setting_('Email declined visitors', 'Yes') === 'Yes'; }
 
 function newPin_() {
   let pin;
@@ -349,5 +472,25 @@ function escape_(s) { return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;'
 function json_(obj) { return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON); }
 function page_(title, text) {
   return HtmlService.createHtmlOutput('<div style="font:18px/1.5 Helvetica,Arial,sans-serif;color:#260b07;max-width:32em;margin:12vh auto;padding:0 24px">' +
-    '<h1 style="font-weight:500">' + escape_(title) + '</h1><p>' + escape_(text) + '</p></div>').setTitle(title);
+    '<h1 style="font-weight:500">' + escape_(title) + '</h1><p>' + escape_(text) + '</p></div>').setTitle(title)
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+/** The page an email button opens: what will happen, and one button that does it. */
+function confirmPage_(action, text, args) {
+  const data = JSON.stringify(args).replace(/</g, '\\u003c');
+  return HtmlService.createHtmlOutput(
+    '<div id="box" style="font:18px/1.5 Helvetica,Arial,sans-serif;color:#260b07;max-width:32em;margin:12vh auto;padding:0 24px">' +
+    '<h1 id="title" style="font-weight:500">' + escape_(action.title) + '</h1><p id="text">' + escape_(text) + '</p>' +
+    '<p><button id="go" type="button" style="font:inherit;font-size:16px;background:' + action.color + ';color:#fff;border:0;padding:12px 22px;border-radius:2px;cursor:pointer">' +
+    escape_(action.button) + '</button></p></div>' +
+    '<script>var args = ' + data + ';' +
+    'var go = document.getElementById("go");' +
+    'function show(r) { document.getElementById("title").textContent = r.title; document.getElementById("text").textContent = r.text; go.parentNode.remove(); }' +
+    'go.addEventListener("click", function () {' +
+    '  go.disabled = true; go.textContent = "One moment…";' +
+    '  google.script.run.withSuccessHandler(show)' +
+    '    .withFailureHandler(function () { show({ title: "Something went wrong", text: "This may not have gone through. Open the button in the email again: the page shows where things stand." }); })' +
+    '    .confirmAction(args.a, args.e, args.s);' +
+    '});</script>').setTitle(action.title).addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }

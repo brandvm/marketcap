@@ -10,17 +10,27 @@ sends PINs and logs everything. The website module is
 | Who | Does | What happens |
 | --- | --- | --- |
 | Visitor with a PIN | Enters email + 4-digit PIN | Plans unlock. The device stays signed in for 30 days (Settings › Days signed in). Every later view is checked again and logged. |
-| Visitor without a PIN | Clicks "Request a PIN", enters name, email, company | Row added to **Access** as *Pending*; the client gets an email with an **Approve and send PIN** button. |
-| Client | Presses **Approve** in that email, or sets Status to *Approved* in the sheet | A PIN is generated and emailed to the visitor. |
+| Visitor without a PIN | Clicks "Request a PIN", enters name, email, company | Row added to **Access** as *Pending*; the client gets an email with **Approve and send PIN** and **Decline** buttons. |
+| Client | Presses **Approve** in that email and confirms (or sets Status to *Approved* in the sheet) | A PIN is generated and emailed to the visitor. The client gets an "access given" email with a **Revoke access** button. |
+| Client | Presses **Decline** in that email and confirms (or sets Status to *Declined*) | The visitor gets a short, polite email saying the request wasn't approved (Settings › Email declined visitors = No keeps them uninformed). Asking again doesn't email the client again. |
 | Visitor who forgot the PIN | Requests again with the same email | If approved, the PIN is emailed again automatically. |
-| Client | Sets Status to *Revoked* | The PIN stops working, and remembered devices are locked on their next view. |
+| Client | Presses **Revoke access** in the "access given" email and confirms (or sets Status to *Revoked*) | The PIN stops working, and remembered devices are locked on their next view. |
+
+**The client never has to open the sheet:** every decision is a button in
+an email. Each button opens a page that says what will happen and has one
+confirm button; nothing changes until that is pressed. Company mail
+systems (Outlook Safe Links, Mimecast) open every link in an email to scan
+it, so a button that acted on open could approve someone by itself. The
+links are signed per email and action, so they can't be edited to target
+someone else, and they keep working, so the "access given" email can be
+kept for a later revoke.
 
 With **Settings › Auto-approve = Yes**, every request is approved at once and
 the client does nothing at all.
 
 **Log tab:** one row per event, with time, event, email, page title, page URL,
 detail and device. Events: `request`, `request_again`, `approved`,
-`pin_sent`, `pin_resent`, `login`, `login_failed` (detail: wrong PIN / no
+`pin_sent`, `pin_resent`, `declined`, `decline_sent`, `login`, `login_failed` (detail: wrong PIN / no
 access / pending / revoked), `login_locked` (5 wrong PINs → 15-minute
 lock), `view` (a remembered device opened the plans), `view_denied`,
 `revoked`, `error`.
@@ -48,13 +58,33 @@ account can send about 100 a day, Google Workspace about 1,500.
 5. In the **Settings** tab, check:
    - **Notify emails:** who receives the requests;
    - **Auto-approve;**
+   - **Email declined visitors** (Yes: a declined visitor gets a polite email);
    - **Site name**, **Sender name**, **Days signed in.**
 6. In Webflow, on the development template, select the Plans section and
    set the custom attribute `data-gate-endpoint` to the Web app URL.
    Publish.
 
 After changing `Code.gs` later: **Deploy › Manage deployments › edit ›
-Version: New version**, so the same URL keeps working.
+Version: New version**, so the same URL keeps working. Then run **setup**
+once more: it adds new settings and Status values and keeps your data.
+
+## Moving it to the client's Google account
+
+The PIN emails, the edit trigger and the web app URL belong to the
+account that ran setup and deployed, so the client's account has to do
+both once. Moving the sheet's ownership is not enough.
+
+1. Keep a template sheet with the script in your own account. Send the
+   client its link with `/edit` replaced by `/copy`: they see one
+   **Make a copy** button, and the copy carries the script.
+2. On a short screen share, in their copy: **Plans access › Run setup**
+   (the menu appears after a reload), then **Allow** on Google's
+   permission screen. Google shows "unverified app" for a private
+   script: **Advanced › Go to … (unsafe)** is expected.
+3. **Extensions › Apps Script › Deploy › New deployment › Web app**
+   (Execute as Me, access Anyone). Copy the URL.
+4. Set `data-gate-endpoint` in Webflow to the new URL and publish.
+   Requests from then on email the client; the old sheet stops getting any.
 
 Reload the sheet after setup: a **Plans access** menu appears, with Approve /
 Email PIN again / Revoke for the selected rows.
