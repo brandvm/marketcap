@@ -1,10 +1,9 @@
 # Session report: 2026-11-23
 
-The Claude Code sessions listed below were archived on 2026-11-23 to keep the Claude app responsive. This file records where each one left off, so a new session can pick up the work.
+The Claude Code sessions listed below were archived and then deleted on 2026-11-23 to keep the Claude app responsive. This file records where each one left off, so a new session can pick up the work.
 
 Read this with `HANDOFF.md` (the project brief and its Status section). If something here conflicts with `HANDOFF.md`, `HANDOFF.md` and the git history are more current.
 
-To reopen a session, go to the Claude app's sidebar → Archived, or use the session link while the app is installed.
 
 ## Open items
 
@@ -26,7 +25,7 @@ Latest commits on the default branch:
 ### Repo currency check
 
 - **Active:** 2026-11-09 → 2026-11-09 10:52
-- **Session:** [local_701c860e-ebf0-40ba-9fad-a9ad9ce2fbed](claude://claude.ai/epitaxy/local_701c860e-ebf0-40ba-9fad-a9ad9ce2fbed) (archived)
+- **Session:** `local_701c860e-ebf0-40ba-9fad-a9ad9ce2fbed` (deleted 2026-11-23)
 - **Started with:** "Is the repo here upto date?"
 - **Where it ended:** The new Apps Script URL works and setup has run.
 - **Recent progress:**
